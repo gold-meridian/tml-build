@@ -15,4 +15,9 @@ A LOT OF WAYS:
 - lets you package your images as PNGs rather than tML's "RawImg" format (PNG is better; trust me),
 - much easier CI integration (no more annoying boilerplate to download the tModLoader developer environment),
 - easily supports NuGet dependencies without needing to copy references yourself,
-- probably a lot more? 
+- facilitates SANE and NORMAL project structures and ENCOURAGES you to use multiple projects,
+- probably a lot more?
+
+## license
+
+Source code is licensed under AGPL 3.0; your projects do not need to be under the same license to to use this package (unless you replicate code). See [LICENSE] for more details.
