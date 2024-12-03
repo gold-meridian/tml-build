@@ -15,6 +15,7 @@ A LOT OF WAYS:
 - lets you package your images as PNGs rather than tML's "RawImg" format (PNG is better; trust me),
 - much easier CI integration (no more annoying boilerplate to download the tModLoader developer environment),
 - easily supports NuGet dependencies without needing to copy references yourself,
+- easily reference existing mods in your project by including their workshop IDs,
 - facilitates SANE and NORMAL project structures and ENCOURAGES you to use multiple projects,
 - probably a lot more?
 
