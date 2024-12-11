@@ -25,4 +25,4 @@ See: [FEATURES.md](FEATURES.md).
 
 ## license
 
-Source code is licensed under AGPL 3.0; your projects do not need to be under the same license to to use this package (unless you replicate code). See [LICENSE](LICENSE) for more details.
+Source code is licensed under AGPL 3.0; your projects do not need to be under the same license to use this package (unless you replicate code). See [LICENSE](LICENSE) for more details.
