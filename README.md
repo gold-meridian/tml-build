@@ -19,6 +19,10 @@ A LOT OF WAYS:
 - facilitates SANE and NORMAL project structures and ENCOURAGES you to use multiple projects,
 - probably a lot more?
 
+### ok... but what do these MEAN?
+
+See: [FEATURES.md](FEATURES.md).
+
 ## license
 
 Source code is licensed under AGPL 3.0; your projects do not need to be under the same license to to use this package (unless you replicate code). See [LICENSE](LICENSE) for more details.
