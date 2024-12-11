@@ -86,6 +86,11 @@ var assemblies = new List<PackagedAssembly>();
     foreach (var assemblyDir in Directory.EnumerateDirectories(libDir, "*", SearchOption.TopDirectoryOnly))
     {
         var name = Path.GetFileName(assemblyDir);
+        if (name == "Native")
+        {
+            // Skip Native directory with native dependencies.
+            continue;
+        }
 
         var dlls = Directory.EnumerateFiles(assemblyDir, "*.dll", SearchOption.AllDirectories).ToList();
 
@@ -175,7 +180,7 @@ var process = Process.Start(
     new ProcessStartInfo
     {
         FileName               = "dotnet",
-        Arguments              = "pack src/Tomat.Terraria.ModLoader/Tomat.Terraria.ModLoader.csproj -c Release -o ",
+        Arguments              = "pack src/Tomat.Terraria.ModLoader/Tomat.Terraria.ModLoader.csproj -c Release",
         RedirectStandardOutput = true,
         RedirectStandardError  = true,
         UseShellExecute        = false,
