@@ -1,4 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<!--<Project Sdk="Microsoft.NET.Sdk">-->
+<Project>
+    <Import Project="C:/Users/stephen/Documents/GitHub/tml-build/src/Tomat.Terraria.ModLoader.Sdk/Sdk/Sdk.props"/>
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -9,5 +11,6 @@
     <ItemGroup>
         <PackageReference Include="Tomat.Terraria.ModLoader" Version="*"/>
     </ItemGroup>
-
+    
+    <Import Project="C:/Users/stephen/Documents/GitHub/tml-build/src/Tomat.Terraria.ModLoader.Sdk/Sdk/Sdk.targets"/>
 </Project>
