@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Tomat.Terraria.ModLoader" Version="2024.10.3"/>
+        <PackageReference Include="Tomat.Terraria.ModLoader" Version="*"/>
     </ItemGroup>
 
 </Project>
