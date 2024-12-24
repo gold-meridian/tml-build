@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 using Octokit;
 
@@ -59,6 +62,59 @@ public static class ModLoaderVersionManager
         DevPath   = Platform.GetSteamGamePath("tModLoaderDev");
     }
 
+    public static bool IsVersionKnown(ModLoaderVersion version)
+    {
+        return Cache.GitHubReleases.Any(x => x.Version == version);
+    }
+
+    public static bool IsVersionCached(ModLoaderVersion version)
+    {
+        return Directory.Exists(GetVersionDirectory(version));
+    }
+
+    public static async Task DownloadVersion(ModLoaderVersion version)
+    {
+        if (IsVersionCached(version))
+        {
+            return;
+        }
+
+        if (!IsVersionKnown(version))
+        {
+            throw new ArgumentException($"Version '{version}' is not known.");
+        }
+
+        var release  = Cache.GitHubReleases.First(x => x.Version == version);
+        var tempFile = Path.GetTempFileName();
+        {
+            using var client = new HttpClient();
+            using var stream = await client.GetStreamAsync(release.DownloadUrl);
+            using var file   = File.Create(tempFile);
+            await stream.CopyToAsync(file);
+        }
+
+        ZipFile.ExtractToDirectory(tempFile, GetVersionDirectory(version));
+        File.Delete(tempFile);
+    }
+
+    public static bool TryParseVersion(string text, out ModLoaderVersion version)
+    {
+        text = text.TrimStart('v');
+        if (Version.TryParse(text, out var sysVersion))
+        {
+            version = new ModLoaderVersion(sysVersion.Major, sysVersion.Minor, sysVersion.Build, sysVersion.Revision);
+            return true;
+        }
+
+        version = default(ModLoaderVersion);
+        return false;
+    }
+
+    private static string GetVersionDirectory(ModLoaderVersion version)
+    {
+        return Path.Combine(Platform.GetAppDir(), version.ToString());
+    }
+
     private static VersionCache ResolveVersions()
     {
         var gh = new GitHubClient(
@@ -93,12 +149,12 @@ public static class ModLoaderVersionManager
 
         if (!TryParseVersion(stable.TagName, out var stableVersion))
         {
-            stableVersion = new ModLoaderVersion(0, 0, 0, 0);
+            stableVersion = ModLoaderVersion.UNKNOWN;
         }
 
         if (!TryParseVersion(preview.TagName, out var previewVersion))
         {
-            previewVersion = new ModLoaderVersion(0, 0, 0, 0);
+            previewVersion = ModLoaderVersion.UNKNOWN;
         }
 
         return new VersionCache(
@@ -198,18 +254,5 @@ public static class ModLoaderVersionManager
             stableVersion,
             previewVersion
         );
-    }
-
-    private static bool TryParseVersion(string text, out ModLoaderVersion version)
-    {
-        text = text.TrimStart('v');
-        if (Version.TryParse(text, out var sysVersion))
-        {
-            version = new ModLoaderVersion(sysVersion.Major, sysVersion.Minor, sysVersion.Build, sysVersion.Revision);
-            return true;
-        }
-
-        version = default(ModLoaderVersion);
-        return false;
     }
 }

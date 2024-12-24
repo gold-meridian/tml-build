@@ -16,6 +16,8 @@ public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, 
     private static readonly Lazy<ModLoaderVersion> stable_lazy  = new();
     private static readonly Lazy<ModLoaderVersion> preview_lazy = new();
 
+    public static readonly ModLoaderVersion UNKNOWN = new(0, 0, 0, 0);
+
     public static ModLoaderVersion Steam => steam_lazy.Value;
 
     public static ModLoaderVersion Dev => dev_lazy.Value;

@@ -9,7 +9,7 @@ using Tomat.TML.Build.Common;
 
 namespace Tomat.TML.Build.Cli.Commands;
 
-[Command("version-info")]
+[Command("version info")]
 public class VersionInfoCommand : ICommand
 {
     async ValueTask ICommand.ExecuteAsync(IConsole console)
