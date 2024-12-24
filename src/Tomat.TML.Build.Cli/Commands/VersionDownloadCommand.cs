@@ -9,14 +9,11 @@ using Tomat.TML.Build.Common;
 
 namespace Tomat.TML.Build.Cli.Commands;
 
-[Command("version download")]
+[Command("version download", Description = "Downloads the specified tModLoader version")]
 public class VersionDownloadCommand : ICommand
 {
     [CommandParameter(0, IsRequired = true)]
     public string Version { get; set; } = string.Empty;
-
-    [CommandOption("check", 'c', Description = "Simply checks if the version is downloaded")]
-    public bool CheckDownloaded { get; set; }
 
     async ValueTask ICommand.ExecuteAsync(IConsole console)
     {
@@ -31,21 +28,6 @@ public class VersionDownloadCommand : ICommand
         {
             await console.Error.WriteLineAsync("Version is not known.");
             Environment.ExitCode = 1;
-            return;
-        }
-
-        if (CheckDownloaded)
-        {
-            if (ModLoaderVersionManager.IsVersionCached(version))
-            {
-                await console.Output.WriteLineAsync("Version is downloaded.");
-                Environment.ExitCode = 0;
-            }
-            else
-            {
-                await console.Output.WriteLineAsync("Version is not downloaded.");
-                Environment.ExitCode = 1;
-            }
             return;
         }
 

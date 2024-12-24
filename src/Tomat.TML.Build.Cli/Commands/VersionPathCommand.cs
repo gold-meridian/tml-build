@@ -9,7 +9,7 @@ using Tomat.TML.Build.Common;
 
 namespace Tomat.TML.Build.Cli.Commands;
 
-[Command("version path")]
+[Command("version path", Description = "Returns the path to the specified tModLoader version")]
 public class VersionPathCommand : ICommand
 {
     [CommandParameter(0, IsRequired = true)]
