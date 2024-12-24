@@ -97,19 +97,6 @@ public static class ModLoaderVersionManager
         File.Delete(tempFile);
     }
 
-    public static bool TryParseVersion(string text, out ModLoaderVersion version)
-    {
-        text = text.TrimStart('v');
-        if (Version.TryParse(text, out var sysVersion))
-        {
-            version = new ModLoaderVersion(sysVersion.Major, sysVersion.Minor, sysVersion.Build, sysVersion.Revision);
-            return true;
-        }
-
-        version = default(ModLoaderVersion);
-        return false;
-    }
-
     private static string GetVersionDirectory(ModLoaderVersion version)
     {
         return Path.Combine(Platform.GetAppDir(), version.ToString());
@@ -134,7 +121,7 @@ public static class ModLoaderVersionManager
         var gitHubReleases = new List<GitHubRelease>(releases.Length);
         foreach (var release in releases)
         {
-            if (!TryParseVersion(release.TagName, out var version))
+            if (!ModLoaderVersion.TryParse(release.TagName, out var version))
             {
                 continue;
             }
@@ -147,12 +134,12 @@ public static class ModLoaderVersionManager
             gitHubReleases.Add(new GitHubRelease(version, asset.BrowserDownloadUrl));
         }
 
-        if (!TryParseVersion(stable.TagName, out var stableVersion))
+        if (!ModLoaderVersion.TryParse(stable.TagName, out var stableVersion))
         {
             stableVersion = ModLoaderVersion.UNKNOWN;
         }
 
-        if (!TryParseVersion(preview.TagName, out var previewVersion))
+        if (!ModLoaderVersion.TryParse(preview.TagName, out var previewVersion))
         {
             previewVersion = ModLoaderVersion.UNKNOWN;
         }

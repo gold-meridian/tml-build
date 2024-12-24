@@ -19,7 +19,7 @@ public class VersionDownloadCommand : ICommand
 
     async ValueTask ICommand.ExecuteAsync(IConsole console)
     {
-        if (!ModLoaderVersionManager.TryParseVersion(Version, out var version))
+        if (!ModLoaderVersion.TryParse(Version, out var version))
         {
             await console.Error.WriteLineAsync("Invalid version format.");
             return;

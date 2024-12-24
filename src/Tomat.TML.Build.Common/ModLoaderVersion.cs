@@ -31,6 +31,19 @@ public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, 
         return $"{Major}.{Minor}.{Patch}.{Build}";
     }
 
+    public static bool TryParse(string text, out ModLoaderVersion version)
+    {
+        text = text.TrimStart('v');
+        if (Version.TryParse(text, out var sysVersion))
+        {
+            version = new ModLoaderVersion(sysVersion.Major, sysVersion.Minor, sysVersion.Build, sysVersion.Revision);
+            return true;
+        }
+
+        version = default(ModLoaderVersion);
+        return false;
+    }
+
 #region Comparison
     public int CompareTo(ModLoaderVersion other)
     {
