@@ -5,6 +5,9 @@
         <TargetFramework>net9.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+
+        <AssemblyName>tml-build</AssemblyName>
+        <RootNamespace>Tomat.TML.Build.Cli</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
