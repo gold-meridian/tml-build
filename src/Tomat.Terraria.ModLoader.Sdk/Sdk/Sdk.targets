@@ -1,19 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <!-- TODO: Resolve Steam location, etc. for debugging the game. -->
-
     <PropertyGroup>
-        <!-- Unnecessay, but kept for """parity""". -->
-        <PlatformTarget>AnyCPU</PlatformTarget>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <!-- Reference our tML binaries. -->
-    <ItemGroup>
-        <PackageReference Include="Tomat.Terraria.ModLoader" Version="*"/>
-    </ItemGroup>
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>
