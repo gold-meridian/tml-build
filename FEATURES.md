@@ -8,7 +8,7 @@ It actually uses [MSBuild](https://en.wikipedia.org/wiki/MSBuild) instead of a m
 
 This means you can actually use the latest features including modern C# language versions, source generators, etc. without issue.
 
-Additionaklly:
+Additionally:
 
 - it makes it easier to handle multiple versions of tModLoader and building from CI environments,
 - it's easier to develop multiple mods at once from a single solution file.
