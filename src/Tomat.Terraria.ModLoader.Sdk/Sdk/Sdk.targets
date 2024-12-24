@@ -24,4 +24,7 @@
         <AdditionalFiles Remove="bin/**"/>
         <AdditionalFiles Remove="obj/**"/>
     </ItemGroup>
+
+    <!-- Override tML-provided BuildMod target since we implement our own. -->
+    <Target Name="BuildMod"/>
 </Project>
