@@ -11,20 +11,14 @@ namespace Tomat.TML.Build.Common;
 /// <param name="Build"></param>
 public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, int Build) : IComparable<ModLoaderVersion>
 {
-    private static readonly Lazy<ModLoaderVersion> steam_lazy   = new();
-    private static readonly Lazy<ModLoaderVersion> dev_lazy     = new();
     private static readonly Lazy<ModLoaderVersion> stable_lazy  = new();
     private static readonly Lazy<ModLoaderVersion> preview_lazy = new();
 
     public static readonly ModLoaderVersion UNKNOWN = new(0, 0, 0, 0);
 
-    public static ModLoaderVersion Steam => steam_lazy.Value;
+    public static ModLoaderVersion Stable => ModLoaderVersionManager.Cache.StableVersion;
 
-    public static ModLoaderVersion Dev => dev_lazy.Value;
-
-    public static ModLoaderVersion Stable => stable_lazy.Value;
-
-    public static ModLoaderVersion Preview => preview_lazy.Value;
+    public static ModLoaderVersion Preview => ModLoaderVersionManager.Cache.PreviewVersion;
 
     public override string ToString()
     {

@@ -87,9 +87,9 @@ public static class ModLoaderVersionManager
         var release  = Cache.GitHubReleases.First(x => x.Version == version);
         var tempFile = Path.GetTempFileName();
         {
-            using var client = new HttpClient();
-            using var stream = await client.GetStreamAsync(release.DownloadUrl);
-            using var file   = File.Create(tempFile);
+            using var       client = new HttpClient();
+            await using var stream = await client.GetStreamAsync(release.DownloadUrl);
+            await using var file   = File.Create(tempFile);
             await stream.CopyToAsync(file);
         }
 
@@ -97,7 +97,7 @@ public static class ModLoaderVersionManager
         File.Delete(tempFile);
     }
 
-    private static string GetVersionDirectory(ModLoaderVersion version)
+    public static string GetVersionDirectory(ModLoaderVersion version)
     {
         return Path.Combine(Platform.GetAppDir(), version.ToString());
     }

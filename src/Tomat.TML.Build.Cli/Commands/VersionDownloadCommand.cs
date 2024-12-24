@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 using CliFx;
@@ -22,12 +23,14 @@ public class VersionDownloadCommand : ICommand
         if (!ModLoaderVersion.TryParse(Version, out var version))
         {
             await console.Error.WriteLineAsync("Invalid version format.");
+            Environment.ExitCode = 1;
             return;
         }
 
         if (!ModLoaderVersionManager.IsVersionKnown(version))
         {
             await console.Error.WriteLineAsync("Version is not known.");
+            Environment.ExitCode = 1;
             return;
         }
 
@@ -36,10 +39,12 @@ public class VersionDownloadCommand : ICommand
             if (ModLoaderVersionManager.IsVersionCached(version))
             {
                 await console.Output.WriteLineAsync("Version is downloaded.");
+                Environment.ExitCode = 0;
             }
             else
             {
                 await console.Output.WriteLineAsync("Version is not downloaded.");
+                Environment.ExitCode = 1;
             }
             return;
         }
