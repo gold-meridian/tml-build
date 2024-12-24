@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.Build.Common", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.Build.Cli", "Tomat.TML.Build.Cli\Tomat.TML.Build.Cli.csproj", "{6A32D57B-9E02-4BF0-96FC-54BAE32902F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.Terraria.ModLoader.Tasks", "Tomat.Terraria.ModLoader.Tasks\Tomat.Terraria.ModLoader.Tasks.csproj", "{CFA3BCD4-82CE-4DB5-906B-BADE6E24F16B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,9 +36,5 @@ Global
 		{6A32D57B-9E02-4BF0-96FC-54BAE32902F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A32D57B-9E02-4BF0-96FC-54BAE32902F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A32D57B-9E02-4BF0-96FC-54BAE32902F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CFA3BCD4-82CE-4DB5-906B-BADE6E24F16B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CFA3BCD4-82CE-4DB5-906B-BADE6E24F16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CFA3BCD4-82CE-4DB5-906B-BADE6E24F16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CFA3BCD4-82CE-4DB5-906B-BADE6E24F16B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
