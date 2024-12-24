@@ -1,10 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- Default settings for mods and related projects. -->
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <!-- Relevant default settings for TML.Build -->
+    <PropertyGroup>
+        <TMLTargetsPath Condition="'$(TMLTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TMLTargetsPath>
+        <TMLBuildBinaryPath Condition="'$(TMLBuildBinaryPath)' == ''">tml-build</TMLBuildBinaryPath>
+        <TMLVersion Condition="'$(TMLVersion)' == ''">stable</TMLVersion>
+    </PropertyGroup>
+
+    <Import Project="$(TMLTargetsPath)"/>
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>
@@ -18,4 +28,5 @@
 
     <!-- Override tML-provided BuildMod target since we implement our own. -->
     <Target Name="BuildMod"/>
+
 </Project>
