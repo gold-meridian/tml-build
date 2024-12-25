@@ -32,7 +32,7 @@ public static class ModLoaderVersionManager
         ModLoaderVersion    PreviewVersion
     );
 
-    public static VersionCache Cache { get; }
+    public static VersionCache Cache { get; private set; }
 
     public static string? SteamPath { get; }
 
@@ -60,6 +60,23 @@ public static class ModLoaderVersionManager
 
         SteamPath = Platform.GetSteamGamePath("tModLoader");
         DevPath   = Platform.GetSteamGamePath("tModLoaderDev");
+    }
+
+    public static bool RefreshCache(bool forced)
+    {
+        if (!forced && DateTime.Now - Cache.LastUpdated < TimeSpan.FromDays(1))
+        {
+            return false;
+        }
+
+        var versionCacheFile = Path.Combine(Platform.GetAppDir(), "cached_versions");
+        if (File.Exists(versionCacheFile))
+        {
+            File.Delete(versionCacheFile);
+        }
+
+        WriteCache(Cache = ResolveVersions(), versionCacheFile);
+        return true;
     }
 
     public static bool IsVersionKnown(ModLoaderVersion version)
