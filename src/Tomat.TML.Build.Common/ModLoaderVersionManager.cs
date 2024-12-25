@@ -45,13 +45,8 @@ public static class ModLoaderVersionManager
         var versionCacheFile = Path.Combine(Platform.GetAppDir(), "cached_versions");
         if (File.Exists(versionCacheFile))
         {
+            // Just read it, it can be refreshed manually.
             Cache = ReadCache(versionCacheFile);
-
-            if (DateTime.Now - Cache.LastUpdated > TimeSpan.FromDays(1))
-            {
-                File.Delete(versionCacheFile);
-                WriteCache(Cache = ResolveVersions(), versionCacheFile);
-            }
         }
         else
         {
