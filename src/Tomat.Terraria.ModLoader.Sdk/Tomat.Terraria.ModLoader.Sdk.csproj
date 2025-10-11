@@ -26,6 +26,11 @@
     <ItemGroup>
         <None Include="Sdk\**" Pack="true" PackagePath="Sdk"/>
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk"/>
+
+        <!-- General patterns to remove already-included libraries.  Can
+             manually re-include them as needed. -->
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
     </ItemGroup>
 
     <ItemGroup>
