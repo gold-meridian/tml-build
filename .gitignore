@@ -7,6 +7,4 @@ obj/
 
 *.user
 
-tModLoader.zip
-tModLoader/
-src/Tomat.Terraria.ModLoader/build/lib/net8.0/
+.tml-build/
