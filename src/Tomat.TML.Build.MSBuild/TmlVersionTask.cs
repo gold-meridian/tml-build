@@ -9,13 +9,13 @@ namespace Tomat.TML.Build.MSBuild;
 public sealed class TmlVersionTask : Task
 {
     [Required]
-    public string TmlBuildPath { get; set; }
+    public required string TmlBuildPath { get; set; }
 
     [Required]
-    public string Version { get; set; }
+    public required string Version { get; set; }
 
     [Required]
-    public string TargetsPath { get; set; }
+    public required string TargetsPath { get; set; }
 
     public override bool Execute()
     {
