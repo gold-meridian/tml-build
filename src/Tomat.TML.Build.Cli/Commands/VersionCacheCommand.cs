@@ -1,10 +1,8 @@
 using System;
 using System.Threading.Tasks;
-
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
-
 using Tomat.TML.Build.Common;
 
 namespace Tomat.TML.Build.Cli.Commands;
@@ -14,7 +12,7 @@ public class VersionCacheCommand : ICommand
 {
     [CommandOption("force", 'f', Description = "Forces the cache to be refreshed")]
     public bool Forced { get; set; }
-    
+
     async ValueTask ICommand.ExecuteAsync(IConsole console)
     {
         if (ModLoaderVersionManager.RefreshCache(Forced))
