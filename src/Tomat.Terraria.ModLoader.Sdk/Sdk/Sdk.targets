@@ -5,7 +5,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        
+
         <!-- Configure tML to not use its default build settings; we do it
              ourselves -->
         <BuildMod>false</BuildMod>
@@ -32,15 +32,22 @@
         <!-- images -->
         <AdditionalFiles Include="**/*.rawimg"/> <!-- not included by tml -->
         <AdditionalFiles Include="**/*.png"/>
-        
+
         <!-- shaders (effects) -->
         <AdditionalFiles Include="**/*.hlsl"/> <!-- not included by tml -->
         <AdditionalFiles Include="**/*.fx"/>
-        
+
         <!-- remove any files that might pop up in build folders; tml names
              *.txt explicitly as a problem extension -->
         <AdditionalFiles Remove="bin/**"/>
         <AdditionalFiles Remove="obj/**"/>
+    </ItemGroup>
+
+    <!-- Additional useful references. -->
+    <ItemGroup>
+        <!-- No reason not to; useful for analyzers.  Would be nice to convince
+             TML to annotate their own assemblies! -->
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/>
     </ItemGroup>
 
     <!-- Override tML-provided BuildMod target since we implement our own.

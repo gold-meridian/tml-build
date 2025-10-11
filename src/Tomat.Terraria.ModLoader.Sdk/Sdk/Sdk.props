@@ -1,5 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <!-- Install the requested tML version before any processing occurs that
+         tries to use it. -->
     <UsingTask TaskName="TmlVersionTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
     <Target Name="ProcessTMLVersionBeforeReferencesAreResolved" BeforeTargets="ResolveReferences">
         <TmlVersionTask TMLBuildPath="$(TMLBuildBinaryPath)" Version="$(TMLVersion)" TargetsPath="$(TMLTargetsPath)"/>
