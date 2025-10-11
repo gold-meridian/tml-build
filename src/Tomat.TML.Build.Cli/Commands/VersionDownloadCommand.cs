@@ -44,14 +44,14 @@ public class VersionDownloadCommand : ICommand
                 break;
         }
 
-        if (!ModLoaderVersionManager.IsVersionKnown(version))
+        if (!VersionManager.IsVersionKnown(version))
         {
             await console.Error.WriteLineAsync($"Version ({version}) is not known.");
             Environment.ExitCode = 1;
             return;
         }
 
-        if (ModLoaderVersionManager.IsVersionCached(version))
+        if (VersionManager.IsVersionCached(version))
         {
             await console.Error.WriteLineAsync($"Version ({version}) is already downloaded.");
             Environment.ExitCode = 0;
@@ -61,7 +61,7 @@ public class VersionDownloadCommand : ICommand
         try
         {
             await console.Output.WriteLineAsync($"Downloading version ({version})...");
-            await ModLoaderVersionManager.DownloadVersion(version);
+            await VersionManager.DownloadVersion(version);
             await console.Output.WriteLineAsync($"Downloaded version ({version}).");
             Environment.ExitCode = 0;
         }

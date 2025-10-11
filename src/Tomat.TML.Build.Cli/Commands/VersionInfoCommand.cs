@@ -12,9 +12,9 @@ public class VersionInfoCommand : ICommand
 {
     async ValueTask ICommand.ExecuteAsync(IConsole console)
     {
-        var cache = ModLoaderVersionManager.Cache;
-        var steamPath = ModLoaderVersionManager.SteamPath;
-        var devPath = ModLoaderVersionManager.DevPath;
+        var cache = VersionManager.Cache;
+        var steamPath = VersionManager.SteamPath;
+        var devPath = VersionManager.DevPath;
 
         var lastUpdated = cache.LastUpdated;
         await console.Output.WriteLineAsync("Last Updated: " + lastUpdated + " (" + (DateTime.Now - lastUpdated) + " ago)");

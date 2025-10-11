@@ -94,13 +94,13 @@ public sealed class TmlVersionTask : Task
                 break;
         }
 
-        if (!ModLoaderVersionManager.IsVersionKnown(version))
+        if (!VersionManager.IsVersionKnown(version))
         {
             logger.LogError($"Unknown tModLoader version: {version}");
             return false;
         }
 
-        if (ModLoaderVersionManager.IsVersionCached(version))
+        if (VersionManager.IsVersionCached(version))
         {
             logger.LogMessage($"Version is already cached: {version}");
             return true;
@@ -109,7 +109,7 @@ public sealed class TmlVersionTask : Task
         try
         {
             logger.LogMessage($"Downloading version: {version}...");
-            ModLoaderVersionManager.DownloadVersion(version).GetAwaiter().GetResult();
+            VersionManager.DownloadVersion(version).GetAwaiter().GetResult();
             logger.LogMessage($"Downloaded version: {version}!");
             return true;
         }
@@ -135,22 +135,22 @@ public sealed class TmlVersionTask : Task
                 break;
 
             case "steam":
-                if (ModLoaderVersionManager.SteamPath is null)
+                if (VersionManager.SteamPath is null)
                 {
                     logger.LogError("Failed to get path to Steam version; not found (is it installed?).");
                     return null;
                 }
 
-                return ModLoaderVersionManager.SteamPath;
+                return VersionManager.SteamPath;
 
             case "dev":
-                if (ModLoaderVersionManager.DevPath is null)
+                if (VersionManager.DevPath is null)
                 {
                     logger.LogError("Failed to get path to Dev version; not found (have you built it?).");
                     return null;
                 }
 
-                return ModLoaderVersionManager.DevPath;
+                return VersionManager.DevPath;
 
             default:
                 if (!ModLoaderVersion.TryParse(tmlVersion, out version))
@@ -162,18 +162,18 @@ public sealed class TmlVersionTask : Task
                 break;
         }
 
-        if (!ModLoaderVersionManager.IsVersionKnown(version))
+        if (!VersionManager.IsVersionKnown(version))
         {
             logger.LogError($"Unknown tModLoader version: {version}");
             return null;
         }
 
-        if (!ModLoaderVersionManager.IsVersionCached(version))
+        if (!VersionManager.IsVersionCached(version))
         {
             logger.LogMessage($"Version is not installed (not cached): {version}");
             return null;
         }
 
-        return ModLoaderVersionManager.GetVersionDirectory(version);
+        return VersionManager.GetVersionDirectory(version);
     }
 }

@@ -16,9 +16,9 @@ public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, 
 
     public static readonly ModLoaderVersion UNKNOWN = new(0, 0, 0, 0);
 
-    public static ModLoaderVersion Stable => ModLoaderVersionManager.Cache.StableVersion;
+    public static ModLoaderVersion Stable => VersionManager.Cache.StableVersion;
 
-    public static ModLoaderVersion Preview => ModLoaderVersionManager.Cache.PreviewVersion;
+    public static ModLoaderVersion Preview => VersionManager.Cache.PreviewVersion;
 
     public override string ToString()
     {

@@ -15,9 +15,9 @@ namespace Tomat.TML.Build.Common;
 ///     Manages and records known tModLoader versions.  Can resolve and cache as
 ///     requested.
 /// </summary>
-public static class ModLoaderVersionManager
+public static class VersionManager
 {
-    static ModLoaderVersionManager()
+    static VersionManager()
     {
         Directory.CreateDirectory(Platform.GetAppDir());
 
@@ -104,7 +104,7 @@ public static class ModLoaderVersionManager
         var gh = new GitHubClient(
             new ProductHeaderValue(
                 "Tomat.TML.Build.Common",
-                typeof(ModLoaderVersionManager).Assembly.GetName().Version!.ToString()
+                typeof(VersionManager).Assembly.GetName().Version!.ToString()
             )
         );
 

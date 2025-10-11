@@ -28,26 +28,26 @@ public class VersionPathCommand : ICommand
                 break;
 
             case "steam":
-                if (ModLoaderVersionManager.SteamPath is null)
+                if (VersionManager.SteamPath is null)
                 {
                     await console.Error.WriteLineAsync("Steam path not found.");
                     Environment.ExitCode = 1;
                     return;
                 }
 
-                await console.Output.WriteLineAsync(ModLoaderVersionManager.SteamPath);
+                await console.Output.WriteLineAsync(VersionManager.SteamPath);
                 Environment.ExitCode = 0;
                 return;
 
             case "dev":
-                if (ModLoaderVersionManager.DevPath is null)
+                if (VersionManager.DevPath is null)
                 {
                     await console.Error.WriteLineAsync("Dev path not found.");
                     Environment.ExitCode = 1;
                     return;
                 }
 
-                await console.Output.WriteLineAsync(ModLoaderVersionManager.DevPath);
+                await console.Output.WriteLineAsync(VersionManager.DevPath);
                 Environment.ExitCode = 0;
                 return;
 
@@ -62,20 +62,20 @@ public class VersionPathCommand : ICommand
                 break;
         }
 
-        if (!ModLoaderVersionManager.IsVersionKnown(version))
+        if (!VersionManager.IsVersionKnown(version))
         {
             await console.Error.WriteLineAsync($"Version ({version}) is not known.");
             Environment.ExitCode = 1;
             return;
         }
 
-        if (!ModLoaderVersionManager.IsVersionCached(version))
+        if (!VersionManager.IsVersionCached(version))
         {
             await console.Error.WriteLineAsync($"Version ({version}) is not downloaded.");
             Environment.ExitCode = 1;
             return;
         }
 
-        await console.Output.WriteLineAsync(ModLoaderVersionManager.GetVersionDirectory(version));
+        await console.Output.WriteLineAsync(VersionManager.GetVersionDirectory(version));
     }
 }
