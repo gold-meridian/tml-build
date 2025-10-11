@@ -1,27 +1,63 @@
 # tml-build
 
-> awesome tmodloader build chain for awesome people
+> tModLoader mod development toolkit (SDK).
  
-**tml-build** is a collection of NuGet packages meant to integrate into MSBuild to make tModLoader mod development WAY easier.
+**tml-build** encompasses a CLI tool and MSBuild SDK which enable you to quickly and easily develop tModLoader mods.
 
-## but how?
+It reimplements the entire build toolchain, allowing for strong control over how your mod is built and packaged, as well as what tML version your mod targets.
 
-A LOT OF WAYS:
+## features
 
-- easily-referenceable assemblies that don't required hardcoded paths (`ModSources`),
-- configurable `.tmod` archive packaging (optimize for packing speeds, size, etc.),
-- access transformers to make slow reflection obsolete and to tell God that facts don't care about your feelings,
-- optional better `build.txt` format that lets you preview a [proposed TOML rework](https://github.com/tModLoader/tModLoader/issues/4170),
-- lets you package your images as PNGs rather than tML's "RawImg" format (PNG is better; trust me),
-- much easier CI integration (no more annoying boilerplate to download the tModLoader developer environment),
-- easily supports NuGet dependencies without needing to copy references yourself,
-- easily reference existing mods in your project by including their workshop IDs,
-- facilitates SANE and NORMAL project structures and ENCOURAGES you to use multiple projects,
-- probably a lot more?
+> See: [FEATURES.md](FEATURES.md).
 
-### ok... but what do these MEAN?
+---
 
-See: [FEATURES.md](FEATURES.md).
+There are a lot, but here's a quick rundown:
+
+- [x] no need to place the mod in `ModSources`, it can resolve tModLoader from *anywhere*,
+- [x] easy version referencing,
+  - [x] reference locally-installed `steam` or `dev` version, as well as `stable`, `preview`, or a custom version (`x.y.z.w`),
+- [ ] configurable `.tmod` archive packaging,
+- [ ] built-in support for access transformers,
+- [ ] optional support for the [proposed TOML rework](https://github.com/tModLoader/tModLoader/issues/4170) to `build.txt`,
+- [ ] choose between packaging images as `.rawimg` or PNG (needs testing to see if it's at all worthwhile),
+- [x] much easier CI integration (no more boilerplate setup; the build system installs tML for you),
+- [ ] easily supports NuGet dependencies without needing to copy references yourself,
+- [ ] easily reference existing mods in your project by including their workshop IDs,
+- [ ] type-safe references to all sorts of assets,
+  - [ ] images,
+  - [ ] sounds,
+  - [ ] shaders (effects),
+  - [ ] and localization,
+- [and more!](FEATURES.md)
+
+## what does a project look like?
+
+Like this:
+
+```xml
+<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0" />
+```
+
+or maybe like this:
+
+```xml
+<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0">
+
+</Project>
+```
+
+and sometimes, even like this:
+
+```xml
+<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0">
+
+    <!-- TODO: Add example referencing other mods. -->
+
+</Project>
+```
+
+It's that simple; base configuration uses sane defaults that replicate tML.
 
 ## license
 
