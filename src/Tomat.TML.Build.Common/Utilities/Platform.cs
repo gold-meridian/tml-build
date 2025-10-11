@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
-namespace Tomat.TML.Build.Common.Util;
+namespace Tomat.TML.Build.Common.Utilities;
 
 /// <summary>
 ///     Platform abstractions.

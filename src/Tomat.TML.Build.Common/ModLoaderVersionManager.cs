@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Octokit;
-using Tomat.TML.Build.Common.Util;
+using Tomat.TML.Build.Common.Utilities;
 using FileMode = System.IO.FileMode;
 
 namespace Tomat.TML.Build.Common;

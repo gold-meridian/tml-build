@@ -1,9 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Tomat.TML.Build.Common;
+using Tomat.TML.Build.Common.Shared;
 
 namespace Tomat.TML.Build.MSBuild;
 
@@ -23,13 +22,13 @@ public sealed class TmlVersionTask : Task
         Log.LogMessage("Using tML version (unparsed): {0}", Version);
 
         // check if the process exited with a non-zero exit code
-        if (!DownloadVersion(Version, Log))
+        if (!VersionExecution.DownloadVersion(Version, new Logger(Log)))
         {
             Log.LogError($"Failed to download requested tML version in task, aborting: {Version}");
             return false;
         }
 
-        if (GetPath(Version, Log) is not { } path)
+        if (VersionExecution.GetVersionPath(Version, new Logger(Log)) is not { } path)
         {
             Log.LogError("Failed to get the path of tML version {0}.", Version);
             return false;
@@ -63,117 +62,5 @@ public sealed class TmlVersionTask : Task
         );
 
         return true;
-    }
-
-    private static bool DownloadVersion(string tmlVersion, TaskLoggingHelper logger)
-    {
-        ModLoaderVersion version;
-
-        switch (tmlVersion.ToLowerInvariant())
-        {
-            case "stable":
-                version = ModLoaderVersion.Stable;
-                break;
-
-            case "preview":
-                version = ModLoaderVersion.Preview;
-                break;
-
-            case "steam":
-            case "dev":
-                // Don't download anything, but these versions are valid.
-                return true;
-
-            default:
-                if (!ModLoaderVersion.TryParse(tmlVersion, out version))
-                {
-                    logger.LogError($"Invalid version format: {tmlVersion}");
-                    return false;
-                }
-
-                break;
-        }
-
-        if (!VersionManager.IsVersionKnown(version))
-        {
-            logger.LogError($"Unknown tModLoader version: {version}");
-            return false;
-        }
-
-        if (VersionManager.IsVersionCached(version))
-        {
-            logger.LogMessage($"Version is already cached: {version}");
-            return true;
-        }
-
-        try
-        {
-            logger.LogMessage($"Downloading version: {version}...");
-            VersionManager.DownloadVersion(version).GetAwaiter().GetResult();
-            logger.LogMessage($"Downloaded version: {version}!");
-            return true;
-        }
-        catch (Exception e)
-        {
-            logger.LogError($"Failed to download version: {version}\n{e}");
-            return false;
-        }
-    }
-
-    private static string? GetPath(string tmlVersion, TaskLoggingHelper logger)
-    {
-        ModLoaderVersion version;
-
-        switch (tmlVersion.ToLowerInvariant())
-        {
-            case "stable":
-                version = ModLoaderVersion.Stable;
-                break;
-
-            case "preview":
-                version = ModLoaderVersion.Preview;
-                break;
-
-            case "steam":
-                if (VersionManager.SteamPath is null)
-                {
-                    logger.LogError("Failed to get path to Steam version; not found (is it installed?).");
-                    return null;
-                }
-
-                return VersionManager.SteamPath;
-
-            case "dev":
-                if (VersionManager.DevPath is null)
-                {
-                    logger.LogError("Failed to get path to Dev version; not found (have you built it?).");
-                    return null;
-                }
-
-                return VersionManager.DevPath;
-
-            default:
-                if (!ModLoaderVersion.TryParse(tmlVersion, out version))
-                {
-                    logger.LogError($"Invalid version format: {version}");
-                    return null;
-                }
-
-                break;
-        }
-
-        if (!VersionManager.IsVersionKnown(version))
-        {
-            logger.LogError($"Unknown tModLoader version: {version}");
-            return null;
-        }
-
-        if (!VersionManager.IsVersionCached(version))
-        {
-            logger.LogMessage($"Version is not installed (not cached): {version}");
-            return null;
-        }
-
-        return VersionManager.GetVersionDirectory(version);
     }
 }
