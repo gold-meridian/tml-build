@@ -11,7 +11,7 @@ namespace Tomat.TML.Build.Common;
 /// <param name="Build"></param>
 public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, int Build) : IComparable<ModLoaderVersion>
 {
-    private static readonly Lazy<ModLoaderVersion> stable_lazy  = new();
+    private static readonly Lazy<ModLoaderVersion> stable_lazy = new();
     private static readonly Lazy<ModLoaderVersion> preview_lazy = new();
 
     public static readonly ModLoaderVersion UNKNOWN = new(0, 0, 0, 0);

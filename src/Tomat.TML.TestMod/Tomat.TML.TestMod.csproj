@@ -1,7 +1,3 @@
 ﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0">
 
-    <PropertyGroup>
-        <TMLBuildBinaryPath>C:\Users\stephen\Documents\GitHub\tml-build\src\Tomat.TML.Build.Cli\bin\Debug\net9.0\tml-build.exe</TMLBuildBinaryPath>
-    </PropertyGroup>
-
 </Project>

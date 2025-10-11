@@ -1,4 +1,5 @@
 <Project>
+    <!--
     <UsingTask TaskName="TMLVersionTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
             <TMLBuildPath ParameterType="System.String" Required="true"/>
@@ -66,4 +67,5 @@ $@"<Project>
             </Code>
         </Task>
     </UsingTask>
+    -->
 </Project>

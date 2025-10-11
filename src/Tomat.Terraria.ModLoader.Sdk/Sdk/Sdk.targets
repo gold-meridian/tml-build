@@ -14,7 +14,7 @@
         <TMLVersion Condition="'$(TMLVersion)' == ''">stable</TMLVersion>
     </PropertyGroup>
 
-    <Import Project="$(TMLTargetsPath)"/>
+    <!-- <Import Project="$(TMLTargetsPath)"/> -->
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>

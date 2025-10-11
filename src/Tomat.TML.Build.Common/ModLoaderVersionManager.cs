@@ -5,11 +5,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-
 using Octokit;
-
 using Tomat.TML.Build.Common.Util;
-
 using FileMode = System.IO.FileMode;
 
 namespace Tomat.TML.Build.Common;
@@ -22,14 +19,14 @@ public static class ModLoaderVersionManager
 {
     public readonly record struct GitHubRelease(
         ModLoaderVersion Version,
-        string           DownloadUrl
+        string DownloadUrl
     );
 
     public readonly record struct VersionCache(
-        DateTime            LastUpdated,
+        DateTime LastUpdated,
         List<GitHubRelease> GitHubReleases,
-        ModLoaderVersion    StableVersion,
-        ModLoaderVersion    PreviewVersion
+        ModLoaderVersion StableVersion,
+        ModLoaderVersion PreviewVersion
     );
 
     public static VersionCache Cache { get; private set; }
@@ -54,7 +51,7 @@ public static class ModLoaderVersionManager
         }
 
         SteamPath = Platform.GetSteamGamePath("tModLoader");
-        DevPath   = Platform.GetSteamGamePath("tModLoaderDev");
+        DevPath = Platform.GetSteamGamePath("tModLoaderDev");
     }
 
     public static bool RefreshCache(bool forced)
@@ -96,12 +93,12 @@ public static class ModLoaderVersionManager
             throw new ArgumentException($"Version '{version}' is not known.");
         }
 
-        var release  = Cache.GitHubReleases.First(x => x.Version == version);
+        var release = Cache.GitHubReleases.First(x => x.Version == version);
         var tempFile = Path.GetTempFileName();
         {
-            using var       client = new HttpClient();
-            await using var stream = await client.GetStreamAsync(release.DownloadUrl);
-            await using var file   = File.Create(tempFile);
+            using var client = new HttpClient();
+            using var stream = await client.GetStreamAsync(release.DownloadUrl);
+            using var file = File.Create(tempFile);
             await stream.CopyToAsync(file);
         }
 
@@ -127,7 +124,7 @@ public static class ModLoaderVersionManager
                          .OrderByDescending(x => x.CreatedAt)
                          .ToArray();
 
-        var stable  = releases.First(x => !x.Prerelease);
+        var stable = releases.First(x => !x.Prerelease);
         var preview = releases.First(x => x.Prerelease);
 
         var gitHubReleases = new List<GitHubRelease>(releases.Length);

@@ -1,8 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <Import Project="Tasks/TMLVersionTask.targets"/>
+    <UsingTask TaskName="TmlVersionTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll" />
     <Target Name="ProcessTMLVersionBeforeReferencesAreResolved" BeforeTargets="ResolveReferences">
-        <TMLVersionTask TMLBuildPath="$(TMLBuildBinaryPath)" Version="$(TMLVersion)" TargetsPath="$(TMLTargetsPath)"/>
+        <TmlVersionTask TMLBuildPath="$(TMLBuildBinaryPath)" Version="$(TMLVersion)" TargetsPath="$(TMLTargetsPath)"/>
     </Target>
 
 </Project>
