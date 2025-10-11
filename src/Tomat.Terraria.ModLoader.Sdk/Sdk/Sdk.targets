@@ -5,9 +5,13 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+        
+        <!-- Configure tML to not use its default build settings; we do it
+             ourselves -->
+        <BuildMod>false</BuildMod>
     </PropertyGroup>
 
-    <!-- Relevant default settings for TML.Build -->
+    <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
         <TMLTargetsPath Condition="'$(TMLTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TMLTargetsPath>
         <TMLBuildBinaryPath Condition="'$(TMLBuildBinaryPath)' == ''">tml-build</TMLBuildBinaryPath>
@@ -18,15 +22,30 @@
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>
+        <!-- localization -->
+        <!-- previously .lang -->
         <AdditionalFiles Include="**/*.hjson"/>
+
+        <!-- build.txt -->
         <AdditionalFiles Include="**/*.txt"/>
+
+        <!-- images -->
+        <AdditionalFiles Include="**/*.rawimg"/> <!-- not included by tml -->
         <AdditionalFiles Include="**/*.png"/>
+        
+        <!-- shaders (effects) -->
+        <AdditionalFiles Include="**/*.hlsl"/> <!-- not included by tml -->
         <AdditionalFiles Include="**/*.fx"/>
+        
+        <!-- remove any files that might pop up in build folders; tml names
+             *.txt explicitly as a problem extension -->
         <AdditionalFiles Remove="bin/**"/>
         <AdditionalFiles Remove="obj/**"/>
     </ItemGroup>
 
-    <!-- Override tML-provided BuildMod target since we implement our own. -->
+    <!-- Override tML-provided BuildMod target since we implement our own.
+         This is now covered by the BuildMod property, but let's keep this to
+         account for older versions. -->
     <Target Name="BuildMod"/>
 
 </Project>
