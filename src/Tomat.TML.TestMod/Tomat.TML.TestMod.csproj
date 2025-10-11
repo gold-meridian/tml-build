@@ -1,10 +1,7 @@
-﻿<!--<Project Sdk="Microsoft.NET.Sdk">-->
-<Project>
-    <Import Project="C:/Users/stephen/Documents/GitHub/tml-build/src/Tomat.Terraria.ModLoader.Sdk/Sdk/Sdk.props"/>
+﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0">
 
     <PropertyGroup>
         <TMLBuildBinaryPath>C:\Users\stephen\Documents\GitHub\tml-build\src\Tomat.TML.Build.Cli\bin\Debug\net9.0\tml-build.exe</TMLBuildBinaryPath>
     </PropertyGroup>
 
-    <Import Project="C:/Users/stephen/Documents/GitHub/tml-build/src/Tomat.Terraria.ModLoader.Sdk/Sdk/Sdk.targets"/>
 </Project>

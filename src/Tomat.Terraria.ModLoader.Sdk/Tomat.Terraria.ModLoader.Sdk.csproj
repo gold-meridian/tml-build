@@ -1,12 +1,28 @@
 ﻿<Project Sdk="Microsoft.Build.NoTargets">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Description>Provides a tModLoader developer environment</Description>
-        <PackageTags>terraria tmodloader</PackageTags>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <Description>Provides a tModLoader mod development environment</Description>
+        <Authors>tomat</Authors>
+
+        <PackageId>Tomat.Terraria.ModLoader.Sdk</PackageId>
+        <Version>1.0.0</Version>
+        <PackageVersion>1.0.0</PackageVersion>
+        <RepositoryUrl>https://github.com/gold-meridian/tml-build</RepositoryUrl>
         <PackageType>MSBuildSdk</PackageType>
+        <PackageTags>MSBuildSdk terraria tmodloader</PackageTags>
+        <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
         <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="Sdk\Sdk.props" Pack="true" PackagePath="Sdk"/>
+        <None Include="Sdk\Sdk.targets" Pack="true" PackagePath="Sdk"/>
+    </ItemGroup>
 
 </Project>
