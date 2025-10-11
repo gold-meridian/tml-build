@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-
 using CliFx;
 
 namespace Tomat.TML.Build.Cli;

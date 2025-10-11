@@ -17,24 +17,6 @@ namespace Tomat.TML.Build.Common;
 /// </summary>
 public static class ModLoaderVersionManager
 {
-    public readonly record struct GitHubRelease(
-        ModLoaderVersion Version,
-        string DownloadUrl
-    );
-
-    public readonly record struct VersionCache(
-        DateTime LastUpdated,
-        List<GitHubRelease> GitHubReleases,
-        ModLoaderVersion StableVersion,
-        ModLoaderVersion PreviewVersion
-    );
-
-    public static VersionCache Cache { get; private set; }
-
-    public static string? SteamPath { get; }
-
-    public static string? DevPath { get; }
-
     static ModLoaderVersionManager()
     {
         Directory.CreateDirectory(Platform.GetAppDir());
@@ -53,6 +35,12 @@ public static class ModLoaderVersionManager
         SteamPath = Platform.GetSteamGamePath("tModLoader");
         DevPath = Platform.GetSteamGamePath("tModLoaderDev");
     }
+
+    public static VersionCache Cache { get; private set; }
+
+    public static string? SteamPath { get; }
+
+    public static string? DevPath { get; }
 
     public static bool RefreshCache(bool forced)
     {
@@ -251,4 +239,16 @@ public static class ModLoaderVersionManager
             previewVersion
         );
     }
+
+    public readonly record struct GitHubRelease(
+        ModLoaderVersion Version,
+        string DownloadUrl
+    );
+
+    public readonly record struct VersionCache(
+        DateTime LastUpdated,
+        List<GitHubRelease> GitHubReleases,
+        ModLoaderVersion StableVersion,
+        ModLoaderVersion PreviewVersion
+    );
 }

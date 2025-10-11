@@ -1,10 +1,8 @@
 using System;
 using System.Threading.Tasks;
-
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
-
 using Tomat.TML.Build.Common;
 
 namespace Tomat.TML.Build.Cli.Commands;
@@ -60,6 +58,7 @@ public class VersionPathCommand : ICommand
                     Environment.ExitCode = 1;
                     return;
                 }
+
                 break;
         }
 
