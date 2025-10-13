@@ -64,11 +64,32 @@ public static class CPreprocessor
 
         var latest = File.GetLastWriteTimeUtc(filePath);
 
-        // Very naive attempt at resolving imports:
-        // - does not handle cases for #include's path is on another line,
-        // - probably does not handle path traversal incredibly well,
-        // - does not support angle-bracket syntax (unsure if HLSL supports this
-        //   at all)
+        // Very naive attempt at resolving imports, certainly does not handle
+        // all cases.
+        // TODO: Attempt to improve correctness of parsing #include statements?
+        // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-appendix-pre-include
+        //
+        // "": 1. in the same directory as the file that contains the #include
+        //        directive.
+        //     2. in the directories of any files that contain a #include
+        //        directive for the file that contains the #include directive.
+        //     3. in paths specified by the /I compiler option, in the order in
+        //        which they are listed.
+        //     4. in paths specified by the INCLUDE environment variable, in the
+        //        order in which they are listed.
+        // <>: 1. in paths specified by the /I compiler option, in the order in
+        //        which they are listed.
+        //     2. in paths specified by the INCLUDE environment variable, in the
+        //        order in which they are listed.
+        //
+        // NOTE: The INCLUDE environment variable is ignored in an development
+        //       environment. Refer to your development environment's
+        //       documentation for information about how to set the include
+        //       paths for your project.
+        //
+        // The above is not directrly implementable since we do not have the
+        // compiler context, but we can do our best to match the behavior that
+        // is replicable.
         var lines = File.ReadAllLines(filePath);
         var baseDir = Path.GetDirectoryName(filePath) ?? string.Empty;
 
