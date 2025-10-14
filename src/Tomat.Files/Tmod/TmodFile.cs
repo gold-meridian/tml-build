@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.IO.Compression;
 
 namespace Tomat.Files.Tmod;
@@ -26,7 +24,7 @@ public sealed class TmodFile
         );
     }
 
-    internal readonly record struct Entry(
+    public readonly record struct Entry(
         byte[] Data,
         int UncompressedLength
     )
@@ -40,7 +38,7 @@ public sealed class TmodFile
 
     public required string ModVersion { get; set; }
 
-    internal readonly Dictionary<string, Entry> Files = [];
+    public Dictionary<string, Entry> Files { get; } = [];
 
     public bool HasFile(string fileName)
     {
@@ -81,11 +79,6 @@ public sealed class TmodFile
                 && !fileName.EndsWith(".mp3")
                 && !fileName.EndsWith(".ogg");
         }
-    }
-
-    public IEnumerable<string> GetEntries()
-    {
-        return Files.Keys;
     }
 
     public ReadOnlyTmodFile AsReadOnly()
