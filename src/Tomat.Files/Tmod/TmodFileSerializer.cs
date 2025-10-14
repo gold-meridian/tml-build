@@ -186,12 +186,13 @@ public static class TmodFileSerializer
     }
 
 #region Compression
-    public static bool Decompress(byte[] compressedBytes, byte[] bytes)
+    public static byte[] Decompress(byte[] compressedBytes)
     {
-        using var ms = new MemoryStream(compressedBytes);
-        using var ds = new DeflateStream(ms, CompressionMode.Decompress);
-
-        return ds.Read(bytes, 0, bytes.Length) == bytes.Length;
+        using var ms = new MemoryStream();
+        using var cs = new MemoryStream(compressedBytes);
+        using var ds = new DeflateStream(cs, CompressionMode.Decompress);
+        ds.CopyTo(ms);
+        return ms.ToArray();
     }
 
     // https://github.com/dotnet/runtime/blob/1d1bf92fcf43aa6981804dc53c5174445069c9e4/src/libraries/System.IO.Compression/src/System/IO/Compression/DeflateZLib/DeflateStream.cs#L69
@@ -199,10 +200,11 @@ public static class TmodFileSerializer
     // default.
     public static byte[] Compress(byte[] bytes, CompressionLevel level = CompressionLevel.Optimal)
     {
-        using var ms = new MemoryStream(bytes.Length);
-        using var ds = new DeflateStream(ms, level);
-        ds.Write(bytes, 0, bytes.Length);
-        return ms.ToArray();
+        using var ms = new MemoryStream(bytes);
+        using var cs = new MemoryStream();
+        using var ds = new DeflateStream(cs, level);
+        ms.CopyTo(ds);
+        return cs.ToArray();
     }
 #endregion
 }

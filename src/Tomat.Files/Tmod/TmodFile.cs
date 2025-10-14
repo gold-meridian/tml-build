@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 
 namespace Tomat.Files.Tmod;
@@ -83,7 +84,9 @@ public sealed class TmodFile
 
     public ReadOnlyTmodFile AsReadOnly()
     {
-        throw new NotImplementedException();
+        using var ms = new MemoryStream();
+        TmodFileSerializer.Write(ms, this);
+        return TmodFileSerializer.Read(ms);
     }
 
     internal static string SanitizePath(string path)

@@ -28,7 +28,7 @@ public readonly struct ReadOnlyTmodFile : IDisposable
 
     private readonly Stream seekableStream;
     private readonly Stream readableStream;
-    
+
     private readonly Dictionary<string, Entry> entries;
     private readonly Dictionary<string, byte[]> entryByteCache = [];
 
@@ -85,12 +85,7 @@ public readonly struct ReadOnlyTmodFile : IDisposable
                 throw new IOException($"Failed to read compressed bytes for entry: {fileName}");
             }
 
-            if (!TmodFileSerializer.Decompress(compressedBytes, bytes))
-            {
-                throw new IOException($"Failed to decompress bytes for entry: {fileName}");
-            }
-
-            return entryByteCache[fileName] = bytes;
+            return entryByteCache[fileName] = TmodFileSerializer.Decompress(compressedBytes);
         }
 
         if (readableStream.Read(bytes, 0, entry.UncompressedLength) != entry.UncompressedLength)
@@ -116,7 +111,29 @@ public readonly struct ReadOnlyTmodFile : IDisposable
 
     public TmodFile AsMutable()
     {
-        throw new NotImplementedException();
+        var file = new TmodFile
+        {
+            ModLoaderVersion = ModLoaderVersion,
+            ModName = ModName,
+            ModVersion = ModVersion,
+        };
+
+        foreach (var kvp in entries)
+        {
+            var path = kvp.Key;
+            var entry = kvp.Value;
+
+            if (!TryGetFile(path, out var bytes))
+            {
+                // TODO
+                throw new Exception();
+            }
+
+            // Directly copy the data over, skip AddFile.
+            file.Files[path] = new TmodFile.Entry(bytes, entry.UncompressedLength);
+        }
+
+        return file;
     }
 
     public void Dispose()
