@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.IO.Compression;
 
 namespace Tomat.Files.Tmod;
 
@@ -9,14 +11,19 @@ namespace Tomat.Files.Tmod;
 ///     <see cref="ReadOnlyTmodFile"/> and designed to be used in constructing
 ///     new <c>.tmod</c> files.
 /// </summary>
-public sealed class TmodFile : ITmodFile
+public sealed class TmodFile
 {
     public readonly record struct FileOptions(
-        uint MinCompressionSize = 1 << 10, // 1 KiB
-        float CompressionTradeoff = 0.9f
+        uint MinCompressionSize,
+        float CompressionTradeoff,
+        CompressionLevel CompressionLevel
     )
     {
-        public static readonly FileOptions DEFAULT = new();
+        public static readonly FileOptions DEFAULT_COMPRESSION = new(
+            MinCompressionSize: 1 << 10, // 1 KiB
+            CompressionTradeoff: 0.9f,
+            CompressionLevel: CompressionLevel.Optimal
+        );
     }
 
     public required string ModLoaderVersion { get; set; }
@@ -29,27 +36,48 @@ public sealed class TmodFile : ITmodFile
 
     public bool HasFile(string fileName)
     {
+        fileName = SanitizePath(fileName);
+
         return files.ContainsKey(fileName);
     }
 
-    public byte[]? GetFile(string fileName)
+    public void AddFile(
+        string fileName,
+        byte[] fileBytes,
+        FileOptions? fileOptions = null
+    )
     {
-        return files.TryGetValue(fileName, out var bytes) ? bytes : null;
-    }
+        fileName = SanitizePath(fileName);
+        fileOptions ??= FileOptions.DEFAULT_COMPRESSION;
 
-    public bool TryGetFile(string fileName, [NotNullWhen(true)] out byte[]? fileBytes)
-    {
-        return files.TryGetValue(fileName, out fileBytes);
-    }
+        var fileSize = fileBytes.Length;
+        if (fileSize > fileOptions.Value.MinCompressionSize && ShouldCompress(fileName))
+        {
+            var compressedBytes = TmodFileSerializer.Compress(fileBytes, fileOptions.Value.CompressionLevel);
+            if (compressedBytes.Length < fileSize * fileOptions.Value.CompressionTradeoff)
+            {
+                fileBytes = compressedBytes;
+            }
+        }
 
-    public void AddFile(string fileName, byte[] fileBytes)
-    {
-        AddFile(fileName, fileBytes)
+        // TODO: Check if it's overwriting?
+        files[fileName] = fileBytes;
+
+        return;
+
+        static bool ShouldCompress(string fileName)
+        {
+            // We can definitely add more, tML is lacking.  These are for files
+            // that include compression in their spec.
+            return !fileName.EndsWith(".png")
+                && !fileName.EndsWith(".mp3")
+                && !fileName.EndsWith(".ogg");
+        }
     }
 
     public IEnumerable<string> GetEntries()
     {
-        throw new NotImplementedException();
+        return files.Keys;
     }
 
     public ReadOnlyTmodFile AsReadOnly()
@@ -57,5 +85,11 @@ public sealed class TmodFile : ITmodFile
         throw new NotImplementedException();
     }
 
-    public void Dispose() { }
+    internal static string SanitizePath(string path)
+    {
+        // - Trim whitespace,
+        // - normalize path separators to '/',
+        // - trim leading and trailing path separators.
+        return path.Trim().Replace('\\', '/').Trim('/');
+    }
 }

@@ -10,7 +10,7 @@ namespace Tomat.Files.Tmod;
 ///     A read-only <c>.tmod</c> file, providing APIs for serialization and
 ///     deserialization.
 /// </summary>
-public readonly struct ReadOnlyTmodFile : ITmodFile
+public readonly struct ReadOnlyTmodFile
 {
     private readonly record struct Entry(
         int CompressedLength,
@@ -21,30 +21,15 @@ public readonly struct ReadOnlyTmodFile : ITmodFile
         public bool IsCompressed => UncompressedLength != CompressedLength;
     }
 
-    public string ModLoaderVersion
-    {
-        get => modLoaderVersion;
-        set => throw new InvalidOperationException();
-    }
+    public string ModLoaderVersion { get; init; }
 
-    public string ModName
-    {
-        get => modName;
-        set => throw new InvalidOperationException();
-    }
+    public string ModName { get; init; }
 
-    public string ModVersion
-    {
-        get => modVersion;
-        set => throw new InvalidOperationException();
-    }
+    public string ModVersion { get; init; }
 
     private readonly Stream seekableStream;
     private readonly Stream readableStream;
-
-    private readonly string modLoaderVersion;
-    private readonly string modName;
-    private readonly string modVersion;
+    
     private readonly Dictionary<string, Entry> entries;
     private readonly Dictionary<string, byte[]> entryByteCache = [];
 
@@ -59,19 +44,23 @@ public readonly struct ReadOnlyTmodFile : ITmodFile
     {
         this.seekableStream = seekableStream;
         this.readableStream = readableStream;
-        this.modLoaderVersion = modLoaderVersion;
-        this.modName = modName;
-        this.modVersion = modVersion;
+        ModLoaderVersion = modLoaderVersion;
+        ModName = modName;
+        ModVersion = modVersion;
         this.entries = entries;
     }
 
     public bool HasFile(string fileName)
     {
+        fileName = TmodFile.SanitizePath(fileName);
+
         return entries.ContainsKey(fileName);
     }
 
     public byte[]? GetFile(string fileName)
     {
+        fileName = TmodFile.SanitizePath(fileName);
+
         if (!HasFile(fileName))
         {
             return null;
@@ -97,7 +86,7 @@ public readonly struct ReadOnlyTmodFile : ITmodFile
                 throw new IOException($"Failed to read compressed bytes for entry: {fileName}");
             }
 
-            if (!Decompress(compressedBytes, bytes))
+            if (!TmodFileSerializer.Decompress(compressedBytes, bytes))
             {
                 throw new IOException($"Failed to decompress bytes for entry: {fileName}");
             }
@@ -115,13 +104,10 @@ public readonly struct ReadOnlyTmodFile : ITmodFile
 
     public bool TryGetFile(string fileName, [NotNullWhen(returnValue: true)] out byte[]? fileBytes)
     {
+        fileName = TmodFile.SanitizePath(fileName);
+
         fileBytes = GetFile(fileName);
         return fileBytes is not null;
-    }
-
-    public void AddFile(string fileName, byte[] fileBytes)
-    {
-        throw new InvalidOperationException();
     }
 
     public IEnumerable<string> GetEntries()
@@ -129,30 +115,14 @@ public readonly struct ReadOnlyTmodFile : ITmodFile
         return entries.Keys;
     }
 
+    public TmodFile AsMutable()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Dispose()
     {
         // seekableStream.Dispose();
         readableStream.Dispose();
     }
-
-#region Compression
-    private static bool Decompress(byte[] compressedBytes, byte[] bytes)
-    {
-        using var ms = new MemoryStream(compressedBytes);
-        using var ds = new DeflateStream(ms, CompressionMode.Decompress);
-
-        return ds.Read(bytes, 0, bytes.Length) == bytes.Length;
-    }
-
-    // https://github.com/dotnet/runtime/blob/1d1bf92fcf43aa6981804dc53c5174445069c9e4/src/libraries/System.IO.Compression/src/System/IO/Compression/DeflateZLib/DeflateStream.cs#L69
-    // CompressionMode.Compress corresponds to CompressionLevel.Optimal by
-    // default.
-    private static byte[] Compress(byte[] bytes, CompressionLevel level = CompressionLevel.Optimal)
-    {
-        using var ms = new MemoryStream(bytes.Length);
-        using var ds = new DeflateStream(ms, level);
-        ds.Write(bytes, 0, bytes.Length);
-        return ms.ToArray();
-    }
-#endregion
 }
