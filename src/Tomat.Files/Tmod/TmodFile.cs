@@ -5,104 +5,84 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 
-// ReSharper disable IdentifierTypo
-
 namespace Tomat.Files.Tmod;
 
-public class TmodFile
+public sealed class TmodFile(
+    string path,
+    string name,
+    Version version,
+    Version modLoaderVersion
+)
 {
-    private const uint MinCompressSize = 1 << 10; //1KB
-    private const float CompressionTradeoff = 0.9f;
+    private const uint min_compress_size = 1 << 10; //1KB
+    private const float compression_tradeoff = 0.9f;
 
-    private static string Sanitize(string path) => path.Replace('\\', '/');
-
-    private readonly string _path;
-
-    private readonly ConcurrentBag<FileEntry> _files = new();
-
-    private Version ModLoaderVersion { get; }
-
-    private string Name { get; }
-
-    private Version Version { get; }
-
-    internal TmodFile(string path, string name, Version version, Version modLoaderVersion)
+    private static string Sanitize(string path)
     {
-        _path = path;
-        Name = name;
-        Version = version;
-        ModLoaderVersion = modLoaderVersion;
+        return path.Replace('\\', '/');
     }
 
-    /// <summary>
-    /// Adds a (fileName -> content) entry to the compressed payload
-    /// This method is not threadsafe with reads, but is threadsafe with multiple concurrent AddFile calls
-    /// </summary>
-    /// <param name="fileName">The internal filepath, will be slash sanitised automatically</param>
-    /// <param name="data">The file content to add. WARNING, data is kept as a shallow copy, so modifications to the passed byte array will affect file content</param>
-    internal void AddFile(string fileName, byte[] data)
+    private readonly ConcurrentBag<FileEntry> files = [];
+
+    public Version ModLoaderVersion { get; } = modLoaderVersion;
+
+    public string Name { get; } = name;
+
+    public Version Version { get; } = version;
+
+    public void AddFile(string fileName, byte[] data)
     {
         fileName = Sanitize(fileName);
-        int size = data.Length;
+        var size = data.Length;
 
-        if (size > MinCompressSize && ShouldCompress(fileName))
+        if (size > min_compress_size && ShouldCompress(fileName))
         {
             using var ms = new MemoryStream(data.Length);
             using (var ds = new DeflateStream(ms, CompressionMode.Compress))
                 ds.Write(data, 0, data.Length);
 
-            byte[] compressed = ms.ToArray();
-            if (compressed.Length < size * CompressionTradeoff)
+            var compressed = ms.ToArray();
+            if (compressed.Length < size * compression_tradeoff)
+            {
                 data = compressed;
+            }
         }
 
-        _files.Add(new FileEntry(fileName, -1, size, data.Length, data));
+        files.Add(new FileEntry(fileName, -1, size, data.Length, data));
     }
 
-    internal void Save()
+    public void Save()
     {
-        // write the general TMOD header and data blob
-        // TMOD ascii identifier
-        // tModLoader version
-        // hash
-        // signature
-        // data length
-        // signed data
-        Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-        using FileStream fileStream = File.Create(_path);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        using var fileStream = File.Create(path);
         using var writer = new BinaryWriter(fileStream);
 
         writer.Write(Encoding.ASCII.GetBytes("TMOD"));
         writer.Write(ModLoaderVersion.ToString());
 
-        int hashPos = (int)fileStream.Position;
-        writer.Write(new byte[20 + 256 + 4]); //hash, sig, data length
+        var hashPos = (int)fileStream.Position;
+        writer.Write(new byte[20 + 256 + 4]);
 
-        int dataPos = (int)fileStream.Position;
+        var dataPos = (int)fileStream.Position;
         writer.Write(Name);
         writer.Write(Version.ToString());
 
-        // write file table
-        // file count
-        // file-entries:
-        //   filename
-        //   uncompressed file size
-        //   compressed file size (stored size)
-        writer.Write(_files.Count);
+        writer.Write(files.Count);
 
-        foreach (var f in _files)
+        foreach (var f in files)
         {
             if (f.CompressedLength != f.cachedBytes.Length)
+            {
                 throw new Exception($"CompressedLength ({f.CompressedLength}) != cachedBytes.Length ({f.cachedBytes.Length}): {f.Name}");
+            }
 
             writer.Write(f.Name);
             writer.Write(f.Length);
             writer.Write(f.CompressedLength);
         }
 
-        // write compressed files and update offsets
-        int offset = (int)fileStream.Position; // offset starts at end of file table
-        foreach (var f in _files)
+        var offset = (int)fileStream.Position;
+        foreach (var f in files)
         {
             writer.Write(f.cachedBytes);
 
@@ -110,23 +90,21 @@ public class TmodFile
             offset += f.CompressedLength;
         }
 
-        // update hash
         fileStream.Position = dataPos;
-        byte[] hash = SHA1.Create().ComputeHash(fileStream);
+        var hash = SHA1.Create().ComputeHash(fileStream);
 
         fileStream.Position = hashPos;
         writer.Write(hash);
 
-        //skip signature
         fileStream.Seek(256, SeekOrigin.Current);
 
-        // write data length
         writer.Write((int)(fileStream.Length - dataPos));
     }
 
-    // Ignore file extensions which don't compress well under deflate to improve build time
-    private static bool ShouldCompress(string fileName) =>
-        !fileName.EndsWith(".png") &&
-        !fileName.EndsWith(".mp3") &&
-        !fileName.EndsWith(".ogg");
+    private static bool ShouldCompress(string fileName)
+    {
+        return !fileName.EndsWith(".png") &&
+               !fileName.EndsWith(".mp3") &&
+               !fileName.EndsWith(".ogg");
+    }
 }

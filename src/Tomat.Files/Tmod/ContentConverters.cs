@@ -30,20 +30,24 @@ public static class ContentConverters
 
     public static void ToRaw(Stream src, Stream dst)
     {
-        using Image<Rgba32> image = Image.Load<Rgba32>(src);
+        using var image = Image.Load<Rgba32>(src);
 
         using BinaryWriter writer = new(dst);
         writer.Write(Version);
         writer.Write(image.Width);
         writer.Write(image.Height);
 
-        for (int y = 0; y < image.Height; y++)
+        for (var y = 0; y < image.Height; y++)
         {
-            for (int x = 0; x < image.Width; x++)
+            for (var x = 0; x < image.Width; x++)
             {
-                Rgba32 color = image[x, y];
+                var color = image[x, y];
 
-                if (color.A == 0) color = new Rgba32(0, 0, 0, 0);
+                if (color.A == 0)
+                {
+                    color = new Rgba32(0, 0, 0, 0);
+                }
+
                 dst.WriteByte(color.R);
                 dst.WriteByte(color.G);
                 dst.WriteByte(color.B);

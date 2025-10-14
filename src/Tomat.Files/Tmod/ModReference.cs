@@ -2,22 +2,17 @@
 
 namespace Tomat.Files.Tmod;
 
-public class ModReference
+public readonly record struct ModReference(string Mod, Version? Target)
 {
-    public string mod;
-    public Version? target;
-
-    public ModReference(string mod, Version? target)
+    public override string ToString()
     {
-        this.mod = mod;
-        this.target = target;
+        return Target is null ? Mod : Mod + '@' + Target;
     }
-
-    public override string ToString() => target == null ? mod : mod + '@' + target;
 
     public static ModReference Parse(string spec)
     {
-        string[] split = spec.Split('@');
+        var split = spec.Split('@');
+
         switch (split.Length)
         {
             case 1:
