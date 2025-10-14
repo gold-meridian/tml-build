@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Tomat.TML.Build.Common.Shared;
 
-namespace Tomat.TML.Build.MSBuild;
+namespace Tomat.TML.Build.MSBuild.Tasks;
 
-public sealed class TmlVersionTask : Task
+public sealed class TmlVersionTask : BaseTask
 {
     [Required]
     public required string TmlBuildPath { get; set; }
@@ -17,7 +16,7 @@ public sealed class TmlVersionTask : Task
     [Required]
     public required string TargetsPath { get; set; }
 
-    public override bool Execute()
+    protected override bool Run()
     {
         Log.LogMessage("Using tML version (unparsed): {0}", Version);
 
