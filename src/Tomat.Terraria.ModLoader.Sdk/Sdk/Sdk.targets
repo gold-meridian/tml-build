@@ -14,7 +14,6 @@
     <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
         <TMLTargetsPath Condition="'$(TMLTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TMLTargetsPath>
-        <TMLBuildBinaryPath Condition="'$(TMLBuildBinaryPath)' == ''">tml-build</TMLBuildBinaryPath>
         <TMLVersion Condition="'$(TMLVersion)' == ''">stable</TMLVersion>
     </PropertyGroup>
 

@@ -8,9 +8,6 @@ namespace Tomat.TML.Build.MSBuild.Tasks;
 public sealed class TmlVersionTask : BaseTask
 {
     [Required]
-    public required string TmlBuildPath { get; set; }
-
-    [Required]
     public required string Version { get; set; }
 
     [Required]
