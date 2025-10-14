@@ -7,17 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Hjson" Version="3.0.0" />
-        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0"/>
-        <PackageReference Include="Octokit" Version="13.0.1"/>
         <PackageReference Include="PolySharp" Version="1.15.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Tomat.Files\Tomat.Files.csproj" />
+        <PackageReference Include="System.Memory" Version="4.6.3"/>
     </ItemGroup>
 
 </Project>
