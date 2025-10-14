@@ -6,7 +6,7 @@ namespace Tomat.Files.Tmod;
 
 public static class ContentConverters
 {
-    private const int Version = 1;
+    private const int rawimg_version = 1;
 
     public static bool Convert(ref string resourceName, FileStream src, MemoryStream dst)
     {
@@ -28,12 +28,12 @@ public static class ContentConverters
         }
     }
 
-    public static void ToRaw(Stream src, Stream dst)
+    private static void ToRaw(Stream src, Stream dst)
     {
         using var image = Image.Load<Rgba32>(src);
 
         using BinaryWriter writer = new(dst);
-        writer.Write(Version);
+        writer.Write(rawimg_version);
         writer.Write(image.Width);
         writer.Write(image.Height);
 
