@@ -26,19 +26,27 @@ public sealed class TmodFile
         );
     }
 
+    internal readonly record struct Entry(
+        byte[] Data,
+        int UncompressedLength
+    )
+    {
+        public int CompressedLength => Data.Length;
+    }
+
     public required string ModLoaderVersion { get; set; }
 
     public required string ModName { get; set; }
 
     public required string ModVersion { get; set; }
 
-    private readonly Dictionary<string, byte[]> files = [];
+    internal readonly Dictionary<string, Entry> Files = [];
 
     public bool HasFile(string fileName)
     {
         fileName = SanitizePath(fileName);
 
-        return files.ContainsKey(fileName);
+        return Files.ContainsKey(fileName);
     }
 
     public void AddFile(
@@ -61,7 +69,7 @@ public sealed class TmodFile
         }
 
         // TODO: Check if it's overwriting?
-        files[fileName] = fileBytes;
+        Files[fileName] = new Entry(fileBytes, fileSize);
 
         return;
 
@@ -77,7 +85,7 @@ public sealed class TmodFile
 
     public IEnumerable<string> GetEntries()
     {
-        return files.Keys;
+        return Files.Keys;
     }
 
     public ReadOnlyTmodFile AsReadOnly()

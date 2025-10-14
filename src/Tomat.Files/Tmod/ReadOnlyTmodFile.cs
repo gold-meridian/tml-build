@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.IO.Compression;
 
 namespace Tomat.Files.Tmod;
 
@@ -10,9 +9,9 @@ namespace Tomat.Files.Tmod;
 ///     A read-only <c>.tmod</c> file, providing APIs for serialization and
 ///     deserialization.
 /// </summary>
-public readonly struct ReadOnlyTmodFile
+public readonly struct ReadOnlyTmodFile : IDisposable
 {
-    private readonly record struct Entry(
+    internal readonly record struct Entry(
         int CompressedLength,
         int UncompressedLength,
         long StreamOffset
@@ -33,7 +32,7 @@ public readonly struct ReadOnlyTmodFile
     private readonly Dictionary<string, Entry> entries;
     private readonly Dictionary<string, byte[]> entryByteCache = [];
 
-    private ReadOnlyTmodFile(
+    internal ReadOnlyTmodFile(
         Stream seekableStream,
         Stream readableStream,
         string modLoaderVersion,
