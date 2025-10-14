@@ -104,6 +104,31 @@ public readonly struct ReadOnlyTmodFile : IDisposable
         return fileBytes is not null;
     }
 
+    private byte[] GetRawBytes(Entry entry)
+    {
+        seekableStream.Position = entry.StreamOffset;
+
+        var bytes = new byte[entry.UncompressedLength];
+
+        if (entry.IsCompressed)
+        {
+            var compressedBytes = new byte[entry.CompressedLength];
+            if (readableStream.Read(compressedBytes, 0, compressedBytes.Length) != compressedBytes.Length)
+            {
+                throw new IOException($"Failed to read compressed bytes for entry");
+            }
+
+            return bytes;
+        }
+
+        if (readableStream.Read(bytes, 0, entry.UncompressedLength) != entry.UncompressedLength)
+        {
+            throw new IOException($"Failed to read bytes for entry");
+        }
+
+        return bytes;
+    }
+
     public IEnumerable<string> GetEntries()
     {
         return entries.Keys;
@@ -123,14 +148,10 @@ public readonly struct ReadOnlyTmodFile : IDisposable
             var path = kvp.Key;
             var entry = kvp.Value;
 
-            if (!TryGetFile(path, out var bytes))
-            {
-                // TODO
-                throw new Exception();
-            }
+            var rawBytes = GetRawBytes(entry);
 
             // Directly copy the data over, skip AddFile.
-            file.Files[path] = new TmodFile.Entry(bytes, entry.UncompressedLength);
+            file.Files[path] = new TmodFile.Entry(rawBytes, entry.UncompressedLength);
         }
 
         return file;
