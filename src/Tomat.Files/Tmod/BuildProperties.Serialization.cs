@@ -20,8 +20,8 @@ partial class BuildProperties
             }
 
             var split = line.IndexOf('=');
-            var property = line.Substring(0, split).Trim();
-            var value = line.Substring(split + 1).Trim();
+            var property = line[..split].Trim();
+            var value = line[(split + 1)..].Trim();
             if (value.Length == 0)
             {
                 continue;

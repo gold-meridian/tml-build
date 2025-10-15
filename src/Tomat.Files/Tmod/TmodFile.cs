@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
@@ -71,9 +72,11 @@ public sealed class TmodFile(
 
         foreach (var f in files)
         {
-            if (f.CompressedLength != f.cachedBytes.Length)
+            Debug.Assert(f.CachedBytes is not null);
+
+            if (f.CompressedLength != f.CachedBytes?.Length)
             {
-                throw new Exception($"CompressedLength ({f.CompressedLength}) != cachedBytes.Length ({f.cachedBytes.Length}): {f.Name}");
+                throw new Exception($"CompressedLength ({f.CompressedLength}) != cachedBytes.Length ({f.CachedBytes?.Length}): {f.Name}");
             }
 
             writer.Write(f.Name);
@@ -84,7 +87,9 @@ public sealed class TmodFile(
         var offset = (int)fileStream.Position;
         foreach (var f in files)
         {
-            writer.Write(f.cachedBytes);
+            Debug.Assert(f.CachedBytes is not null);
+
+            writer.Write(f.CachedBytes ?? throw new IOException("Cannot write null bytes"));
 
             f.Offset = offset;
             offset += f.CompressedLength;
