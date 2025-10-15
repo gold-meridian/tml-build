@@ -34,7 +34,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Tomat.TML.Build.Common\Tomat.TML.Build.Common.csproj"/>
         <ProjectReference Include="..\Tomat.TML.Build.MSBuild\Tomat.TML.Build.MSBuild.csproj"/>
     </ItemGroup>
 
