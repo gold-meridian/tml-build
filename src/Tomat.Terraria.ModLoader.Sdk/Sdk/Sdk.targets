@@ -13,11 +13,11 @@
 
     <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
-        <TMLTargetsPath Condition="'$(TMLTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TMLTargetsPath>
-        <TMLVersion Condition="'$(TMLVersion)' == ''">stable</TMLVersion>
+        <TmlTargetsPath Condition="'$(TmlTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TmlTargetsPath>
+        <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
     </PropertyGroup>
 
-    <Import Project="$(TMLTargetsPath)"/>
+    <Import Project="$(TmlTargetsPath)"/>
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>
@@ -45,7 +45,7 @@
     <!-- Additional useful references. -->
     <ItemGroup>
         <!-- No reason not to; useful for analyzers.  Would be nice to convince
-             TML to annotate their own assemblies! -->
+             tML to annotate their own assemblies! -->
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/>
     </ItemGroup>
 

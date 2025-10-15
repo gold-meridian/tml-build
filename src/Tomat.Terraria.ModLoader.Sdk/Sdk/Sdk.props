@@ -4,7 +4,7 @@
          tries to use it. -->
     <UsingTask TaskName="TmlVersionTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
     <Target Name="ProcessTmlVersionBeforeReferencesAreResolved" BeforeTargets="ResolveReferences">
-        <TmlVersionTask Version="$(TMLVersion)" TargetsPath="$(TMLTargetsPath)"/>
+        <TmlVersionTask Version="$(TmlVersion)" TargetsPath="$(TmlTargetsPath)"/>
     </Target>
 
     <UsingTask TaskName="PackageModTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
