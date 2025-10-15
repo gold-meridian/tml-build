@@ -1,13 +1,11 @@
-﻿using System.Threading.Tasks;
-
-namespace Tomat.TML.Build.Common.Shared;
+﻿namespace Tomat.TML.Build.Common.Shared;
 
 /// <summary>
-///     Wraps an arbitrary logger implementation.
+///     Wrapper around a logger implementation to provide a consistent API.
 /// </summary>
 public interface ILogWrapper
 {
-    Task Info(string message);
+    void Info(string message);
 
-    Task Error(string message);
+    void Error(string message);
 }

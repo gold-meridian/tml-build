@@ -69,7 +69,7 @@ public static class VersionManager
         return Directory.Exists(GetVersionDirectory(version));
     }
 
-    public static async Task DownloadVersion(ModLoaderVersion version)
+    public static async Task DownloadVersionAsync(ModLoaderVersion version)
     {
         if (IsVersionCached(version))
         {

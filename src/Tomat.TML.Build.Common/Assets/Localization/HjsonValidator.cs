@@ -12,11 +12,11 @@ public static class HjsonValidator
     private static readonly Regex error_regex = new(@"(.*?) At line (.*?), column (.*?) \((.*?)\)", RegexOptions.Compiled);
 
     /// <summary>
-    ///     Gets the nearest HJSON parsing error in a file.
+    ///     Gets the first found HJSON parsing error.
     /// </summary>
     /// <param name="filePath">The file to parse for errors.</param>
     /// <returns>
-    ///     The nearest error, formatted richly for logging; or,
+    ///     The first error, formatted richly for logging; or,
     ///     <see langword="null"/>, if there are no errors.
     /// </returns>
     public static string? GetNearestErrorInHjsonFile(string filePath)

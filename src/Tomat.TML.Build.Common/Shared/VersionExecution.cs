@@ -27,7 +27,7 @@ public static class VersionExecution
             default:
                 if (!ModLoaderVersion.TryParse(tmlVersion, out version))
                 {
-                    await logger.Error($"Invalid version format: {tmlVersion}");
+                    logger.Error($"Invalid version format: {tmlVersion}");
                     return false;
                 }
 
@@ -36,26 +36,26 @@ public static class VersionExecution
 
         if (!VersionManager.IsVersionKnown(version))
         {
-            await logger.Error($"Unknown tModLoader version: {version}");
+            logger.Error($"Unknown tModLoader version: {version}");
             return false;
         }
 
         if (VersionManager.IsVersionCached(version))
         {
-            await logger.Info($"Version is already cached: {version}");
+            logger.Info($"Version is already cached: {version}");
             return true;
         }
 
         try
         {
-            await logger.Info($"Downloading version: {version}...");
-            VersionManager.DownloadVersion(version).GetAwaiter().GetResult();
-            await logger.Info($"Downloaded version: {version}!");
+            logger.Info($"Downloading version: {version}...");
+            await VersionManager.DownloadVersionAsync(version);
+            logger.Info($"Downloaded version: {version}!");
             return true;
         }
         catch (Exception e)
         {
-            await logger.Error($"Failed to download version: {version}\n{e}");
+            logger.Error($"Failed to download version: {version}\n{e}");
             return false;
         }
     }
@@ -65,7 +65,7 @@ public static class VersionExecution
         return DownloadVersionAsync(version, logger).GetAwaiter().GetResult();
     }
 
-    public static async Task<string?> GetVersionPathAsync(string tmlVersion, ILogWrapper logger)
+    public static string? GetVersionPath(string tmlVersion, ILogWrapper logger)
     {
         ModLoaderVersion version;
 
@@ -82,7 +82,7 @@ public static class VersionExecution
             case "steam":
                 if (VersionManager.SteamPath is null)
                 {
-                    await logger.Error("Failed to get path to Steam version; not found (is it installed?).");
+                    logger.Error("Failed to get path to Steam version; not found (is it installed?).");
                     return null;
                 }
 
@@ -91,7 +91,7 @@ public static class VersionExecution
             case "dev":
                 if (VersionManager.DevPath is null)
                 {
-                    await logger.Error("Failed to get path to Dev version; not found (have you built it?).");
+                    logger.Error("Failed to get path to Dev version; not found (have you built it?).");
                     return null;
                 }
 
@@ -100,7 +100,7 @@ public static class VersionExecution
             default:
                 if (!ModLoaderVersion.TryParse(tmlVersion, out version))
                 {
-                    await logger.Error($"Invalid version format: {version}");
+                    logger.Error($"Invalid version format: {version}");
                     return null;
                 }
 
@@ -109,21 +109,16 @@ public static class VersionExecution
 
         if (!VersionManager.IsVersionKnown(version))
         {
-            await logger.Error($"Unknown tModLoader version: {version}");
+            logger.Error($"Unknown tModLoader version: {version}");
             return null;
         }
 
         if (!VersionManager.IsVersionCached(version))
         {
-            await logger.Info($"Version is not installed (not cached): {version}");
+            logger.Info($"Version is not installed (not cached): {version}");
             return null;
         }
 
         return VersionManager.GetVersionDirectory(version);
-    }
-
-    public static string? GetVersionPath(string tmlVersion, ILogWrapper logger)
-    {
-        return GetVersionPathAsync(tmlVersion, logger).GetAwaiter().GetResult();
     }
 }
