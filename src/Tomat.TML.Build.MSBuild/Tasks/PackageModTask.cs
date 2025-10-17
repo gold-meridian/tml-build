@@ -218,7 +218,6 @@ public sealed class PackageModTask : BaseTask
 
     private BuildProperties GetModProperties(string filePath)
     {
-        System.Diagnostics.Debugger.Launch();
         var fileName = Path.GetFileName(filePath);
 
         if (fileName == "build.txt")
