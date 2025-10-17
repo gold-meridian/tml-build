@@ -22,10 +22,9 @@
         
         <ModDescriptionPath Condition="'$(ModDescriptionPath)' == ''">$(MSBuildProjectDirectory)\description.txt</ModDescriptionPath>
 
-        <!-- search for TML.Mod.toml, then build.txt -->
+        <!-- Prioritize TML.Mod.toml, but accept build.txt as a fallback. -->
         <ModBuildFilePath Condition="'$(ModBuildFilePath)' == '' And Exists('$(MSBuildProjectDirectory)\TML.Mod.toml')">$(MSBuildProjectDirectory)\TML.Mod.toml</ModBuildFilePath>
-        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == '' And Exists('$(MSBuildProjectDirectory)\build.txt')">$(MSBuildProjectDirectory)\build.txt</ModBuildFilePath>
-        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == ''">$(MSBuildProjectDirectory)\build.txt</ModBuildFilePath> <!-- TODO handle not found? -->
+        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == ''">$(MSBuildProjectDirectory)\build.txt</ModBuildFilePath>
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>
