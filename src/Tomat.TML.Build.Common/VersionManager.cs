@@ -24,8 +24,10 @@ public static class VersionManager
         var versionCacheFile = Path.Combine(Platform.GetAppDir(), "cached_versions");
         if (File.Exists(versionCacheFile))
         {
-            // Just read it, it can be refreshed manually.
             Cache = ReadCache(versionCacheFile);
+            
+            // Trigger a cache refresh every day, ideally.
+            RefreshCache(forced: false, cooldown: TimeSpan.FromDays(1));
         }
         else
         {
@@ -42,9 +44,9 @@ public static class VersionManager
 
     public static string? DevPath { get; }
 
-    public static bool RefreshCache(bool forced)
+    public static bool RefreshCache(bool forced, TimeSpan cooldown)
     {
-        if (!forced && DateTime.Now - Cache.LastUpdated < TimeSpan.FromDays(1))
+        if (!forced && DateTime.Now - Cache.LastUpdated < cooldown)
         {
             return false;
         }

@@ -13,8 +13,19 @@
 
     <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
+        <!-- OutputTmodPath may be specified to override default logic -->
         <TmlTargetsPath Condition="'$(TmlTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TmlTargetsPath>
         <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
+
+        <!-- OutputTmodPath may be specified to override default logic -->
+        <!-- <OutputTmodPath Condition="'$(OutputTmodPath)' == ''"></OutputTmodPath> -->
+        
+        <ModDescriptionPath Condition="'$(ModDescriptionPath)' == ''">$(MSBuildProjectDirectory)\description.txt</ModDescriptionPath>
+
+        <!-- search for TML.Mod.toml, then build.txt -->
+        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == '' And Exists('$(MSBuildProjectDirectory)\TML.Mod.toml')">$(MSBuildProjectDirectory)\TML.Mod.toml</ModBuildFilePath>
+        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == '' And Exists('$(MSBuildProjectDirectory)\build.txt')">$(MSBuildProjectDirectory)\build.txt</ModBuildFilePath>
+        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == ''">$(MSBuildProjectDirectory)\build.txt</ModBuildFilePath> <!-- TODO handle not found? -->
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>

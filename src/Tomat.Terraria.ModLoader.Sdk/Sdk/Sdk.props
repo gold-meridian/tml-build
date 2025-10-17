@@ -9,7 +9,18 @@
 
     <UsingTask TaskName="PackageModTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
     <Target Name="PackageMod" AfterTargets="Build">
-        <PackageModTask/>
+        <!-- all of these refs are TODO -->
+        <PackageModTask PackageReferences="@(PackageReferences)"
+                        ProjectReferences="@(_ResolvedProjectReferencePaths)"
+                        ReferencePaths="@(ModReference)"
+                        ModReferences="@(ReferencePath)"
+                        ProjectDirectory="$(MSBuildProjectDirectory)"
+                        OutputPath="$(OutputPath)"
+                        AssemblyName="$(AssemblyName)"
+                        TmlVersion="$(TmlVersion)"
+                        OutputTmodPath="$(OutputTmodPath)"
+                        BuildFilePath="$(ModBuildFilePath)"
+                        DescriptionFilePath="$(ModDescriptionPath)"/>
     </Target>
 
 </Project>

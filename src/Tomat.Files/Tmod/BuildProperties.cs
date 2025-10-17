@@ -50,7 +50,7 @@ public sealed partial class BuildProperties
 
     public bool TranslationMod { get; set; }
 
-    public string ModSource { get; set; }
+    public string ModSource { get; set; } = string.Empty;
 
     public IEnumerable<ModReference> GetReferences(bool includeWeak)
     {

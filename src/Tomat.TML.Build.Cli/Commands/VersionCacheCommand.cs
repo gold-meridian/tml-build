@@ -15,7 +15,7 @@ public class VersionCacheCommand : ICommand
 
     async ValueTask ICommand.ExecuteAsync(IConsole console)
     {
-        if (VersionManager.RefreshCache(Forced))
+        if (VersionManager.RefreshCache(Forced, TimeSpan.FromHours(1)))
         {
             await console.Output.WriteLineAsync("Cache refreshed successfully");
             Environment.ExitCode = 0;

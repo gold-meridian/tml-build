@@ -27,7 +27,8 @@ internal static class Platform
 
     private static IEnumerable<string> GetSteamGamePaths(string gameName)
     {
-        if (Environment.GetEnvironmentVariable("HOME") is { } home)
+        var home = Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Environment.GetEnvironmentVariable("HOME");
+        if (home is not null)
         {
             yield return $"{home}/.steam/steam/steamapps/common/{gameName}";
             yield return $"{home}/.local/share/Steam/steamapps/common/{gameName}";
