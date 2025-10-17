@@ -19,7 +19,7 @@
 
         <!-- TmodOutputPath may be specified to override default logic -->
         <!-- <TmodOutputPath Condition="'$(TmodOutputPath)' == ''"></TmodOutputPath> -->
-        
+
         <ModDescriptionPath Condition="'$(ModDescriptionPath)' == ''">$(MSBuildProjectDirectory)\description.txt</ModDescriptionPath>
 
         <!-- Prioritize TML.Mod.toml, but accept build.txt as a fallback. -->
@@ -31,12 +31,13 @@
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>
-        <!-- localization -->
-        <!-- previously .lang -->
-        <AdditionalFiles Include="**/*.hjson"/>
+        <!-- build manifests -->
+        <AdditionalFiles Include="build.txt"/>
+        <AdditionalFiles Include="TML.Mod.toml"/>
 
-        <!-- build.txt -->
-        <AdditionalFiles Include="**/*.txt"/>
+        <!-- localization -->
+        <!-- <AdditionalFiles Include="**/*.lang"/> -->
+        <AdditionalFiles Include="**/*.hjson"/>
 
         <!-- images -->
         <AdditionalFiles Include="**/*.rawimg"/> <!-- not included by tml -->
@@ -44,12 +45,8 @@
 
         <!-- shaders (effects) -->
         <AdditionalFiles Include="**/*.hlsl"/> <!-- not included by tml -->
+        <AdditionalFiles Include="**/*.h"/> <!-- not included by tml -->
         <AdditionalFiles Include="**/*.fx"/>
-
-        <!-- remove any files that might pop up in build folders; tml names
-             *.txt explicitly as a problem extension -->
-        <AdditionalFiles Remove="bin/**"/>
-        <AdditionalFiles Remove="obj/**"/>
     </ItemGroup>
 
     <!-- Additional useful references. -->
