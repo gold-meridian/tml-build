@@ -218,6 +218,7 @@ public sealed class PackageModTask : BaseTask
 
     private BuildProperties GetModProperties(string filePath)
     {
+        System.Diagnostics.Debugger.Launch();
         var fileName = Path.GetFileName(filePath);
 
         if (fileName == "build.txt")
@@ -239,7 +240,10 @@ public sealed class PackageModTask : BaseTask
 
         BuildProperties Toml()
         {
-            throw new NotImplementedException("TOML TODO");
+            var text = File.ReadAllText(filePath);
+            var toml = Tomlyn.Toml.ToModel(text);
+
+            return null!;
         }
     }
 
