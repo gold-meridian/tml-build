@@ -92,10 +92,6 @@ partial class BuildProperties
                 properties.Homepage = value;
                 break;
 
-            case "noCompile":
-                properties.NoCompile = string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
-                break;
-
             case "playableOnPreview":
                 properties.PlayableOnPreview = string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
                 break;
@@ -200,11 +196,6 @@ partial class BuildProperties
         {
             writer.Write("description");
             writer.Write(Description);
-        }
-
-        if (NoCompile)
-        {
-            writer.Write("noCompile");
         }
 
         if (!PlayableOnPreview)

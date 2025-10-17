@@ -49,9 +49,6 @@ public sealed class PackageModTask : BaseTask
     [Required]
     public string AssemblyName { get; set; } = string.Empty;
 
-    // Not needed, we already know the tMod version.
-    // public string TmlDllPath { get; set; } = string.Empty;
-
     [Required]
     public string TmlVersion { get; set; } = string.Empty;
 

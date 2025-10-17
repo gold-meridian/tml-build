@@ -28,8 +28,6 @@ public sealed partial class BuildProperties
 
     public string DisplayName { get; set; } = "";
 
-    public bool NoCompile { get; set; }
-
     public bool HideCode { get; set; }
 
     public bool HideResources { get; set; }
@@ -37,8 +35,6 @@ public sealed partial class BuildProperties
     public bool IncludeSource { get; set; }
 
     public string EacPath { get; set; } = string.Empty;
-
-    public bool Beta { get; set; }
 
     public string Homepage { get; set; } = "";
 
