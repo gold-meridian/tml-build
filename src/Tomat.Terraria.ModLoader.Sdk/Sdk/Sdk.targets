@@ -13,18 +13,18 @@
 
     <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
-        <!-- OutputTmodPath may be specified to override default logic -->
+        <!-- TmodOutputPath may be specified to override default logic -->
         <TmlTargetsPath Condition="'$(TmlTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TmlTargetsPath>
         <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
 
-        <!-- OutputTmodPath may be specified to override default logic -->
-        <!-- <OutputTmodPath Condition="'$(OutputTmodPath)' == ''"></OutputTmodPath> -->
+        <!-- TmodOutputPath may be specified to override default logic -->
+        <!-- <TmodOutputPath Condition="'$(TmodOutputPath)' == ''"></TmodOutputPath> -->
         
         <ModDescriptionPath Condition="'$(ModDescriptionPath)' == ''">$(MSBuildProjectDirectory)\description.txt</ModDescriptionPath>
 
         <!-- Prioritize TML.Mod.toml, but accept build.txt as a fallback. -->
-        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == '' And Exists('$(MSBuildProjectDirectory)\TML.Mod.toml')">$(MSBuildProjectDirectory)\TML.Mod.toml</ModBuildFilePath>
-        <ModBuildFilePath Condition="'$(ModBuildFilePath)' == ''">$(MSBuildProjectDirectory)\build.txt</ModBuildFilePath>
+        <ModManifestPath Condition="'$(ModManifestPath)' == '' And Exists('$(MSBuildProjectDirectory)\TML.Mod.toml')">$(MSBuildProjectDirectory)\TML.Mod.toml</ModManifestPath>
+        <ModManifestPath Condition="'$(ModManifestPath)' == ''">$(MSBuildProjectDirectory)\build.txt</ModManifestPath>
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>

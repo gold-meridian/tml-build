@@ -18,8 +18,8 @@
                         OutputPath="$(OutputPath)"
                         AssemblyName="$(AssemblyName)"
                         TmlVersion="$(TmlVersion)"
-                        OutputTmodPath="$(OutputTmodPath)"
-                        BuildFilePath="$(ModBuildFilePath)"
+                        TmodOutputPath="$(TmodOutputPath)"
+                        BuildFilePath="$(ModManifestPath)"
                         DescriptionFilePath="$(ModDescriptionPath)"/>
     </Target>
 

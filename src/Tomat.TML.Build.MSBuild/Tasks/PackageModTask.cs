@@ -55,7 +55,7 @@ public sealed class PackageModTask : BaseTask
     [Required]
     public string TmlVersion { get; set; } = string.Empty;
 
-    public string OutputTmodPath { get; set; } = string.Empty;
+    public string TmodOutputPath { get; set; } = string.Empty;
 
     [Required]
     public string BuildFilePath { get; set; } = string.Empty;
@@ -67,12 +67,12 @@ public sealed class PackageModTask : BaseTask
 
     protected override bool Run()
     {
-        if (string.IsNullOrEmpty(OutputTmodPath))
+        if (string.IsNullOrEmpty(TmodOutputPath))
         {
-            OutputTmodPath = SavePathLocator.FindSavePath(TmlVersion, AssemblyName, Log);
+            TmodOutputPath = SavePathLocator.FindSavePath(TmlVersion, AssemblyName, Log);
         }
 
-        Log.LogMessage($"Using path for .tmod file: {OutputTmodPath}");
+        Log.LogMessage($"Using path for .tmod file: {TmodOutputPath}");
 
         var modDllName = AssemblyName + ".dll";
         var modDllPath = Path.Combine(ProjectDirectory, OutputPath, modDllName);
@@ -113,7 +113,7 @@ public sealed class PackageModTask : BaseTask
         properties.Description = description;
 
         var tmlVersion = GetTmlVersion(TmlVersion);
-        var tmodFile = new TmodFile(OutputTmodPath, AssemblyName, properties.Version, tmlVersion);
+        var tmodFile = new TmodFile(TmodOutputPath, AssemblyName, properties.Version, tmlVersion);
 
         tmodFile.AddFile(modDllName, File.ReadAllBytes(modDllPath));
         // AddAllReferences(tmodFile, properties);
@@ -147,10 +147,10 @@ public sealed class PackageModTask : BaseTask
             return false;
         }
 
-        var modsDir = Path.GetDirectoryName(OutputTmodPath);
+        var modsDir = Path.GetDirectoryName(TmodOutputPath);
         if (modsDir is null)
         {
-            Log.LogWarning($"Couldn't traverse up output path to find Mods directory: {OutputTmodPath}");
+            Log.LogWarning($"Couldn't traverse up output path to find Mods directory: {TmodOutputPath}");
             return true;
         }
 
