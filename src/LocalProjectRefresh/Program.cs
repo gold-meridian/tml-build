@@ -139,7 +139,7 @@ internal static class Program
             var processes = LockFinder.FindWhatProcessesLockPath(path).ToArray();
             Console.WriteLine($"        Got processes: {processes.Length}");
 
-            totalProcesses.UnionWith(totalProcesses);
+            totalProcesses.UnionWith(processes);
         }
 
         Console.WriteLine($"    Got {totalProcesses.Count} total processes, attempting to kill...");

@@ -1,5 +1,24 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <!-- Private properties. -->
+    <PropertyGroup>
+        <!--/nuget-pkg-name/version/Sdk/ -->
+        <TmlBuildSdkRoot>$(MSBuildThisFileDirectory)</TmlBuildSdkRoot>
+        <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
+
+        <!-- Manually set here since it's locked behind BuildMod in tML. -->
+        <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
+        <DotNetName Condition=" '$(OS)' == 'Unix' ">dotnet</DotNetName>
+        <DotNetName Condition=" '$(DotNetName)' == '' ">dotnet</DotNetName>
+    </PropertyGroup>
+
+    <!-- Produce a launchSettings.json file to run the mod. -->
+    <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild">
+        <LaunchSettingsTask AssemblyName="$(AssemblyName)"
+                            ProjectDirectory="$(MSBuildProjectDirectory)"/>
+    </Target>
+
     <!-- Install the requested tML version before any processing occurs that
          tries to use it. -->
     <UsingTask TaskName="TmlVersionTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
@@ -7,6 +26,7 @@
         <TmlVersionTask Version="$(TmlVersion)" TargetsPath="$(TmlTargetsPath)"/>
     </Target>
 
+    <!-- Package the most post-build into a .tmod file. -->
     <UsingTask TaskName="PackageModTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
     <Target Name="PackageMod" AfterTargets="Build">
         <!-- all of these refs are TODO -->
