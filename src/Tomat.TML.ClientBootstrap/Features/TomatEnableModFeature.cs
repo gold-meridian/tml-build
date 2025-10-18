@@ -2,5 +2,8 @@
 
 public sealed class TomatEnableModFeature(string modName) : AssemblyFeature
 {
-    
+    public override void Apply()
+    {
+        // TODO
+    }
 }

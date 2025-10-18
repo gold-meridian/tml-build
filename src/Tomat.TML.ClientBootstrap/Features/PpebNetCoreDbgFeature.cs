@@ -2,5 +2,8 @@
 
 public sealed class PpebNetCoreDbgFeature : AssemblyFeature
 {
-    
+    public override void Apply()
+    {
+        // TODO
+    }
 }

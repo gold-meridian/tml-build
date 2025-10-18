@@ -2,5 +2,5 @@
 
 public abstract class AssemblyFeature
 {
-    
+    public abstract void Apply();
 }

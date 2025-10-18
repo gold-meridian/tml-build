@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,8 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
+using MonoMod.RuntimeDetour;
+using Terraria;
 using Terraria.ModLoader;
 using Tomat.TML.ClientBootstrap.Features;
 
@@ -60,13 +63,14 @@ public sealed class RunCommand : ICommand
         var tmod = Assembly.LoadFile(Path.Combine(tmlDir, BinaryName));
         await console.Output.WriteLineAsync($"tmod: {tmod}");
 
-        PatchAndRun(BinaryName, Mode, ModName, enabledFeatures);
+        PatchAndRun(Mode, ModName, enabledFeatures);
     }
 
     private static Task? hookTask;
+    private static readonly List<IDisposable> hook_purgatory = [];
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void PatchAndRun(string binaryName, string mode, string modName, string[] enabledFeatures)
+    private static void PatchAndRun(string mode, string modName, string[] enabledFeatures)
     {
         var knownFeatures = new Dictionary<string, AssemblyFeature>()
         {
@@ -74,12 +78,59 @@ public sealed class RunCommand : ICommand
             { "tomat.enablemod", new TomatEnableModFeature(modName) },
         };
 
-        var features = knownFeatures.Where(x => enabledFeatures.Contains(x.Key))
-                                    .Select(x => x.Value)
-                                    .ToArray();
+        var features = knownFeatures
+                      .Where(x => enabledFeatures.Contains(x.Key))
+                      .ToArray();
 
         hookTask = Task.Run(
-            () => { }
+            () =>
+            {
+                var times = new Dictionary<string, Stopwatch>();
+                var totalTime = Stopwatch.StartNew();
+
+                Console.WriteLine("Patching early-load wait...");
+
+                hook_purgatory.Add(
+                    new Hook(
+                        typeof(Main).GetMethod("LoadContent", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!,
+                        static (Action<Main> orig, Main self) =>
+                        {
+                            if (hookTask is null)
+                            {
+                                throw new InvalidOperationException("Build wrapper failed to apply hooks? No task found.");
+                            }
+
+                            if (!hookTask.IsCompleted)
+                            {
+                                Console.WriteLine("Waiting for hooks to finish applying...");
+                                hookTask.ConfigureAwait(false).GetAwaiter().GetResult();
+                            }
+
+                            orig(self);
+                        }
+                    )
+                );
+
+                Console.WriteLine("Patched!");
+
+                foreach (var (name, feature) in features)
+                {
+                    times[name] = Stopwatch.StartNew();
+                    {
+                        feature.Apply();
+                    }
+                    times[name].Stop();
+                }
+
+                totalTime.Stop();
+
+                Console.WriteLine($"Total patch time: {totalTime.Elapsed:g}");
+                Console.WriteLine("Per-feature patch time:");
+                foreach (var (name, _) in features)
+                {
+                    Console.WriteLine($"    {name}: {times[name].Elapsed:g}");
+                }
+            }
         );
 
         // TODO: Support pass-through arguments.
