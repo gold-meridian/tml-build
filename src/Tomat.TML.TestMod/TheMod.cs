@@ -1,5 +1,11 @@
 using Terraria.ModLoader;
 
-namespace Tomat.TML.TestMod;
+namespace TestMod
+{
+    internal static class Useless;
+}
 
-public sealed class TheMod : Mod;
+namespace Tomat.TML.TestMod
+{
+    public sealed class TheMod : Mod;
+}

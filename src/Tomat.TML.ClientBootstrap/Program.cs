@@ -1,11 +1,17 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using CliFx;
 
 namespace Tomat.TML.ClientBootstrap;
 
 internal static class Program
 {
-    public static void Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        Console.WriteLine($"TEST: {string.Join(", ", args)}");
+        return await new CliApplicationBuilder()
+                    .SetTitle("tml bootstrap driver")
+                    .SetDescription("Tomat.TML.Build-provided tModLoader launch wrapper to apply developer patches")
+                    .AddCommandsFromThisAssembly()
+                    .Build()
+                    .RunAsync(args);
     }
 }

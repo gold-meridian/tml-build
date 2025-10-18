@@ -121,7 +121,6 @@ internal static class Program
         }
 
         var paths = Directory.GetFiles(dir, "*", SearchOption.AllDirectories)
-                             .Append(dir)
                              .Distinct()
                              .ToArray();
 

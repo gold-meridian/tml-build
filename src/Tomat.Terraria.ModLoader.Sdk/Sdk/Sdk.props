@@ -15,8 +15,7 @@
     <!-- Produce a launchSettings.json file to run the mod. -->
     <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
     <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild">
-        <LaunchSettingsTask AssemblyName="$(AssemblyName)"
-                            ProjectDirectory="$(MSBuildProjectDirectory)"/>
+        <LaunchSettingsTask ProjectDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
     <!-- Install the requested tML version before any processing occurs that

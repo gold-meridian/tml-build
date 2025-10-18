@@ -11,9 +11,6 @@ public sealed class LaunchSettingsTask : BaseTask
     [Required]
     public string ProjectDirectory { get; set; } = string.Empty;
 
-    [Required]
-    public string AssemblyName { get; set; } = string.Empty;
-
     protected override bool Run()
     {
         var propertiesDir = Path.Combine(ProjectDirectory, "Properties");
@@ -54,7 +51,7 @@ public sealed class LaunchSettingsTask : BaseTask
             {
                 { "commandName", "Executable" },
                 { "executablePath", "$(DotNetName)" },
-                { "commandLineArgs", $"Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath)\" --binary \"$(tMLPath)\" --mode client --mod $(AssemblyName)" },
+                { "commandLineArgs", "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode client --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)" },
                 { "workingDirectory", "$(TmlBuildBootstrapRoot)" },
             };
 
@@ -62,7 +59,7 @@ public sealed class LaunchSettingsTask : BaseTask
             {
                 { "commandName", "Executable" },
                 { "executablePath", "$(DotNetName)" },
-                { "commandLineArgs", $"Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath)\" --binary \"$(tMLServerPath)\" --mode server --mod $(AssemblyName)" },
+                { "commandLineArgs", "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLServerPath)\" --mode server --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)" },
                 { "workingDirectory", "$(TmlBuildBootstrapRoot)" },
             };
 

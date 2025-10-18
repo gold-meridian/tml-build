@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- TODO: Replace with SDK when it's actually usable. -->
+    <Import Project="C:\Program Files (x86)\Steam\steamapps\common\tModLoader\tMLMod.targets"/>
+
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+
+        <BuildMod>false</BuildMod>
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Features\"/>
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="CliFx" Version="2.3.6"/>
         <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.1"/>
     </ItemGroup>
 
