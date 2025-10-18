@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -10,19 +9,15 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using Terraria;
 using Terraria.ModLoader;
-using Tomat.TML.ClientBootstrap.Features;
 using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap;
 
 internal static class LaunchWrapper
 {
-    // ReSharper disable once CollectionNeverQueried.Local
-    private static readonly List<IDisposable> hooks = [];
+    public static ILog Logger { get; } = LogManager.GetLogger("Tomat.TML.ClientBootstrap");
 
     private static Task? hookTask;
-
-    public static ILog Logger { get; } = LogManager.GetLogger("Tomat.TML.ClientBootstrap");
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void PatchAndRun(LaunchContext ctx)
@@ -61,6 +56,15 @@ internal static class LaunchWrapper
 
         Logger.Info("Finished resolving plugins!");
 
+        Logger.Info("Running plugin on-loads...");
+
+        foreach (var plugin in plugins)
+        {
+            plugin.Load(ctx);
+        }
+
+        Logger.Info("Finished running plugin on-loads!");
+
         hookTask = Task.Run(
             () =>
             {
@@ -69,7 +73,7 @@ internal static class LaunchWrapper
 
                 Logger.Info("Patching early-load wait...");
 
-                hooks.Add(
+                ObjectHolder.Add(
                     new Hook(
                         typeof(Main).GetMethod("LoadContent", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!,
                         static (Action<Main> orig, Main self) =>
@@ -152,7 +156,7 @@ internal static class LaunchWrapper
 
         try
         {
-            hooks.Add(
+            ObjectHolder.Add(
                 new ILHook(
                     typeof(Logging).GetMethod(nameof(Logging.Init), BindingFlags.NonPublic | BindingFlags.Static)!,
                     il =>

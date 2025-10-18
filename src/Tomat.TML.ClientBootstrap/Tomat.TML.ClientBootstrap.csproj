@@ -19,8 +19,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.1"/>
-        
-        <Publicize Include="tModLoader"/>
+
+        <Publicize Include="tModLoader" IncludeCompilerGeneratedMembers="false" IncludeVirtualMembers="false"/>
     </ItemGroup>
 
 </Project>

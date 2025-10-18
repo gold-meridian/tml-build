@@ -13,6 +13,13 @@ public abstract class LaunchPlugin
     public abstract string UniqueId { get; }
 
     /// <summary>
+    ///     Called immediately after basic initialization, before the game is
+    ///     launched.
+    /// </summary>
+    /// <param name="ctx">The launch context.</param>
+    public virtual void Load(LaunchContext ctx) { }
+
+    /// <summary>
     ///     If the plugin is enabled, ran during the initial patching stage on a
     ///     secondary thread.
     /// </summary>
