@@ -1,4 +1,6 @@
-﻿namespace Tomat.TML.ClientBootstrap.Framework;
+﻿using Terraria;
+
+namespace Tomat.TML.ClientBootstrap.Framework;
 
 /// <summary>
 ///     An arbitrary plugin to be executed upon game launch.
@@ -25,4 +27,15 @@ public abstract class LaunchPlugin
     /// </summary>
     /// <param name="ctx">The launch context.</param>
     public virtual void ApplyPatches(LaunchContext ctx) { }
+
+#region Game-specific
+    /// <summary>
+    ///     Ran at the start of <see cref="Main.LoadContent"/>.
+    /// </summary>
+    /// <remarks>
+    ///     Patches may or may not have finished applying by now.
+    /// </remarks>
+    /// <param name="ctx">The launch context.</param>
+    public virtual void LoadContent(LaunchContext ctx) { }
+#endregion
 }

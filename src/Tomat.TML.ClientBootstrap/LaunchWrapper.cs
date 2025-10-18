@@ -76,8 +76,17 @@ internal static class LaunchWrapper
                 ObjectHolder.Add(
                     new Hook(
                         typeof(Main).GetMethod("LoadContent", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!,
-                        static (Action<Main> orig, Main self) =>
+                        (Action<Main> orig, Main self) =>
                         {
+                            Logger.Info("Running plugin on-LoadContent hooks...");
+
+                            foreach (var plugin in plugins)
+                            {
+                                plugin.LoadContent(ctx);
+                            }
+
+                            Logger.Info("Finished running plugin on-LoadContent hooks...");
+
                             if (hookTask is null)
                             {
                                 Logger.Error("LoadContent: Failed to await for hooks to finish applying, hookTask is null?");
