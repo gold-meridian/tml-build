@@ -6,10 +6,12 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using log4net;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using Terraria;
 using Terraria.ModLoader;
 using Tomat.TML.ClientBootstrap.Features;
+using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap;
 
@@ -23,22 +25,41 @@ internal static class LaunchWrapper
     public static ILog Logger { get; } = LogManager.GetLogger("Tomat.TML.ClientBootstrap");
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void PatchAndRun(string mode, string modName, string[] enabledFeatures)
+    public static void PatchAndRun(LaunchContext ctx)
     {
+        InitializeLogging(ctx.LaunchMode is LaunchMode.Client ? Logging.LogFile.Client : Logging.LogFile.Server);
+
         Logger.Info("This tModLoader instance is being launched using Tomat.TML.ClientBootstrap.");
-        Logger.Info($"The following features are enabled: {string.Join(", ", enabledFeatures)}");
-        Logger.Info($"Mode: {mode}, mod name: {modName}");
+        Logger.Info($"The following features are enabled: {string.Join(", ", ctx.RequestedFeatures)}");
+        Logger.Info($"Mode: {ctx.LaunchMode}, mod name: {ctx.RequestedModName ?? "<null>"}");
         Logger.Info("Please be aware any issues encountered with tModLoader may be a resulted of these modifications.");
 
-        var knownFeatures = new Dictionary<string, AssemblyFeature>
+        Logger.Info("Initializing plugins...");
+        var pluginRepo = new PluginRepository();
         {
-            { "ppeb.netcoredbg", new PpebNetCoreDbgFeature() },
-            { "tomat.enablemod", new TomatEnableModFeature(modName) },
-        };
+            pluginRepo.AddPluginsFromAssembly(typeof(Program).Assembly);
+        }
+        Logger.Info("Initialized plugins!");
 
-        var features = knownFeatures
-                      .Where(x => enabledFeatures.Contains(x.Key))
-                      .ToArray();
+        var plugins = new List<LaunchPlugin>();
+        foreach (var feature in ctx.RequestedFeatures)
+        {
+            Logger.Info($"Processing requested feature: {feature}");
+
+            if (pluginRepo.TryGetPlugin(feature, out var plugin))
+            {
+                Logger.Info($"    Found plugin of same name: {plugin.UniqueId}");
+                plugins.Add(plugin);
+            }
+            else
+            {
+                // TODO: Consider an error?  This probably shouldn't prevent a
+                //       game launch.
+                Logger.Warn($"    Could not found matching plugin with same name: {feature}");
+            }
+        }
+
+        Logger.Info("Finished resolving plugins!");
 
         hookTask = Task.Run(
             () =>
@@ -72,29 +93,29 @@ internal static class LaunchWrapper
 
                 Logger.Info("Finished patching game!");
 
-                foreach (var (name, feature) in features)
+                foreach (var feature in plugins)
                 {
-                    times[name] = Stopwatch.StartNew();
+                    times[feature.UniqueId] = Stopwatch.StartNew();
                     {
-                        feature.Apply();
+                        feature.ApplyPatches(ctx);
                     }
-                    times[name].Stop();
+                    times[feature.UniqueId].Stop();
                 }
 
                 totalTime.Stop();
 
                 Logger.Info($"Total patch time: {totalTime.Elapsed:g}");
                 Logger.Info("Per-feature patch time:");
-                foreach (var (name, _) in features)
+                foreach (var feature in plugins)
                 {
-                    Logger.Info($"    {name}: {times[name].Elapsed:g}");
+                    Logger.Info($"    {feature.UniqueId}: {times[feature.UniqueId].Elapsed:g}");
                 }
             }
         );
 
         // TODO: Support pass-through arguments.
         var args = new List<string> { "-console" };
-        if (mode == "server")
+        if (ctx.LaunchMode is LaunchMode.Server)
         {
             args.Add("-server");
         }
@@ -105,5 +126,56 @@ internal static class LaunchWrapper
         }
 
         entryPoint.Invoke(null, [args.ToArray()]);
+    }
+
+    /// <summary>
+    ///     Early-initializes tModLoader's logging routine and then stubs it to
+    ///     not do anything during normal execution.
+    /// </summary>
+    private static void InitializeLogging(Logging.LogFile logFile)
+    {
+        Utils.TryCreatingDirectory(Logging.LogDir);
+
+        try
+        {
+            Logging.InitLogPaths(logFile);
+            Logging.ConfigureAppenders(logFile);
+            Logging.TryUpdatingFileCreationDate(Logging.LogPath);
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Failed to early-load logging: {e}");
+        }
+
+        Logger.Info("Early-load logging initialization complete, this should be the first message you see.");
+        Logger.Info("Attempting to patch the existing logging initialization routine...");
+
+        try
+        {
+            hooks.Add(
+                new ILHook(
+                    typeof(Logging).GetMethod(nameof(Logging.Init), BindingFlags.NonPublic | BindingFlags.Static)!,
+                    il =>
+                    {
+                        var c = new ILCursor(il);
+
+                        // Assume first branch is to exit the function early.
+                        // We just let it run the routines before
+                        // initialization, since we initialize the logger
+                        // ourselves.
+                        c.GotoNext(MoveType.Before, x => x.MatchBrfalse(out _));
+
+                        c.EmitPop();
+                        c.EmitLdcI4(1);
+                    }
+                )
+            );
+        }
+        catch (Exception e)
+        {
+            Logger.Error($"Failed to patch log initialization, this is bad!\n{e}");
+        }
+
+        Logger.Info("Successfully patched!");
     }
 }

@@ -9,7 +9,7 @@ internal static class Program
     {
         return await new CliApplicationBuilder()
                     .SetTitle("tml bootstrap driver")
-                    .SetDescription("Tomat.TML.Build-provided tModLoader launch wrapper to apply developer patches")
+                    .SetDescription("Tomat.TML.Build-provided tModLoader launch wrapper to apply transient developer patches")
                     .AddCommandsFromThisAssembly()
                     .Build()
                     .RunAsync(args);

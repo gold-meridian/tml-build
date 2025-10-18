@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
+using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap;
 
@@ -21,8 +22,8 @@ public sealed class RunCommand : ICommand
     [CommandOption("mode", Description = "The mode, client or server")]
     public required string Mode { get; init; }
 
-    [CommandOption("mod", Description = "The name of the mod to ensure is enabled")]
-    public required string ModName { get; init; }
+    [CommandOption("mod", Description = "The name of the requesting mod")]
+    public string? ModName { get; init; }
 
     [CommandOption("features", Description = "Semicolon-delimited list of feature patches")]
     public required string Features { get; init; }
@@ -43,7 +44,9 @@ public sealed class RunCommand : ICommand
             tmlDir = tmlDir[..^1];
         }
 
-        await console.Output.WriteLineAsync("Current working directory: " + Environment.CurrentDirectory);
+        var bootstrapDir = Environment.CurrentDirectory;
+
+        await console.Output.WriteLineAsync("Current working directory: " + bootstrapDir);
         await console.Output.WriteLineAsync("Target working directory: " + tmlDir);
         await console.Output.WriteLineAsync("Assembly to run: " + BinaryName);
         await console.Output.WriteLineAsync("Client/server mode: " + Mode);
@@ -56,6 +59,32 @@ public sealed class RunCommand : ICommand
         var tmod = Assembly.LoadFile(Path.Combine(tmlDir, BinaryName));
         await console.Output.WriteLineAsync($"Loaded tModLoader assembly: {tmod}");
 
-        LaunchWrapper.PatchAndRun(Mode, ModName, enabledFeatures);
+        var ctx = new LaunchContext(
+            bootstrapDir,
+            tmlDir,
+            BinaryName,
+            GetMode(Mode),
+            ModName,
+            enabledFeatures,
+            tmod
+        );
+
+        LaunchWrapper.PatchAndRun(ctx);
+    }
+
+    private static LaunchMode GetMode(string modeValue)
+    {
+        return modeValue.ToLowerInvariant() switch
+        {
+            "client" => LaunchMode.Client,
+            "server" => LaunchMode.Server,
+            _ => LogError(modeValue),
+        };
+
+        static LaunchMode LogError(string mode)
+        {
+            Console.Error.WriteLine("Could not parse launch more into known value: " + mode);
+            return LaunchMode.Client;
+        }
     }
 }

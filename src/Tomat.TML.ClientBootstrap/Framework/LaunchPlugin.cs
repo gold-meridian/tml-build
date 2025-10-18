@@ -1,0 +1,21 @@
+﻿namespace Tomat.TML.ClientBootstrap.Framework;
+
+/// <summary>
+///     An arbitrary plugin to be executed upon game launch.
+/// </summary>
+public abstract class LaunchPlugin
+{
+    /// <summary>
+    ///     The unique identifier of the plugin, should be all lowercase.
+    ///     <br />
+    ///     Typically, in the format of <c>author.plugin</c>.
+    /// </summary>
+    public abstract string UniqueId { get; }
+
+    /// <summary>
+    ///     If the plugin is enabled, ran during the initial patching stage on a
+    ///     secondary thread.
+    /// </summary>
+    /// <param name="ctx">The launch context.</param>
+    public virtual void ApplyPatches(LaunchContext ctx) { }
+}

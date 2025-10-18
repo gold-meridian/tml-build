@@ -14,7 +14,13 @@
 
     <ItemGroup>
         <PackageReference Include="CliFx" Version="2.3.6"/>
+        <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.1"/>
+        
+        <Publicize Include="tModLoader"/>
     </ItemGroup>
 
 </Project>
