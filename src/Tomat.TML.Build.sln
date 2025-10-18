@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.Files", "Tomat.Files\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalProjectRefresh", "LocalProjectRefresh\LocalProjectRefresh.csproj", "{D4FB7D8E-5497-4751-B487-6999DDF8BBDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.ClientBootstrap", "Tomat.TML.ClientBootstrap\Tomat.TML.ClientBootstrap.csproj", "{9E457F15-14A7-4DF4-AD71-FB92574122DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +56,9 @@ Global
 		{D4FB7D8E-5497-4751-B487-6999DDF8BBDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4FB7D8E-5497-4751-B487-6999DDF8BBDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4FB7D8E-5497-4751-B487-6999DDF8BBDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E457F15-14A7-4DF4-AD71-FB92574122DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E457F15-14A7-4DF4-AD71-FB92574122DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E457F15-14A7-4DF4-AD71-FB92574122DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E457F15-14A7-4DF4-AD71-FB92574122DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

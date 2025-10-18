@@ -25,16 +25,28 @@
 
     <ItemGroup>
         <None Include="Sdk\**" Pack="true" PackagePath="Sdk"/>
-        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk"/>
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk">
+            <Link>Sdk\bin\%(Filename)%(Extension)</Link>
+        </None>
 
         <!-- General patterns to remove already-included libraries.  Can
              manually re-include them as needed. -->
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
+
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\**\*" Pack="true" PackagePath="Sdk/bootstrap">
+            <Link>ClientBootstrap\bin\%(Filename)%(Extension)</Link>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Tomat.TML.Build.MSBuild\Tomat.TML.Build.MSBuild.csproj"/>
     </ItemGroup>
+
+    <Target Name="BuildClientBootstrap" BeforeTargets="Build">
+        <MSBuild Projects="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\Tomat.TML.ClientBootstrap.csproj"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration)"/>
+    </Target>
 
 </Project>
