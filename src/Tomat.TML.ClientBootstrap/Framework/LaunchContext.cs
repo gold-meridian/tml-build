@@ -43,6 +43,6 @@ public readonly record struct LaunchContext(
     string? RequestedModName,
     string[] RequestedFeatures,
     string[] GameLaunchArguments,
-    Dictionary<string, Dictionary<string, string?>> PluginArguments,
+    ArgumentRepository PluginArguments,
     Assembly GameAssembly
 );
