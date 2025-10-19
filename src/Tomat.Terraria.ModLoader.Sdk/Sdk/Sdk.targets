@@ -31,16 +31,7 @@
              platforms or aid in general developer experience.  This is a list
              delimited by ';': author.flag1;author.flag2
              
-             Available flags:
-             - ppeb.netcoredbg: Patches assembly loading to read directly from a
-                                file on disk, if specified.  Intended to allow
-                                PDBs to be loaded properly, may also improve Hot
-                                Reload experience.
-             - tomat.enablemod: Ensures a given mod is enabled, which is useful
-                                between non-rebuilds when launching.
-             - lolxd87.splashskip: Prioritzes quickly launching the game by
-                                   skipping the splash screen and reducing JIT
-                                   load operations.
+             See FEATURES.md for a list of available flags.
              -->
         <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
     </PropertyGroup>

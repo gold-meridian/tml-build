@@ -11,7 +11,7 @@ using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap.Features;
 
-// Implements the patches from:
+// Adapted from:
 // https://github.com/EtherealCrusaders/tml-debug-quickstart
 
 public sealed class Lolxd87SplashSkipPlugin : LaunchPlugin
