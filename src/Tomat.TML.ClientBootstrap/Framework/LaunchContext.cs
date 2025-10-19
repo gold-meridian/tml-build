@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace Tomat.TML.ClientBootstrap.Framework;
 
@@ -11,7 +12,7 @@ public enum LaunchMode
     ///     Launches a client process.
     /// </summary>
     Client,
-    
+
     /// <summary>
     ///     Launches a server process.
     /// </summary>
@@ -32,6 +33,7 @@ public enum LaunchMode
 /// </param>
 /// <param name="RequestedFeatures">An array of requested feature names.</param>
 /// <param name="GameLaunchArguments">Pass-through launch arguments.</param>
+/// <param name="PluginArguments">Plugin command-line arguments.</param>
 /// <param name="GameAssembly">The game assembly.</param>
 public readonly record struct LaunchContext(
     string BootstrapDirectory,
@@ -41,5 +43,6 @@ public readonly record struct LaunchContext(
     string? RequestedModName,
     string[] RequestedFeatures,
     string[] GameLaunchArguments,
+    Dictionary<string, Dictionary<string, string?>> PluginArguments,
     Assembly GameAssembly
 );

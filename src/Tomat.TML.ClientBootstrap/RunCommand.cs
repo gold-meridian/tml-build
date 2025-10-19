@@ -68,6 +68,7 @@ public sealed class RunCommand : ICommand
             ModName,
             enabledFeatures,
             Program.PassThroughArguments,
+            Program.PrefixedArguments,
             tmod
         );
 
