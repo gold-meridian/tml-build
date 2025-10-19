@@ -19,6 +19,9 @@ internal static class LaunchWrapper
 
     private static Task? hookTask;
 
+    private static readonly HookManager loggingHooks = new();
+    private static readonly HookManager startupHooks = new();
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void PatchAndRun(LaunchContext ctx)
     {
@@ -73,36 +76,36 @@ internal static class LaunchWrapper
 
                 Logger.Info("Patching early-load wait...");
 
-                ObjectHolder.Add(
-                    new Hook(
-                        typeof(Main).GetMethod("LoadContent", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!,
-                        (Action<Main> orig, Main self) =>
+                startupHooks.Add(
+                    typeof(Main).GetMethod("LoadContent", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!,
+                    (Action<Main> orig, Main self) =>
+                    {
+                        Logger.Info("Running plugin on-LoadContent hooks...");
+
+                        foreach (var plugin in plugins)
                         {
-                            Logger.Info("Running plugin on-LoadContent hooks...");
-
-                            foreach (var plugin in plugins)
-                            {
-                                plugin.LoadContent(ctx);
-                            }
-
-                            Logger.Info("Finished running plugin on-LoadContent hooks...");
-
-                            if (hookTask is null)
-                            {
-                                Logger.Error("LoadContent: Failed to await for hooks to finish applying, hookTask is null?");
-                                throw new InvalidOperationException("Build wrapper failed to apply hooks? No task found.");
-                            }
-
-                            if (!hookTask.IsCompleted)
-                            {
-                                Logger.Info("LoadContent: Reached loading point before hooks finished, waiting for completion...");
-                                hookTask.ConfigureAwait(false).GetAwaiter().GetResult();
-                            }
-
-                            orig(self);
+                            plugin.LoadContent(ctx);
                         }
-                    )
+
+                        Logger.Info("Finished running plugin on-LoadContent hooks...");
+
+                        if (hookTask is null)
+                        {
+                            Logger.Error("LoadContent: Failed to await for hooks to finish applying, hookTask is null?");
+                            throw new InvalidOperationException("Build wrapper failed to apply hooks? No task found.");
+                        }
+
+                        if (!hookTask.IsCompleted)
+                        {
+                            Logger.Info("LoadContent: Reached loading point before hooks finished, waiting for completion...");
+                            hookTask.ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+
+                        orig(self);
+                    }
                 );
+
+                startupHooks.Apply(inParallel: false);
 
                 Logger.Info("Finished patching game!");
 
@@ -115,10 +118,12 @@ internal static class LaunchWrapper
                     times[feature.UniqueId].Stop();
                 }
 
+                ctx.Hooks.Apply(inParallel: true);
+
                 totalTime.Stop();
 
                 Logger.Info($"Total patch time: {totalTime.Elapsed:g}");
-                Logger.Info("Per-feature patch time:");
+                Logger.Info("Per-feature patch queue time (not patch applications):");
                 foreach (var feature in plugins)
                 {
                     Logger.Info($"    {feature.UniqueId}: {times[feature.UniqueId].Elapsed:g}");
@@ -165,24 +170,24 @@ internal static class LaunchWrapper
 
         try
         {
-            ObjectHolder.Add(
-                new ILHook(
-                    typeof(Logging).GetMethod(nameof(Logging.Init), BindingFlags.NonPublic | BindingFlags.Static)!,
-                    il =>
-                    {
-                        var c = new ILCursor(il);
+            loggingHooks.Modify(
+                typeof(Logging).GetMethod(nameof(Logging.Init), BindingFlags.NonPublic | BindingFlags.Static)!,
+                il =>
+                {
+                    var c = new ILCursor(il);
 
-                        // Assume first branch is to exit the function early.
-                        // We just let it run the routines before
-                        // initialization, since we initialize the logger
-                        // ourselves.
-                        c.GotoNext(MoveType.Before, x => x.MatchBrfalse(out _));
+                    // Assume first branch is to exit the function early.
+                    // We just let it run the routines before
+                    // initialization, since we initialize the logger
+                    // ourselves.
+                    c.GotoNext(MoveType.Before, x => x.MatchBrfalse(out _));
 
-                        c.EmitPop();
-                        c.EmitLdcI4(1);
-                    }
-                )
+                    c.EmitPop();
+                    c.EmitLdcI4(1);
+                }
             );
+
+            loggingHooks.Apply(inParallel: false);
         }
         catch (Exception e)
         {

@@ -35,6 +35,7 @@ public enum LaunchMode
 /// <param name="GameLaunchArguments">Pass-through launch arguments.</param>
 /// <param name="PluginArguments">Plugin command-line arguments.</param>
 /// <param name="GameAssembly">The game assembly.</param>
+/// <param name="Hooks">Manages applying hooks in parallel.</param>
 public readonly record struct LaunchContext(
     string BootstrapDirectory,
     string GameDirectory,
@@ -44,5 +45,6 @@ public readonly record struct LaunchContext(
     string[] RequestedFeatures,
     string[] GameLaunchArguments,
     ArgumentRepository PluginArguments,
-    Assembly GameAssembly
+    Assembly GameAssembly,
+    HookManager Hooks
 );

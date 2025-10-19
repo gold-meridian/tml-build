@@ -69,7 +69,8 @@ public sealed class RunCommand : ICommand
             enabledFeatures,
             Program.PassThroughArguments,
             new ArgumentRepository(Program.PrefixedArguments),
-            tmod
+            tmod,
+            new HookManager()
         );
 
         LaunchWrapper.PatchAndRun(ctx);

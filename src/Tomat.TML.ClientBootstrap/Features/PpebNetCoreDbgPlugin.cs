@@ -25,54 +25,52 @@ public sealed class PpebNetCoreDbgPlugin : LaunchPlugin
         // Completely re-implement ModLoadContext::LoadAssemblies based on the
         // referenced patch.  Loads the mod assembly from disk directly if it is
         // available.
-        ObjectHolder.Add(
-            new Hook(
-                typeof(AssemblyManager.ModLoadContext).GetMethod(nameof(AssemblyManager.ModLoadContext.LoadAssemblies), BindingFlags.Public | BindingFlags.Instance)!,
-                (AssemblyManager.ModLoadContext self) =>
+        ctx.Hooks.Add(
+            typeof(AssemblyManager.ModLoadContext).GetMethod(nameof(AssemblyManager.ModLoadContext.LoadAssemblies), BindingFlags.Public | BindingFlags.Instance)!,
+            (AssemblyManager.ModLoadContext self) =>
+            {
+                try
                 {
-                    try
+                    using (self.modFile.Open())
                     {
-                        using (self.modFile.Open())
+                        foreach (var dll in self.properties.dllReferences)
                         {
-                            foreach (var dll in self.properties.dllReferences)
-                            {
-                                self.LoadAssembly(self.modFile.GetBytes("lib/" + dll + ".dll"));
-                            }
+                            self.LoadAssembly(self.modFile.GetBytes("lib/" + dll + ".dll"));
+                        }
 
-                            var possibleAssemblyPath = string.IsNullOrEmpty(self.properties.eacPath) ? null : Path.ChangeExtension(self.properties.eacPath, ".dll");
-                            logger.Info($"Loading assemblies for \"{self.Name}\" with EAC path: {self.properties.eacPath}");
-                            logger.Info($"Assuming possible assembly location: {possibleAssemblyPath ?? "<null>"}");
+                        var possibleAssemblyPath = string.IsNullOrEmpty(self.properties.eacPath) ? null : Path.ChangeExtension(self.properties.eacPath, ".dll");
+                        logger.Info($"Loading assemblies for \"{self.Name}\" with EAC path: {self.properties.eacPath}");
+                        logger.Info($"Assuming possible assembly location: {possibleAssemblyPath ?? "<null>"}");
 
-                            if (Debugger.IsAttached && File.Exists(self.properties.eacPath))
+                        if (Debugger.IsAttached && File.Exists(self.properties.eacPath))
+                        {
+                            if (File.Exists(possibleAssemblyPath))
                             {
-                                if (File.Exists(possibleAssemblyPath))
-                                {
-                                    logger.Info($"Attempting to load \"{self.Name}\" (assembly=\"{possibleAssemblyPath}\", pdb=\"{self.properties.eacPath}\")...");
-                                    self.assembly = self.LoadFromAssemblyPath(possibleAssemblyPath);
-                                    logger.Info($"Successfully loaded \"{self.Name}\"!");
-                                }
-                                else
-                                {
-                                    logger.Warn($"Could not find assembly for \"{self.Name}\": {possibleAssemblyPath}, loading bytes...");
-                                    self.assembly = self.LoadAssembly(self.modFile.GetModAssembly(), File.ReadAllBytes(self.properties.eacPath));
-                                }
+                                logger.Info($"Attempting to load \"{self.Name}\" (assembly=\"{possibleAssemblyPath}\", pdb=\"{self.properties.eacPath}\")...");
+                                self.assembly = self.LoadFromAssemblyPath(possibleAssemblyPath);
+                                logger.Info($"Successfully loaded \"{self.Name}\"!");
                             }
                             else
                             {
-                                self.assembly = self.LoadAssembly(self.modFile.GetModAssembly(), self.modFile.GetModPdb());
+                                logger.Warn($"Could not find assembly for \"{self.Name}\": {possibleAssemblyPath}, loading bytes...");
+                                self.assembly = self.LoadAssembly(self.modFile.GetModAssembly(), File.ReadAllBytes(self.properties.eacPath));
                             }
-
-                            var mlc = new MetadataLoadContext(new AssemblyManager.ModLoadContext.MetadataResolver(self));
-                            self.loadableTypes = AssemblyManager.GetLoadableTypes(self, mlc);
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        e.Data["mod"] = self.Name;
-                        throw;
+                        else
+                        {
+                            self.assembly = self.LoadAssembly(self.modFile.GetModAssembly(), self.modFile.GetModPdb());
+                        }
+
+                        var mlc = new MetadataLoadContext(new AssemblyManager.ModLoadContext.MetadataResolver(self));
+                        self.loadableTypes = AssemblyManager.GetLoadableTypes(self, mlc);
                     }
                 }
-            )
+                catch (Exception e)
+                {
+                    e.Data["mod"] = self.Name;
+                    throw;
+                }
+            }
         );
     }
 }
