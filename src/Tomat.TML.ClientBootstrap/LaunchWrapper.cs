@@ -127,7 +127,7 @@ internal static class LaunchWrapper
         );
 
         // TODO: Support pass-through arguments.
-        var args = new List<string> { "-console" };
+        var args = (List<string>)["-console", ..ctx.GameLaunchArguments];
         if (ctx.LaunchMode is LaunchMode.Server)
         {
             args.Add("-server");

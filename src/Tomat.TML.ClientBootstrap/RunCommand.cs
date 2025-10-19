@@ -52,6 +52,7 @@ public sealed class RunCommand : ICommand
         await console.Output.WriteLineAsync("Client/server mode: " + Mode);
         await console.Output.WriteLineAsync("Mod name: " + ModName);
         await console.Output.WriteLineAsync("Client features: " + string.Join(", ", enabledFeatures));
+        await console.Output.WriteLineAsync($"Arguments to pass-through: {string.Join(' ', Program.PassThroughArguments)}");
 
         Environment.CurrentDirectory = tmlDir;
         await console.Output.WriteLineAsync("Set working directory: " + Environment.CurrentDirectory);
@@ -66,6 +67,7 @@ public sealed class RunCommand : ICommand
             GetMode(Mode),
             ModName,
             enabledFeatures,
+            Program.PassThroughArguments,
             tmod
         );
 

@@ -31,6 +31,7 @@ public enum LaunchMode
 ///     The mod specifically requesting the launch.
 /// </param>
 /// <param name="RequestedFeatures">An array of requested feature names.</param>
+/// <param name="GameLaunchArguments">Pass-through launch arguments.</param>
 /// <param name="GameAssembly">The game assembly.</param>
 public readonly record struct LaunchContext(
     string BootstrapDirectory,
@@ -39,5 +40,6 @@ public readonly record struct LaunchContext(
     LaunchMode LaunchMode,
     string? RequestedModName,
     string[] RequestedFeatures,
+    string[] GameLaunchArguments,
     Assembly GameAssembly
 );
