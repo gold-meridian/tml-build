@@ -22,6 +22,8 @@ public sealed class PpebNetCoreDbgPlugin : LaunchPlugin
 
     public override void ApplyPatches(LaunchContext ctx)
     {
+        base.ApplyPatches(ctx);
+
         // Completely re-implement ModLoadContext::LoadAssemblies based on the
         // referenced patch.  Loads the mod assembly from disk directly if it is
         // available.

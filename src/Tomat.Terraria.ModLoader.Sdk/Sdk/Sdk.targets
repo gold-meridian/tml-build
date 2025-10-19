@@ -25,7 +25,7 @@
         <!-- Prioritize TML.Mod.toml, but accept build.txt as a fallback. -->
         <ModManifestPath Condition="'$(ModManifestPath)' == '' And Exists('$(MSBuildProjectDirectory)\TML.Mod.toml')">$(MSBuildProjectDirectory)\TML.Mod.toml</ModManifestPath>
         <ModManifestPath Condition="'$(ModManifestPath)' == ''">$(MSBuildProjectDirectory)\build.txt</ModManifestPath>
-        
+
         <!-- You can select features to apply when bootstrapping your tModLoader
              development process.  These may make development better on certain
              platforms or aid in general developer experience.  This is a list
@@ -38,8 +38,11 @@
                                 Reload experience.
              - tomat.enablemod: Ensures a given mod is enabled, which is useful
                                 between non-rebuilds when launching.
+             - lolxd87.splashskip: Prioritzes quickly launching the game by
+                                   skipping the splash screen and reducing JIT
+                                   load operations.
              -->
-        <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod</TmlBuildBootstrapFeatures>
+        <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>
