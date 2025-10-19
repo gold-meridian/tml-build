@@ -234,7 +234,48 @@ public sealed class PackageModTask : BaseTask
 
         BuildProperties BuildTxt()
         {
-            return BuildProperties.ReadBuildInfo(filePath);
+            var properties = BuildProperties.ReadBuildInfo(filePath, out var diagnostics, out var hasErrors);
+
+            foreach (var diagnostic in diagnostics)
+            {
+                switch (diagnostic.MessageType.ToLowerInvariant())
+                {
+                    case "error":
+                        Log.LogError(
+                            subcategory: null,
+                            errorCode: diagnostic.Code,
+                            helpKeyword: null,
+                            file: diagnostic.Path,
+                            lineNumber: diagnostic.Location?.Line ?? 0,
+                            columnNumber: diagnostic.Location?.Column ?? 0,
+                            endLineNumber: 0,
+                            endColumnNumber: 0,
+                            message: diagnostic.Message
+                        );
+                        break;
+
+                    case "warning":
+                        Log.LogWarning(
+                            subcategory: null,
+                            warningCode: diagnostic.Code,
+                            helpKeyword: null,
+                            file: diagnostic.Path,
+                            lineNumber: diagnostic.Location?.Line ?? 0,
+                            columnNumber: diagnostic.Location?.Column ?? 0,
+                            endLineNumber: 0,
+                            endColumnNumber: 0,
+                            message: diagnostic.Message
+                        );
+                        break;
+                }
+            }
+
+            if (hasErrors)
+            {
+                throw new InvalidOperationException("build.txt file had fatal errors");
+            }
+
+            return properties;
         }
 
         BuildProperties Toml()

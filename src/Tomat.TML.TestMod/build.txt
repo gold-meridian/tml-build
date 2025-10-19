@@ -1,3 +1,11 @@
-﻿author = Tomat
+﻿invalid text
+# a comment!
+propertyNoValue =
+thisPropertyDoesntExist = value
+
+modReferences = Valid, Invalid@, Invalid2@-1, Valid2@1.0
+weakReferences = WeakValid, WeakInvalid@, WeakInvalid2@-1, WeakValid2@1.0
+
+author = Tomat
 displayName = Build Test Mod
 version = 1.2.3.4
