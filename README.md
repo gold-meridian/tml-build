@@ -15,12 +15,15 @@ It reimplements the entire build toolchain, allowing for strong control over how
 There are a lot, but here's a quick rundown:
 
 - [x] no need to place the mod in `ModSources`, it can resolve tModLoader from *anywhere*,
-- [x] easy version referencing,
+- [x] easy tModLoader version referencing/switching,
   - [x] reference locally-installed `steam` or `dev` version, as well as `stable`, `preview`, or a custom version (`x.y.z.w`),
-- [ ] configurable `.tmod` archive packaging,
+- [x] `.tmod` archive packaging on build,
+  - [ ] configurable packing and compression,
+  - [ ] configurable handling of image file formats (`.rawimg` vs PNG),
+- [x] sophisticated launch profile generation,
+  - [x] runs tModLoader through a program in charge of wrapping it and patching it for development use (see more in [FEATURES.md](FEATURES.md)),
 - [ ] built-in support for access transformers,
 - [ ] optional support for the [proposed TOML rework](https://github.com/tModLoader/tModLoader/issues/4170) to `build.txt`,
-- [ ] choose between packaging images as `.rawimg` or PNG (needs testing to see if it's at all worthwhile),
 - [x] much easier CI integration (no more boilerplate setup; the build system installs tML for you),
 - [ ] easily supports NuGet dependencies without needing to copy references yourself,
 - [ ] easily reference existing mods in your project by including their workshop IDs,
