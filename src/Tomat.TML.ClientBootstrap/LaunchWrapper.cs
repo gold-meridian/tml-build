@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using log4net;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 using Terraria;
 using Terraria.ModLoader;
 using Tomat.TML.ClientBootstrap.Framework;
@@ -19,13 +20,22 @@ internal static class LaunchWrapper
 
     private static Task? hookTask;
 
-    private static readonly HookManager loggingHooks = new();
-    private static readonly HookManager startupHooks = new();
+    private static readonly HookManager logging_hooks = new();
+    private static readonly HookManager startup_hooks = new();
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void PatchAndRun(LaunchContext ctx)
     {
-        InitializeLogging(ctx.LaunchMode is LaunchMode.Client ? Logging.LogFile.Client : Logging.LogFile.Server);
+        var args = (List<string>)["-console", ..ctx.GameLaunchArguments];
+        if (ctx.LaunchMode is LaunchMode.Server)
+        {
+            args.Add("-server");
+        }
+
+        InitializeLogging(
+            ctx.LaunchMode is LaunchMode.Client ? Logging.LogFile.Client : Logging.LogFile.Server,
+            args.Prepend(Path.Combine(ctx.GameDirectory, ctx.GameBinaryName)).ToArray()
+        );
 
         Logger.Info("This tModLoader instance is being launched using Tomat.TML.ClientBootstrap.");
         Logger.Info($"The following features are enabled: {string.Join(", ", ctx.RequestedFeatures)}");
@@ -76,7 +86,7 @@ internal static class LaunchWrapper
 
                 Logger.Info("Patching early-load wait...");
 
-                startupHooks.Add(
+                startup_hooks.Add(
                     typeof(Main).GetMethod("LoadContent", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!,
                     (Action<Main> orig, Main self) =>
                     {
@@ -105,7 +115,7 @@ internal static class LaunchWrapper
                     }
                 );
 
-                startupHooks.Apply(inParallel: false);
+                startup_hooks.Apply(inParallel: false);
 
                 Logger.Info("Finished patching game!");
 
@@ -131,13 +141,6 @@ internal static class LaunchWrapper
             }
         );
 
-        // TODO: Support pass-through arguments.
-        var args = (List<string>)["-console", ..ctx.GameLaunchArguments];
-        if (ctx.LaunchMode is LaunchMode.Server)
-        {
-            args.Add("-server");
-        }
-
         if (typeof(ModLoader).Assembly.EntryPoint is not { } entryPoint)
         {
             throw new InvalidOperationException("Cannot launch tML, no entrypoint found!");
@@ -150,7 +153,7 @@ internal static class LaunchWrapper
     ///     Early-initializes tModLoader's logging routine and then stubs it to
     ///     not do anything during normal execution.
     /// </summary>
-    private static void InitializeLogging(Logging.LogFile logFile)
+    private static void InitializeLogging(Logging.LogFile logFile, string[] launchArgs)
     {
         Utils.TryCreatingDirectory(Logging.LogDir);
 
@@ -170,7 +173,7 @@ internal static class LaunchWrapper
 
         try
         {
-            loggingHooks.Modify(
+            logging_hooks.Modify(
                 typeof(Logging).GetMethod(nameof(Logging.Init), BindingFlags.NonPublic | BindingFlags.Static)!,
                 il =>
                 {
@@ -187,7 +190,14 @@ internal static class LaunchWrapper
                 }
             );
 
-            loggingHooks.Apply(inParallel: false);
+            // Patch the visible arguments to reflect what is actually given to
+            // the game.
+            logging_hooks.Add(
+                typeof(Environment).GetMethod(nameof(Environment.GetCommandLineArgs), BindingFlags.Public | BindingFlags.Static)!,
+                () => launchArgs
+            );
+
+            logging_hooks.Apply(inParallel: false);
         }
         catch (Exception e)
         {

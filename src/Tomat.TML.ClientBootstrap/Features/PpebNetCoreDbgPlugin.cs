@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using log4net;
-using MonoMod.RuntimeDetour;
 using Terraria.ModLoader.Core;
 using Tomat.TML.ClientBootstrap.Framework;
 
