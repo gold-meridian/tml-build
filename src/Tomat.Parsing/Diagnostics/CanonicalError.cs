@@ -186,7 +186,7 @@ public static class CanonicalError
     /// <remarks>This method is thread-safe, because the Regex class is thread-safe (per MSDN).</remarks>
     /// <param name="message"></param>
     /// <returns>Decomposed canonical message, or null.</returns>
-    internal static ReportableDiagnostic? Parse(string message)
+    public static ReportableDiagnostic? Parse(string message)
     {
         // An unusually long string causes pathologically slow Regex back-tracking.
         // To avoid that, only scan the first 400 characters. That's enough for
@@ -199,7 +199,7 @@ public static class CanonicalError
             message = message[..400];
         }
 
-        // If a tool has a large amount of output that isn't an error or warning (eg., "dir /s %hugetree%")
+        // If a tool has a large amount of output that isn't an error or warning (e.g., "dir /s %hugetree%")
         // the regex below is slow. It's faster to pre-scan for "warning" and "error"
         // and bail out if neither are present.
         if (message.IndexOf("warning", StringComparison.OrdinalIgnoreCase) < 0 &&
@@ -208,12 +208,14 @@ public static class CanonicalError
             return null;
         }
 
+        // ReSharper disable RedundantAssignment
         var diagOrigin = string.Empty;
         var diagLocation = DiagnosticLocation.NO_LOCATION;
         var diagSubcategory = default(string?);
         var diagCategory = DiagnosticKind.Error;
         var diagCode = string.Empty;
         var diagText = default(string?);
+        // ReSharper restore RedundantAssignment
 
         // First, split the message into three parts--Origin, Category, Code, Text.
         // Example,
@@ -222,7 +224,7 @@ public static class CanonicalError
         //      Origin         SubCategory  Cat.    Code    Text
         //
         // To accommodate absolute filenames in Origin, tolerate a colon in the second position
-        // as long as its preceded by a letter.
+        // as long as it's preceded by a letter.
         //
         // Localization Note:
         //  Even in foreign-language versions of tools, the category field needs to be in English.
@@ -271,15 +273,8 @@ public static class CanonicalError
             diagText = (match.Groups["TEXT"].Value + messageOverflow).Trim();
             diagOrigin = match.Groups["FILENAME"].Value.Trim();
 
-            string[] explodedText = diagText.Split(single_quote_char, StringSplitOptions.RemoveEmptyEntries);
-            if (explodedText.Length > 0)
-            {
-                diagCode = $"G{explodedText[0].GetHashCode():X8}";
-            }
-            else
-            {
-                diagCode = "G00000000";
-            }
+            var explodedText = diagText.Split(single_quote_char, StringSplitOptions.RemoveEmptyEntries);
+            diagCode = explodedText.Length > 0 ? $"G{explodedText[0].GetHashCode():X8}" : "G00000000";
 
             return new ReportableDiagnostic(
                 Origin: diagOrigin,
@@ -326,6 +321,20 @@ public static class CanonicalError
             var location = match.Groups["LOCATION"].Value.Trim();
             diagOrigin = match.Groups["FILENAME"].Value.Trim();
 
+            if (location.Length <= 0)
+            {
+                return new ReportableDiagnostic(
+                    Origin: diagOrigin,
+                    Location: diagLocation,
+                    Subcategory: diagSubcategory,
+                    Category: diagCategory,
+                    Code: diagCode,
+                    HelpKeyword: null,
+                    HelpLink: null,
+                    Message: diagText
+                );
+            }
+
             // Now, take apart the location. It can be one of these:
             //      loc:
             //      (line)
@@ -334,58 +343,60 @@ public static class CanonicalError
             //      (line,col-col)
             //      (line,col,len)
             //      (line,col,line,col)
-            if (location.Length > 0)
+
+            match = LineFromLocation.Match(location);
+            if (match.Success)
             {
-                match = LineFromLocation.Match(location);
+                diagLocation = DiagnosticLocation.FromLine(
+                    line: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim())
+                );
+            }
+            else
+            {
+                match = LineLineFromLocation.Match(location);
+
                 if (match.Success)
                 {
-                    diagLocation = DiagnosticLocation.FromLine(
-                        line: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim())
+                    diagLocation = DiagnosticLocation.FromLineRange(
+                        lineStart: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
+                        lineEnd: ConvertToIntWithDefault(match.Groups["ENDLINE"].Value.Trim())
                     );
                 }
                 else
                 {
-                    match = LineLineFromLocation.Match(location);
+                    match = LineColFromLocation.Match(location);
+
                     if (match.Success)
                     {
-                        diagLocation = DiagnosticLocation.FromLineRange(
-                            lineStart: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
-                            lineEnd: ConvertToIntWithDefault(match.Groups["ENDLINE"].Value.Trim())
+                        diagLocation = DiagnosticLocation.FromLineWithColumn(
+                            line: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
+                            column: ConvertToIntWithDefault(match.Groups["COLUMN"].Value.Trim())
                         );
                     }
                     else
                     {
-                        match = LineColFromLocation.Match(location);
+                        match = LineColColFromLocation.Match(location);
+
                         if (match.Success)
                         {
-                            diagLocation = DiagnosticLocation.FromLineWithColumn(
+                            diagLocation = DiagnosticLocation.FromLineWithColumnRange(
                                 line: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
-                                column: ConvertToIntWithDefault(match.Groups["COLUMN"].Value.Trim())
+                                columnStart: ConvertToIntWithDefault(match.Groups["COLUMN"].Value.Trim()),
+                                columnEnd: ConvertToIntWithDefault(match.Groups["ENDCOLUMN"].Value.Trim())
                             );
                         }
                         else
                         {
-                            match = LineColColFromLocation.Match(location);
+                            match = LineColLineColFromLocation.Match(location);
+
                             if (match.Success)
                             {
-                                diagLocation = DiagnosticLocation.FromLineWithColumnRange(
-                                    line: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
+                                diagLocation = DiagnosticLocation.FromLineRangeWithColumnRange(
+                                    lineStart: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
+                                    lineEnd: ConvertToIntWithDefault(match.Groups["ENDLINE"].Value.Trim()),
                                     columnStart: ConvertToIntWithDefault(match.Groups["COLUMN"].Value.Trim()),
                                     columnEnd: ConvertToIntWithDefault(match.Groups["ENDCOLUMN"].Value.Trim())
                                 );
-                            }
-                            else
-                            {
-                                match = LineColLineColFromLocation.Match(location);
-                                if (match.Success)
-                                {
-                                    diagLocation = DiagnosticLocation.FromLineRangeWithColumnRange(
-                                        lineStart: ConvertToIntWithDefault(match.Groups["LINE"].Value.Trim()),
-                                        lineEnd: ConvertToIntWithDefault(match.Groups["ENDLINE"].Value.Trim()),
-                                        columnStart: ConvertToIntWithDefault(match.Groups["COLUMN"].Value.Trim()),
-                                        columnEnd: ConvertToIntWithDefault(match.Groups["ENDCOLUMN"].Value.Trim())
-                                    );
-                                }
                             }
                         }
                     }

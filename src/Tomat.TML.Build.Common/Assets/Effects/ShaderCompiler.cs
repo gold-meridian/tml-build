@@ -35,8 +35,8 @@ public static class ShaderCompiler
 
         using var process = new Process();
         process.StartInfo = pInfo;
-        process.OutputDataReceived += (_, e) => LogMessage(e.Data, filePath);
-        process.ErrorDataReceived += (_, e) => LogErrorOrWarning(e.Data, filePath);
+        process.OutputDataReceived += (_, e) => LogMessage(e.Data, filePath, diagnostics);
+        process.ErrorDataReceived += (_, e) => LogErrorOrWarning(e.Data, filePath, diagnostics);
 
         process.Start();
         process.BeginOutputReadLine();
@@ -79,7 +79,7 @@ public static class ShaderCompiler
             var error = process.StandardError.ReadToEnd();
             var output = process.StandardOutput.ReadToEnd();
 
-            if (!string.IsNullOrEmpty(output))
+            if (!string.IsNullOrWhiteSpace(output))
             {
                 return output.Trim();
             }
@@ -94,9 +94,9 @@ public static class ShaderCompiler
         }
     }
 
-    private static void LogMessage(string? message, string filePath)
+    private static void LogMessage(string? message, string filePath, DiagnosticsCollection diagnostics)
     {
-        if (string.IsNullOrEmpty(message))
+        if (string.IsNullOrWhiteSpace(message) || message is null)
         {
             return;
         }
@@ -106,12 +106,31 @@ public static class ShaderCompiler
             return;
         }
 
-        Console.WriteLine(message);
+        var diag = CanonicalError.Parse(message);
+        if (!diag.HasValue)
+        {
+            diag = new ReportableDiagnostic(
+                Origin: filePath,
+                Location: DiagnosticLocation.NO_LOCATION,
+                Subcategory: null,
+                Category: DiagnosticKind.MessageNormal,
+                Code: "SHADERC",
+                HelpKeyword: null,
+                HelpLink: null,
+                Message: message
+            );
+        }
+        else if (string.IsNullOrWhiteSpace(diag.Value.Origin))
+        {
+            diag = diag.Value with { Origin = filePath };
+        }
+
+        diagnostics.Add(diag.Value);
     }
 
-    private static void LogErrorOrWarning(string? message, string filePath)
+    private static void LogErrorOrWarning(string? message, string filePath, DiagnosticsCollection diagnostics)
     {
-        if (string.IsNullOrEmpty(message))
+        if (string.IsNullOrWhiteSpace(message) || message is null)
         {
             return;
         }
@@ -121,6 +140,15 @@ public static class ShaderCompiler
             return;
         }
 
+        var diag = CanonicalError.Parse(message);
+        if (diag.HasValue && string.IsNullOrWhiteSpace(diag.Value.Origin))
+        {
+            diagnostics.Add(diag.Value with { Origin = filePath });
+            return;
+        }
+
+        // TODO: Do these all parse correctly now?
+        /*
         if (message.StartsWith("warning "))
         {
             Console.WriteLine($"{filePath}: {message}");
@@ -144,8 +172,14 @@ public static class ShaderCompiler
             Console.Error.WriteLine(message);
             return;
         }
+        */
 
-        Console.Error.WriteLine($"{filePath}: error SHADERC: {message}");
+        diagnostics.AddError(
+            origin: filePath,
+            location: DiagnosticLocation.NO_LOCATION,
+            code: "SHADERC",
+            message: message
+        );
     }
 
     private static bool IsMessageIgnorable(string message)
