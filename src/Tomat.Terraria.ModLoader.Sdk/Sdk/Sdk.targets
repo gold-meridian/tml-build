@@ -51,17 +51,20 @@
         <AdditionalFiles Include="TML.Mod.toml"/>
 
         <!-- localization -->
-        <!-- <AdditionalFiles Include="**/*.lang"/> -->
-        <AdditionalFiles Include="**/*.hjson"/>
+        <!-- <LocalizationCompile Include="**/*.lang"/> -->
+        <LocalizationCompile Include="**/*.hjson"/>
 
         <!-- images -->
         <AdditionalFiles Include="**/*.rawimg"/> <!-- not included by tml -->
         <AdditionalFiles Include="**/*.png"/>
 
         <!-- shaders (effects) -->
-        <AdditionalFiles Include="**/*.hlsl"/> <!-- not included by tml -->
+        <ShaderCompile Include="**/*.hlsl"/> <!-- not included by tml -->
+        <ShaderCompile Include="**/*.fx"/>
+
+        <!-- Include header files too (as part of shader support), but don't
+             treat them as shaders to be compiled. -->
         <AdditionalFiles Include="**/*.h"/> <!-- not included by tml -->
-        <AdditionalFiles Include="**/*.fx"/>
     </ItemGroup>
 
     <!-- Additional useful references. -->
