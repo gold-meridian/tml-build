@@ -9,7 +9,7 @@
         <!-- Configure tML to not use its default build settings; we do it
              ourselves -->
         <BuildMod>false</BuildMod>
-        
+
         <!-- Fixes incremental build issues (including Hot Reload) by ommiting
              the shortened GitHub commit SHA from the assembly version.
              https://github.com/dotnet/sdk/issues/37027 -->
@@ -69,6 +69,12 @@
         <!-- No reason not to; useful for analyzers.  Would be nice to convince
              tML to annotate their own assemblies! -->
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/>
+
+        <!-- Current assembly publicizer of choice. -->
+        <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" ExcludeAssets="runtime"/>
+
+        <!-- It's reasonable to publicize tModLoader by default. -->
+        <Publicize Include="tModLoader" IncludeCompilerGeneratedMembers="false" IncludeVirtualMembers="false"/>
     </ItemGroup>
 
     <!-- Override tML-provided BuildMod target since we implement our own.

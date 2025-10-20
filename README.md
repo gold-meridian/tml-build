@@ -22,7 +22,7 @@ There are a lot, but here's a quick rundown:
   - [ ] configurable handling of image file formats (`.rawimg` vs PNG),
 - [x] sophisticated launch profile generation,
   - [x] runs tModLoader through a program in charge of wrapping it and patching it for development use (see more in [FEATURES.md](FEATURES.md)),
-- [ ] built-in support for access transformers,
+- [x] built-in support for access transformers,
 - [ ] optional support for the [proposed TOML rework](https://github.com/tModLoader/tModLoader/issues/4170) to `build.txt`,
 - [x] much easier CI integration (no more boilerplate setup; the build system installs tML for you),
 - [ ] easily supports NuGet dependencies without needing to copy references yourself,
