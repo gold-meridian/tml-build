@@ -5,6 +5,7 @@
         <!--/nuget-pkg-name/version/Sdk/ -->
         <TmlBuildSdkRoot>$(MSBuildThisFileDirectory)</TmlBuildSdkRoot>
         <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
+        <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
 
         <!-- Manually set here since it's locked behind BuildMod in tML. -->
         <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
@@ -40,6 +41,19 @@
                         TmodOutputPath="$(TmodOutputPath)"
                         BuildFilePath="$(ModManifestPath)"
                         DescriptionFilePath="$(ModDescriptionPath)"/>
+    </Target>
+
+    <UsingTask TaskName="CompileLocalizationTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="CompileLocalization" BeforeTargets="PreBuildEvent">
+        <CompileLocalizationTask CompilationUnits="@(LocalizationCompile)"
+                                 ProjectDirectory="$(MSBuildProjectDirectory)"/>
+    </Target>
+
+    <UsingTask TaskName="CompileShadersTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="CompileShaders" BeforeTargets="PreBuildEvent">
+        <CompileShadersTask CompilationUnits="@(ShaderCompile)"
+                            NativesDir="$(TmlBuildNativeRoot)"
+                            ProjectDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
 </Project>

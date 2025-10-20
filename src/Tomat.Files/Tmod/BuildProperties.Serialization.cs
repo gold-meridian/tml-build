@@ -3,48 +3,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
+using Tomat.Parsing.Diagnostics;
 
 namespace Tomat.Files.Tmod;
 
 partial class BuildProperties
 {
-    public readonly record struct Diagnostic(
-        string Path,
-        (int Line, int? Column)? Location,
-        string MessageType,
-        string Code,
-        string Message,
-        bool FatalError
-    )
-    {
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            {
-                sb.Append(Path);
-
-                if (Location.HasValue)
-                {
-                    sb.Append(
-                        Location.Value.Column.HasValue
-                            ? $"({Location.Value.Line},{Location.Value.Column.Value})"
-                            : $"({Location.Value.Line})"
-                    );
-                }
-
-                sb.Append($": {MessageType} {Code}: {Message}");
-            }
-            return sb.ToString();
-        }
-    }
-
-    public static BuildProperties ReadBuildInfo(string buildFile, out List<Diagnostic> diagnostics, out bool hasErrors)
+    public static BuildProperties ReadBuildInfo(string buildFile, out DiagnosticsCollection diagnostics)
     {
         var properties = new BuildProperties();
 
         diagnostics = [];
-        hasErrors = false;
 
         var lines = File.ReadAllLines(buildFile);
         for (var i = 0; i < lines.Length; i++)
@@ -68,16 +37,11 @@ partial class BuildProperties
             var split = line.IndexOf('=');
             if (split == -1)
             {
-                hasErrors = true;
-                diagnostics.Add(
-                    new Diagnostic(
-                        buildFile,
-                        (i + 1, null),
-                        "error",
-                        "BUILDTXT",
-                        $"Found property with no value: {line}",
-                        FatalError: true
-                    )
+                diagnostics.AddError(
+                    origin: buildFile,
+                    location: DiagnosticLocation.FromLine(i).WithZeroIndexedLines(),
+                    code: "BUILDTXT",
+                    message: $"Found property with no value: {line}"
                 );
                 continue;
             }
@@ -86,25 +50,16 @@ partial class BuildProperties
             var value = line[(split + 1)..].Trim();
             if (value.Length == 0)
             {
-                hasErrors = true;
-                diagnostics.Add(
-                    new Diagnostic(
-                        buildFile,
-                        (i + 1, split),
-                        "error",
-                        "BUILDTXT",
-                        $"Found property with no value: {property}",
-                        FatalError: true
-                    )
+                diagnostics.AddError(
+                    origin: buildFile,
+                    location: DiagnosticLocation.FromLineWithColumn(i, split).WithZeroIndexedLines(),
+                    code: "BUILDTXT",
+                    message: $"Found property with no value: {property}"
                 );
                 continue;
             }
 
-            foreach (var diag in ProcessProperty(properties, property, value, buildFile, i + 1))
-            {
-                hasErrors |= diag.FatalError;
-                diagnostics.Add(diag);
-            }
+            ProcessProperty(properties, property, value, diagnostics, buildFile, i);
         }
 
         VerifyRefs(properties.GetReferenceNames(true).ToList());
@@ -129,10 +84,8 @@ partial class BuildProperties
         }
     }
 
-    private static IEnumerable<Diagnostic> ProcessProperty(BuildProperties properties, string property, string value, string path, int line)
+    private static void ProcessProperty(BuildProperties properties, string property, string value, DiagnosticsCollection diagnostics, string path, int line)
     {
-        var diags = new List<Diagnostic>();
-
         switch (property)
         {
             case "dllReferences":
@@ -150,15 +103,11 @@ partial class BuildProperties
                     }
                     catch (Exception e)
                     {
-                        diags.Add(
-                            new Diagnostic(
-                                path,
-                                (line, null),
-                                "error",
-                                "BUILDTXT",
-                                "Failed to parse mod reference: " + e.Message,
-                                FatalError: true
-                            )
+                        diagnostics.AddError(
+                            origin: path,
+                            location: DiagnosticLocation.FromLine(line).WithZeroIndexedLines(),
+                            code: "BUILDTXT",
+                            message: "Failed to parse mod reference: " + e.Message
                         );
                     }
                 }
@@ -177,15 +126,11 @@ partial class BuildProperties
                     }
                     catch (Exception e)
                     {
-                        diags.Add(
-                            new Diagnostic(
-                                path,
-                                (line, null),
-                                "error",
-                                "BUILDTXT",
-                                "Failed to parse weak reference: " + e.Message,
-                                FatalError: true
-                            )
+                        diagnostics.AddError(
+                            origin: path,
+                            location: DiagnosticLocation.FromLine(line).WithZeroIndexedLines(),
+                            code: "BUILDTXT",
+                            message: "Failed to parse weak reference: " + e.Message
                         );
                     }
                 }
@@ -212,15 +157,11 @@ partial class BuildProperties
                 }
                 catch (Exception e)
                 {
-                    diags.Add(
-                        new Diagnostic(
-                            path,
-                            (line, null),
-                            "error",
-                            "BUILDTXT",
-                            "Failed to parse version: " + e.Message,
-                            FatalError: true
-                        )
+                    diagnostics.AddError(
+                        origin: path,
+                        location: DiagnosticLocation.FromLine(line).WithZeroIndexedLines(),
+                        code: "BUILDTXT",
+                        message: "Failed to parse version: " + e.Message
                     );
                 }
 
@@ -270,15 +211,11 @@ partial class BuildProperties
             case "side":
                 if (!Enum.TryParse<ModSide>(value, true, out var side))
                 {
-                    diags.Add(
-                        new Diagnostic(
-                            path,
-                            (line, null),
-                            "error",
-                            "BUILDTXT",
-                            "Failed to parse mod side (must be one of Both, Client, Server, NoSync): " + value,
-                            FatalError: true
-                        )
+                    diagnostics.AddError(
+                        origin: path,
+                        location: DiagnosticLocation.FromLine(line).WithZeroIndexedLines(),
+                        code: "BUILDTXT",
+                        message: "Failed to parse mod side (must be one of Both, Client, Server, NoSync): " + value
                     );
                 }
 
@@ -286,7 +223,7 @@ partial class BuildProperties
                 break;
         }
 
-        return diags;
+        return;
 
         void EnsureBooleanValue(string propertyName, string valueToCheck)
         {
@@ -297,15 +234,11 @@ partial class BuildProperties
 
             // Just a warning because the tML parser only checks if something is
             // equal to "true", treating all other values as false.
-            diags.Add(
-                new Diagnostic(
-                    path,
-                    (line, null),
-                    "warning",
-                    "BUILDTXT",
-                    $"Property \"{propertyName}\" expects boolean values \"true\" or \"false\", got: {valueToCheck}",
-                    FatalError: false
-                )
+            diagnostics.AddWarning(
+                origin: path,
+                location: DiagnosticLocation.FromLine(line).WithZeroIndexedLines(),
+                code: "BUILDTXT",
+                message: $"Property \"{propertyName}\" expects boolean values \"true\" or \"false\", got: {valueToCheck}"
             );
         }
 

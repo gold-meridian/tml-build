@@ -24,7 +24,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Add SDK targets and props. -->
         <None Include="Sdk\**" Pack="true" PackagePath="Sdk"/>
+
+        <!-- Add referenced assemblies from MSBuild implementation
+             dependency. -->
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk">
             <Link>Sdk\bin\%(Filename)%(Extension)</Link>
         </None>
@@ -34,8 +38,15 @@
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
 
+        <!-- Include all bootstrap project binaries in a known directory to be
+             used in launch profiles. -->
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\**\*" Pack="true" PackagePath="Sdk/bootstrap">
             <Link>ClientBootstrap\bin\%(Filename)%(Extension)</Link>
+        </None>
+
+        <!-- Include native dependencies in a known directory. -->
+        <None Include="$(MSBuildProjectDirectory)\native\**" Pack="true" PackagePath="Sdk/native">
+            <Link>Sdk\native\%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 
@@ -43,6 +54,7 @@
         <ProjectReference Include="..\Tomat.TML.Build.MSBuild\Tomat.TML.Build.MSBuild.csproj"/>
     </ItemGroup>
 
+    <!-- Make sure the bootstrapper gets built. -->
     <Target Name="BuildClientBootstrap" BeforeTargets="Build">
         <MSBuild Projects="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\Tomat.TML.ClientBootstrap.csproj"
                  Targets="Build"

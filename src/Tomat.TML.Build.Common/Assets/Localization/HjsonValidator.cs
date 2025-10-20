@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Hjson;
+using Tomat.Parsing.Diagnostics;
 
 namespace Tomat.TML.Build.Common.Assets.Localization;
 
@@ -15,33 +16,45 @@ public static class HjsonValidator
     ///     Gets the first found HJSON parsing error.
     /// </summary>
     /// <param name="filePath">The file to parse for errors.</param>
+    /// <param name="diagnostics">
+    ///     The diagnostics collection to report to.
+    /// </param>
     /// <returns>
     ///     The first error, formatted richly for logging; or,
     ///     <see langword="null"/>, if there are no errors.
     /// </returns>
-    public static string? GetNearestErrorInHjsonFile(string filePath)
+    public static void GetNearestErrorInHjsonFile(string filePath, DiagnosticsCollection diagnostics)
     {
         try
         {
             _ = HjsonValue.Load(filePath);
-            return null;
         }
         catch (Exception e)
         {
-            return GetRichErrorMessage(filePath, e.Message);
+            diagnostics.Add(GetRichErrorMessage(filePath, e.Message));
         }
     }
 
-    private static string GetRichErrorMessage(string filePath, string message)
+    private static ReportableDiagnostic GetRichErrorMessage(string filePath, string message)
     {
         var match = error_regex.Match(message);
         if (!match.Success)
         {
-            return $"{filePath}: error HJSON: {message}";
+            return ReportableDiagnostic.Error(
+                origin: filePath,
+                location: DiagnosticLocation.NO_LOCATION,
+                code: "HJSON",
+                message: message
+            );
         }
 
         var line = match.Groups[2].Value;
         var column = match.Groups[3].Value;
-        return $"{filePath}({line},{column}): error HJSON: {match.Groups[1].Value}";
+        return ReportableDiagnostic.Error(
+            origin: filePath,
+            location: DiagnosticLocation.FromLineWithColumn(int.Parse(line), int.Parse(column)),
+            code: "HJSON",
+            message: match.Groups[1].Value
+        );
     }
 }

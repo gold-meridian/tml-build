@@ -11,18 +11,6 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12"/>
-        <PackageReference Include="System.Memory" Version="4.6.3"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Update="Tmod\BuildProperties.Serialization.cs">
-            <DependentUpon>BuildProperties.cs</DependentUpon>
-        </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Tomat.Parsing\Tomat.Parsing.csproj"/>
     </ItemGroup>
 
 </Project>
