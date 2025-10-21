@@ -7,10 +7,40 @@
 
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <Description>
+            Source generators and analyzers used by
+            Tomat.Terraria.ModLoader.Sdk. Should only be consumed by it.
+        </Description>
+        <Authors>tomat</Authors>
+
+        <PackageId>Tomat.TML.Build.Analyzers</PackageId>
+        <Version>1.0.0</Version>
+        <PackageVersion>1.0.0</PackageVersion>
+        <RepositoryUrl>https://github.com/gold-meridian/tml-build</RepositoryUrl>
+        <PackageTags>terraria tmodloader</PackageTags>
+        <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
         <!-- Copy all assemblies (libraries, namely) to the output so we can
              copy them to the Sdk project. -->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Pack all source generator project binaries to correct analyzer path
+     so they can be consumed by projects. -->
+        <None Include="$(OutputPath)\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs">
+            <Link>bin\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
+
+        <!-- General patterns to remove already-included libraries.  Can
+             manually re-include them as needed. -->
+        <None Remove="$(OutputPath)\System.*.dll"/>
+        <None Remove="$(OutputPath)\Microsoft.*.dll"/>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Hjson" Version="3.0.0"/>

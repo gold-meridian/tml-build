@@ -85,11 +85,8 @@
 
         <!-- It's reasonable to publicize tModLoader by default. -->
         <Publicize Include="tModLoader" IncludeCompilerGeneratedMembers="false" IncludeVirtualMembers="false"/>
-    </ItemGroup>
 
-    <!-- Include analyzers and source generators. -->
-    <ItemGroup>
-        <Analyzer Condition="'$(TmlBuildIncludeSourceGenerators)' == 'true'" Include="$(TmlBuildAnalyzersRoot)Tomat.TML.Build.Analyzers.dll"/>
+        <PackageReference Condition="'$(TmlBuildIncludeSourceGenerators)' == 'true'" Include="Tomat.TML.Build.Analyzers" Version="1.0.0"/>
     </ItemGroup>
 
     <!-- Override tML-provided BuildMod target since we implement our own.

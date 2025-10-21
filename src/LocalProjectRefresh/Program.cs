@@ -13,16 +13,21 @@ internal static class Program
     {
         if (args.Length > 0)
         {
-            Console.WriteLine($"Known NuGet directory to force-delete: {args[0]}");
+            Console.WriteLine($"Known NuGet directories to force-delete: {args[0]}");
         }
 
         RunCommand("dotnet", "clean Tomat.TML.TestMod");
         RunCommand("dotnet", "nuget delete -s local Tomat.Terraria.ModLoader.Sdk 1.0.0 --non-interactive");
-        ForceDeleteDirectory(args[0]);
+        RunCommand("dotnet", "nuget delete -s local Tomat.TML.Build.Analyzers 1.0.0 --non-interactive");
+        foreach (var dir in args[0].Split(';'))
+        {
+            ForceDeleteDirectory(dir.Trim());
+        }
         RunCommand("dotnet", "build Tomat.TML.Build.MSBuild -c Release");
         RunCommand("dotnet", "build Tomat.TML.Build.Analyzers -c Release");
         RunCommand("dotnet", "build Tomat.TML.ClientBootstrap -c Release");
         RunCommand("dotnet", "build Tomat.Terraria.ModLoader.Sdk -c Release");
+        RunCommand("dotnet", "nuget push Tomat.TML.Build.Analyzers/bin/Release/Tomat.TML.Build.Analyzers.1.0.0.nupkg -s local");
         RunCommand("dotnet", "nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.1.0.0.nupkg -s local");
         RunCommand("dotnet", "restore Tomat.TML.TestMod");
     }
