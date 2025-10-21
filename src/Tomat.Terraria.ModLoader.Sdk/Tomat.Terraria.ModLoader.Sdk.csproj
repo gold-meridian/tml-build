@@ -28,7 +28,7 @@
         <None Include="Sdk\**" Pack="true" PackagePath="Sdk"/>
 
         <!-- Include native dependencies in a known directory. -->
-        <None Include="$(MSBuildProjectDirectory)\native\**" Pack="true" PackagePath="Sdk/native">
+        <None Include="Sdk\native\**" Pack="true" PackagePath="Sdk/native">
             <Link>Sdk\native\%(Filename)%(Extension)</Link>
         </None>
 
