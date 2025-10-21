@@ -10,6 +10,106 @@ namespace LocalProjectRefresh.LockFinding.Interop;
 
 public static partial class NtDll
 {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX
+    {
+        // Pointer to the handle in the kernel virtual address space.
+        public IntPtr Object;
+
+        // PID that owns the handle
+        public UIntPtr UniqueProcessId;
+
+        // Handle value in the process that owns the handle.
+        public IntPtr HandleValue;
+
+        // Access rights associated with the handle.
+        // Bit mask consisting of the fields defined in the winnt.h
+        // For example: READ_CONTROL|DELETE|SYNCHRONIZE|WRITE_DAC|WRITE_OWNER|EVENT_ALL_ACCESS
+        // The exact information that this field contain depends on the type of the handle.
+        public uint GrantedAccess;
+
+        // This filed is reserved for debugging purposes
+        // For instance, it can store an index to a stack trace that was captured when the handle was created.
+        public ushort CreatorBackTraceIndex;
+
+        // Type of object a handle refers to.
+        // For instance: file, thread, or process
+        public ushort ObjectTypeIndex;
+
+        // Bit mask that provides additional information about the handle.
+        // For example: OBJ_INHERIT, OBJ_EXCLUSIVE
+        // The attributes are defined in the winternl.h
+        public uint HandleAttributes;
+
+        public uint Reserved;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SYSTEM_HANDLE_INFORMATION_EX
+    {
+        public IntPtr NumberOfHandles;
+        public IntPtr Reserved;
+        public SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles; // Single element
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct UNICODE_STRING
+    {
+        public ushort Length;
+        public ushort MaximumLength;
+        public IntPtr Buffer;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct GENERIC_MAPPING
+    {
+        public int GenericRead;
+        public int GenericWrite;
+        public int GenericExecute;
+        public int GenericAll;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct OBJECT_TYPE_INFORMATION
+    {
+        public UNICODE_STRING Name;
+        public uint TotalNumberOfObjects;
+        public uint TotalNumberOfHandles;
+        public uint TotalPagedPoolUsage;
+        public uint TotalNonPagedPoolUsage;
+        public uint TotalNamePoolUsage;
+        public uint TotalHandleTableUsage;
+        public uint HighWaterNumberOfObjects;
+        public uint HighWaterNumberOfHandles;
+        public uint HighWaterPagedPoolUsage;
+        public uint HighWaterNonPagedPoolUsage;
+        public uint HighWaterNamePoolUsage;
+        public uint HighWaterHandleTableUsage;
+        public uint InvalidAttributes;
+        public GENERIC_MAPPING GenericMapping;
+        public uint ValidAccess;
+        public byte SecurityRequired;
+        public byte MaintainHandleCount;
+        public ushort MaintainTypeList;
+        public int PoolType;
+        public int PagedPoolUsage;
+        public int NonPagedPoolUsage;
+    }
+
+    private enum OBJECT_INFORMATION_CLASS
+    {
+        ObjectBasicInformation = 0,
+        ObjectNameInformation = 1,
+        ObjectTypeInformation = 2,
+        ObjectAllTypesInformation = 3,
+        ObjectHandleInformation = 4,
+    }
+
+    private enum SYSTEM_INFORMATION_CLASS
+    {
+        SystemExtendedHandleInformation = 64,
+    }
+
     [Flags]
     public enum DuplicateObjectOptions
     {
@@ -187,105 +287,5 @@ public static partial class NtDll
         }
 
         return handleEntries;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX
-    {
-        // Pointer to the handle in the kernel virtual address space.
-        public IntPtr Object;
-
-        // PID that owns the handle
-        public UIntPtr UniqueProcessId;
-
-        // Handle value in the process that owns the handle.
-        public IntPtr HandleValue;
-
-        // Access rights associated with the handle.
-        // Bit mask consisting of the fields defined in the winnt.h
-        // For example: READ_CONTROL|DELETE|SYNCHRONIZE|WRITE_DAC|WRITE_OWNER|EVENT_ALL_ACCESS
-        // The exact information that this field contain depends on the type of the handle.
-        public uint GrantedAccess;
-
-        // This filed is reserved for debugging purposes
-        // For instance, it can store an index to a stack trace that was captured when the handle was created.
-        public ushort CreatorBackTraceIndex;
-
-        // Type of object a handle refers to.
-        // For instance: file, thread, or process
-        public ushort ObjectTypeIndex;
-
-        // Bit mask that provides additional information about the handle.
-        // For example: OBJ_INHERIT, OBJ_EXCLUSIVE
-        // The attributes are defined in the winternl.h
-        public uint HandleAttributes;
-
-        public uint Reserved;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SYSTEM_HANDLE_INFORMATION_EX
-    {
-        public IntPtr NumberOfHandles;
-        public IntPtr Reserved;
-        public SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles; // Single element
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct UNICODE_STRING
-    {
-        public ushort Length;
-        public ushort MaximumLength;
-        public IntPtr Buffer;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct GENERIC_MAPPING
-    {
-        public int GenericRead;
-        public int GenericWrite;
-        public int GenericExecute;
-        public int GenericAll;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct OBJECT_TYPE_INFORMATION
-    {
-        public UNICODE_STRING Name;
-        public uint TotalNumberOfObjects;
-        public uint TotalNumberOfHandles;
-        public uint TotalPagedPoolUsage;
-        public uint TotalNonPagedPoolUsage;
-        public uint TotalNamePoolUsage;
-        public uint TotalHandleTableUsage;
-        public uint HighWaterNumberOfObjects;
-        public uint HighWaterNumberOfHandles;
-        public uint HighWaterPagedPoolUsage;
-        public uint HighWaterNonPagedPoolUsage;
-        public uint HighWaterNamePoolUsage;
-        public uint HighWaterHandleTableUsage;
-        public uint InvalidAttributes;
-        public GENERIC_MAPPING GenericMapping;
-        public uint ValidAccess;
-        public byte SecurityRequired;
-        public byte MaintainHandleCount;
-        public ushort MaintainTypeList;
-        public int PoolType;
-        public int PagedPoolUsage;
-        public int NonPagedPoolUsage;
-    }
-
-    private enum OBJECT_INFORMATION_CLASS
-    {
-        ObjectBasicInformation = 0,
-        ObjectNameInformation = 1,
-        ObjectTypeInformation = 2,
-        ObjectAllTypesInformation = 3,
-        ObjectHandleInformation = 4,
-    }
-
-    private enum SYSTEM_INFORMATION_CLASS
-    {
-        SystemExtendedHandleInformation = 64,
     }
 }

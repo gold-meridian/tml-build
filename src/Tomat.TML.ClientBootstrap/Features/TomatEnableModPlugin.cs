@@ -8,9 +8,9 @@ public sealed class TomatEnableModPlugin : LaunchPlugin
 {
     private const string id = "tomat.enablemod";
 
-    public override string UniqueId => id;
-
     private static readonly ILog logger = LogManager.GetLogger(id);
+
+    public override string UniqueId => id;
 
     public override void LoadContent(LaunchContext ctx)
     {

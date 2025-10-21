@@ -21,7 +21,7 @@ public static class HjsonValidator
     /// </param>
     /// <returns>
     ///     The first error, formatted richly for logging; or,
-    ///     <see langword="null"/>, if there are no errors.
+    ///     <see langword="null" />, if there are no errors.
     /// </returns>
     public static void GetNearestErrorInHjsonFile(string filePath, DiagnosticsCollection diagnostics)
     {

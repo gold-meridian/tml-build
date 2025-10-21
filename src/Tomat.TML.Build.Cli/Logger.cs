@@ -3,7 +3,7 @@ using Tomat.TML.Build.Common.Shared;
 
 namespace Tomat.TML.Build.Cli;
 
-public readonly struct Logger(IConsole console) : ILogWrapper
+internal readonly struct Logger(IConsole console) : ILogWrapper
 {
     public void Info(string message)
     {

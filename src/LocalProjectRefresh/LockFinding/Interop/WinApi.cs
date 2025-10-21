@@ -12,6 +12,24 @@ namespace LocalProjectRefresh.LockFinding.Interop;
 public static partial class WinApi
 {
     [Flags]
+    private enum StandardAccessRights : long
+    {
+        DELETE = 0x00010000L,
+        READ_CONTROL = 0x00020000L,
+        WRITE_DAC = 0x00040000L,
+        WRITE_OWNER = 0x00080000L,
+        SYNCHRONIZE = 0x00100000L,
+        STANDARD_RIGHTS_REQUIRED = 0x000F0000L,
+    }
+
+    [Flags]
+    private enum DuplicateObjectOptions : uint
+    {
+        DUPLICATE_CLOSE_SOURCE = 0x00000001,
+        DUPLICATE_SAME_ACCESS = 0x00000002,
+    }
+
+    [Flags]
     public enum FileDesiredAccess : uint
     {
         None = 0,
@@ -177,22 +195,4 @@ public static partial class WinApi
 
     [DllImport("psapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern uint GetModuleFileNameEx(SafeProcessHandle hProcess, nint hModule, [Out] StringBuilder lpFilename, int nSize);
-
-    [Flags]
-    private enum StandardAccessRights : long
-    {
-        DELETE = 0x00010000L,
-        READ_CONTROL = 0x00020000L,
-        WRITE_DAC = 0x00040000L,
-        WRITE_OWNER = 0x00080000L,
-        SYNCHRONIZE = 0x00100000L,
-        STANDARD_RIGHTS_REQUIRED = 0x000F0000L,
-    }
-
-    [Flags]
-    private enum DuplicateObjectOptions : uint
-    {
-        DUPLICATE_CLOSE_SOURCE = 0x00000001,
-        DUPLICATE_SAME_ACCESS = 0x00000002,
-    }
 }

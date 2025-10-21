@@ -14,7 +14,7 @@ public sealed class PluginRepository
         [NotNullWhen(returnValue: true)] out LaunchPlugin? plugin
     )
     {
-        return this.plugins.TryGetValue(pluginName, out plugin);
+        return plugins.TryGetValue(pluginName, out plugin);
     }
 
     public void AddPluginsFromAssembly(Assembly assembly)

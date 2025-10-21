@@ -17,6 +17,18 @@ namespace Tomat.TML.Build.Common;
 /// </summary>
 public static class VersionManager
 {
+    public readonly record struct GitHubRelease(
+        ModLoaderVersion Version,
+        string DownloadUrl
+    );
+
+    public readonly record struct VersionCache(
+        DateTime LastUpdated,
+        List<GitHubRelease> GitHubReleases,
+        ModLoaderVersion StableVersion,
+        ModLoaderVersion PreviewVersion
+    );
+
     static VersionManager()
     {
         Directory.CreateDirectory(Platform.GetAppDir());
@@ -25,7 +37,7 @@ public static class VersionManager
         if (File.Exists(versionCacheFile))
         {
             Cache = ReadCache(versionCacheFile);
-            
+
             // Trigger a cache refresh every day, ideally.
             RefreshCache(forced: false, cooldown: TimeSpan.FromDays(1));
         }
@@ -241,16 +253,4 @@ public static class VersionManager
             previewVersion
         );
     }
-
-    public readonly record struct GitHubRelease(
-        ModLoaderVersion Version,
-        string DownloadUrl
-    );
-
-    public readonly record struct VersionCache(
-        DateTime LastUpdated,
-        List<GitHubRelease> GitHubReleases,
-        ModLoaderVersion StableVersion,
-        ModLoaderVersion PreviewVersion
-    );
 }

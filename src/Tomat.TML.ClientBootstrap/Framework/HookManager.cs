@@ -9,11 +9,27 @@ namespace Tomat.TML.ClientBootstrap.Framework;
 
 public sealed class HookManager : IDisposable
 {
-    private readonly List<Hook> hooks = [];
-    private readonly List<ILHook> edits = [];
     private readonly List<Action> applications = [];
+    private readonly List<ILHook> edits = [];
+    private readonly List<Hook> hooks = [];
 
     private bool applied;
+
+    public void Dispose()
+    {
+        foreach (var hook in hooks)
+        {
+            hook.Dispose();
+        }
+
+        foreach (var edit in edits)
+        {
+            edit.Dispose();
+        }
+
+        hooks.Clear();
+        edits.Clear();
+    }
 
     public void Add(MethodBase method, Delegate hook)
     {
@@ -57,21 +73,5 @@ public sealed class HookManager : IDisposable
                 apply();
             }
         }
-    }
-
-    public void Dispose()
-    {
-        foreach (var hook in hooks)
-        {
-            hook.Dispose();
-        }
-
-        foreach (var edit in edits)
-        {
-            edit.Dispose();
-        }
-
-        hooks.Clear();
-        edits.Clear();
     }
 }

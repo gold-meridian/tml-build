@@ -8,44 +8,34 @@ namespace Tomat.Parsing.Diagnostics;
 // https://github.com/dotnet/msbuild/blob/main/src/Shared/CanonicalError.cs
 
 /// <summary>
-/// Functions for dealing with the specially formatted errors returned by
-/// build tools.
+///     Functions for dealing with the specially formatted errors returned by
+///     build tools.
 /// </summary>
 /// <remarks>
-/// Various tools produce and consume CanonicalErrors in various formats.
-///
-/// DEVENV Format When Clicking on Items in the Output Window
-/// (taken from env\msenv\core\findutil.cpp ParseLocation function)
-///
-///      v:\dir\file.ext (loc) : msg
-///      \\server\share\dir\file.ext(loc):msg
-///      url
-///
-///      loc:
-///      (line)
-///      (line-line)
-///      (line,col)
-///      (line,col-col)
-///      (line,col,len)
-///      (line,col,line,col)
-///
-/// DevDiv Build Process
-/// (taken from tools\devdiv2.def)
-///
-///      To echo warnings and errors to the build console, the
-///      "description block" must be recognized by build. To do this,
-///      add a $(ECHO_COMPILING_COMMAND) or $(ECHO_PROCESSING_COMMAND)
-///      to the first line of the description block, e.g.
-///
-///          $(ECHO_COMPILING_CMD) Resgen_$&lt;
-///
-///      Errors must have the format:
-///
-///          &lt;text&gt; : error [num]: &lt;msg&gt;
-///
-///      Warnings must have the format:
-///
-///          &lt;text&gt; : warning [num]: &lt;msg&gt;
+///     Various tools produce and consume CanonicalErrors in various formats.
+///     DEVENV Format When Clicking on Items in the Output Window
+///     (taken from env\msenv\core\findutil.cpp ParseLocation function)
+///     v:\dir\file.ext (loc) : msg
+///     \\server\share\dir\file.ext(loc):msg
+///     url
+///     loc:
+///     (line)
+///     (line-line)
+///     (line,col)
+///     (line,col-col)
+///     (line,col,len)
+///     (line,col,line,col)
+///     DevDiv Build Process
+///     (taken from tools\devdiv2.def)
+///     To echo warnings and errors to the build console, the
+///     "description block" must be recognized by build. To do this,
+///     add a $(ECHO_COMPILING_COMMAND) or $(ECHO_PROCESSING_COMMAND)
+///     to the first line of the description block, e.g.
+///     $(ECHO_COMPILING_CMD) Resgen_$&lt;
+///     Errors must have the format:
+///     &lt;text&gt; : error [num]: &lt;msg&gt;
+///     Warnings must have the format:
+///     &lt;text&gt; : warning [num]: &lt;msg&gt;
 /// </remarks>
 public static class CanonicalError
 {
@@ -136,6 +126,8 @@ public static class CanonicalError
     private static Regex? lineColColFromLocation;
     private static Regex? lineColLineColFromLocation;
 
+    private static readonly char[] single_quote_char = ['\''];
+
     private static Regex OriginCategoryCodeTextExpression =>
         originCategoryCodeTextExpression ??= new Regex(origin_category_code_text_expression_pattern, regex_options);
 
@@ -160,11 +152,9 @@ public static class CanonicalError
     private static Regex LineColLineColFromLocation =>
         lineColLineColFromLocation ??= new Regex(line_col_line_col_from_location_pattern, regex_options);
 
-    private static readonly char[] single_quote_char = ['\''];
-
     /// <summary>
-    /// A small custom int conversion method that treats invalid entries as missing (0). This is done to work around tools
-    /// that don't fully conform to the canonical message format - we still want to salvage what we can from the message.
+    ///     A small custom int conversion method that treats invalid entries as missing (0). This is done to work around tools
+    ///     that don't fully conform to the canonical message format - we still want to salvage what we can from the message.
     /// </summary>
     /// <param name="value"></param>
     /// <returns>'value' converted to int or 0 if it can't be parsed or is negative</returns>
@@ -181,7 +171,7 @@ public static class CanonicalError
     }
 
     /// <summary>
-    /// Decompose an error or warning message into constituent parts. If the message isn't in the canonical form, return null.
+    ///     Decompose an error or warning message into constituent parts. If the message isn't in the canonical form, return null.
     /// </summary>
     /// <remarks>This method is thread-safe, because the Regex class is thread-safe (per MSDN).</remarks>
     /// <param name="message"></param>

@@ -10,8 +10,8 @@ public sealed class PluginArguments : Dictionary<string, string?>
 
 public sealed class ArgumentRepository(Dictionary<string, Dictionary<string, string?>> prefixedArguments)
 {
-    private readonly FrozenDictionary<string, Dictionary<string, string?>> prefixedArguments = prefixedArguments.ToFrozenDictionary();
     private readonly Dictionary<string, PluginArguments> cachedArguments = [];
+    private readonly FrozenDictionary<string, Dictionary<string, string?>> prefixedArguments = prefixedArguments.ToFrozenDictionary();
 
     public PluginArguments GetArguments(LaunchPlugin plugin)
     {

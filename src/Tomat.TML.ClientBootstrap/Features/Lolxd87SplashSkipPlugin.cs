@@ -19,16 +19,16 @@ public sealed class Lolxd87SplashSkipPlugin : LaunchPlugin
     private const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
     private const string id = "lolxd87.splashskip";
 
-    public override string UniqueId => id;
-
     private static readonly ILog logger = LogManager.GetLogger(id);
+
+    public override string UniqueId => id;
 
     public override void ApplyPatches(LaunchContext ctx)
     {
         base.ApplyPatches(ctx);
 
         // Stub these out as no-ops.
-        
+
         // Not sure why this one was included in the original program.  Doesn't
         // work properly with filtering?
         /*

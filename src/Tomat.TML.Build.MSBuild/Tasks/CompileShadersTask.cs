@@ -1,10 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Tomat.Parsing.Diagnostics;
 using Tomat.TML.Build.Common.Assets.Effects;
 

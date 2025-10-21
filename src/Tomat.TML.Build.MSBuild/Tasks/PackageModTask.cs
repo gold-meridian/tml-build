@@ -19,23 +19,7 @@ namespace Tomat.TML.Build.MSBuild.Tasks;
 
 public sealed class PackageModTask : BaseTask
 {
-#region References
-    // Possible packages to include.
-    [Required]
-    public ITaskItem[] PackageReferences { get; set; } = [];
-
-    // Possible projects to include.
-    [Required]
-    public ITaskItem[] ProjectReferences { get; set; } = [];
-
-    // Possible assemblies to include.
-    [Required]
-    public ITaskItem[] ReferencePaths { get; set; } = [];
-
-    // Referenced mods. TODO handle like packages
-    [Required]
-    public ITaskItem[] ModReferences { get; set; } = [];
-#endregion
+    private static readonly string[] source_extensions = [".csproj", ".cs", ".sln"];
 
     // The directory of the project.
     [Required]
@@ -59,8 +43,6 @@ public sealed class PackageModTask : BaseTask
 
     [Required]
     public string DescriptionFilePath { get; set; } = string.Empty;
-
-    private static readonly string[] source_extensions = [".csproj", ".cs", ".sln"];
 
     protected override bool Run()
     {
@@ -185,7 +167,7 @@ public sealed class PackageModTask : BaseTask
             || relPath.StartsWith("obj" + Path.DirectorySeparatorChar)
             || relPath == "build.txt"
             || relPath == "TML.Mod.toml"
-            || !properties.IncludeSource && source_extensions.Contains(Path.GetExtension(resourcePath))
+            || (!properties.IncludeSource && source_extensions.Contains(Path.GetExtension(resourcePath)))
             || Path.GetFileName(resourcePath) == "Thumbs.db";
     }
 
@@ -265,4 +247,22 @@ public sealed class PackageModTask : BaseTask
             _ => Version.Parse(tmlVersion),
         };
     }
+
+#region References
+    // Possible packages to include.
+    [Required]
+    public ITaskItem[] PackageReferences { get; set; } = [];
+
+    // Possible projects to include.
+    [Required]
+    public ITaskItem[] ProjectReferences { get; set; } = [];
+
+    // Possible assemblies to include.
+    [Required]
+    public ITaskItem[] ReferencePaths { get; set; } = [];
+
+    // Referenced mods. TODO handle like packages
+    [Required]
+    public ITaskItem[] ModReferences { get; set; } = [];
+#endregion
 }

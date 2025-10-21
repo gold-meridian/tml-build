@@ -18,11 +18,6 @@ public sealed class TmodFile(
     private const uint min_compress_size = 1 << 10; //1KB
     private const float compression_tradeoff = 0.9f;
 
-    private static string Sanitize(string path)
-    {
-        return path.Replace('\\', '/');
-    }
-
     private readonly ConcurrentBag<FileEntry> files = [];
 
     public Version ModLoaderVersion { get; } = modLoaderVersion;
@@ -30,6 +25,11 @@ public sealed class TmodFile(
     public string Name { get; } = name;
 
     public Version Version { get; } = version;
+
+    private static string Sanitize(string path)
+    {
+        return path.Replace('\\', '/');
+    }
 
     public void AddFile(string fileName, byte[] data)
     {
@@ -40,7 +40,9 @@ public sealed class TmodFile(
         {
             using var ms = new MemoryStream(data.Length);
             using (var ds = new DeflateStream(ms, CompressionMode.Compress))
+            {
                 ds.Write(data, 0, data.Length);
+            }
 
             var compressed = ms.ToArray();
             if (compressed.Length < size * compression_tradeoff)

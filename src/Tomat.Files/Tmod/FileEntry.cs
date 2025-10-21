@@ -2,18 +2,6 @@
 
 public sealed class FileEntry
 {
-    public string Name { get; }
-
-    // from the start of the file
-    public int Offset { get; internal set; }
-
-    public int Length { get; }
-
-    public int CompressedLength { get; }
-
-    // intended to be readonly, but unfortunately no ReadOnlySpan on .NET 4.5
-    public byte[]? CachedBytes { get; internal set; }
-
     internal FileEntry(
         string name,
         int offset,
@@ -26,6 +14,18 @@ public sealed class FileEntry
         Offset = offset;
         Length = length;
         CompressedLength = compressedLength;
-        this.CachedBytes = cachedBytes;
+        CachedBytes = cachedBytes;
     }
+
+    public string Name { get; }
+
+    // from the start of the file
+    public int Offset { get; internal set; }
+
+    public int Length { get; }
+
+    public int CompressedLength { get; }
+
+    // intended to be readonly, but unfortunately no ReadOnlySpan on .NET 4.5
+    public byte[]? CachedBytes { get; internal set; }
 }

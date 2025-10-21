@@ -20,6 +20,10 @@ public static class CPreprocessor
         RegexOptions.Compiled
     );
 
+    // Use the earliest possible value to ensure the latest write time is never
+    // overwritten.  This is for ignore or error cases.
+    private static readonly DateTime time_ignore = DateTime.MinValue;
+
     /// <summary>
     ///     Whether a given compilation unit is out-of-date with its compiled
     ///     binary.
@@ -43,10 +47,6 @@ public static class CPreprocessor
     {
         return GetLatestWriteTimeRecursive(Path.GetFullPath(filePath), []);
     }
-
-    // Use the earliest possible value to ensure the latest write time is never
-    // overwritten.  This is for ignore or error cases.
-    private static readonly DateTime time_ignore = DateTime.MinValue;
 
     private static DateTime GetLatestWriteTimeRecursive(string filePath, HashSet<string> visitedFiles)
     {

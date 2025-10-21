@@ -15,9 +15,9 @@ public sealed class PpebNetCoreDbgPlugin : LaunchPlugin
 {
     private const string id = "ppeb.netcoredbg";
 
-    public override string UniqueId => id;
-
     private static readonly ILog logger = LogManager.GetLogger(id);
+
+    public override string UniqueId => id;
 
     public override void ApplyPatches(LaunchContext ctx)
     {

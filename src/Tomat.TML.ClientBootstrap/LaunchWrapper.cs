@@ -16,12 +16,11 @@ namespace Tomat.TML.ClientBootstrap;
 
 internal static class LaunchWrapper
 {
-    public static ILog Logger { get; } = LogManager.GetLogger("Tomat.TML.ClientBootstrap");
-
     private static Task? hookTask;
 
     private static readonly HookManager logging_hooks = new();
     private static readonly HookManager startup_hooks = new();
+    public static ILog Logger { get; } = LogManager.GetLogger("Tomat.TML.ClientBootstrap");
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void PatchAndRun(LaunchContext ctx)

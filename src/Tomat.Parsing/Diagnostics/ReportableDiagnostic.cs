@@ -45,7 +45,7 @@ public readonly record struct DiagnosticLocation(
     int ColumnEnd
 )
 {
-    public static readonly DiagnosticLocation NO_LOCATION = new DiagnosticLocation(
+    public static readonly DiagnosticLocation NO_LOCATION = new(
         LineStart: 0,
         LineEnd: 0,
         ColumnStart: 0,

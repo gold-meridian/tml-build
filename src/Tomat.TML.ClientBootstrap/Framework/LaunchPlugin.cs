@@ -30,7 +30,7 @@ public abstract class LaunchPlugin
 
 #region Game-specific
     /// <summary>
-    ///     Ran at the start of <see cref="Main.LoadContent"/>.
+    ///     Ran at the start of <see cref="Main.LoadContent" />.
     /// </summary>
     /// <remarks>
     ///     Patches may or may not have finished applying by now.
