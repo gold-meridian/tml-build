@@ -46,13 +46,13 @@
         <!-- Include all bootstrap project binaries in a known directory to be
              used in launch profiles. -->
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\**\*" Pack="true" PackagePath="Sdk/bootstrap">
-            <Link>ClientBootstrap\bin\%(Filename)%(Extension)</Link>
+            <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
 
         <!-- Pack all source generator project binaries to correct analyzer path
              so they can be consumed by projects. -->
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk/analyzers">
-            <Link>Analyzers\bin\%(Filename)%(Extension)</Link>
+            <Link>Analyzers\%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 
