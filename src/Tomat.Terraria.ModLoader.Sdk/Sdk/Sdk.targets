@@ -40,14 +40,6 @@
              See FEATURES.md for a list of available flags.
              -->
         <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
-
-        <!-- Configures specific tasks the SDK provides. -->
-        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">true</TmlBuildUseShaderCompile>
-        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">true</TmlBuildUseLocalizationCompiler>
-        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">true</TmlBuildPackageMod>
-        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">true</TmlBuildIncludeSourceGenerators>
-        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">true</TmlBuildGenerateLaunchSettings>
-        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">false</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>
@@ -61,6 +53,7 @@
         <!-- localization -->
         <!-- <LocalizationCompile Include="**/*.lang"/> -->
         <LocalizationCompile Include="**/*.hjson"/>
+        <AdditionalFiles Include="**/*.hjson"/>
 
         <!-- images -->
         <AdditionalFiles Include="**/*.rawimg"/> <!-- not included by tml -->
@@ -69,10 +62,16 @@
         <!-- shaders (effects) -->
         <ShaderCompile Include="**/*.hlsl"/> <!-- not included by tml -->
         <ShaderCompile Include="**/*.fx"/>
+        <AdditionalFiles Include="**/*.fxc"/> <!-- Compiled objects -->
 
         <!-- Include header files too (as part of shader support), but don't
              treat them as shaders to be compiled. -->
         <AdditionalFiles Include="**/*.h"/> <!-- not included by tml -->
+
+        <!-- sfx and music -->
+        <AdditionalFiles Include="**/*.wav"/>
+        <AdditionalFiles Include="**/*.ogg"/>
+        <AdditionalFiles Include="**/*.mp3"/>
     </ItemGroup>
 
     <!-- Additional useful references. -->

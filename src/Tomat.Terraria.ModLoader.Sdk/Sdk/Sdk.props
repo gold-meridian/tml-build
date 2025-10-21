@@ -1,21 +1,31 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <!-- Private properties. -->
     <PropertyGroup>
+        <!-- Configures specific tasks the SDK provides. -->
+        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">true</TmlBuildUseShaderCompile>
+        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">true</TmlBuildUseLocalizationCompiler>
+        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">true</TmlBuildPackageMod>
+        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">true</TmlBuildIncludeSourceGenerators>
+        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">true</TmlBuildGenerateLaunchSettings>
+        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">false</TmlBuildUseDefaultModImpl>
+
+        <!-- Manually set here since it's locked behind BuildMod in tML. -->
+        <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
+        <DotNetName Condition=" '$(OS)' == 'Unix' ">dotnet</DotNetName>
+        <DotNetName Condition=" '$(DotNetName)' == '' ">dotnet</DotNetName>
+
+        <!-- Private properties. -->
         <!--/nuget-pkg-name/version/Sdk/ -->
         <TmlBuildSdkRoot>$(MSBuildThisFileDirectory)</TmlBuildSdkRoot>
         <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
         <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
         <TmlBuildAnalyzersRoot>$(TmlBuildSdkRoot)analyzers\</TmlBuildAnalyzersRoot>
-
-        <!-- Properties that our source generators need to see. -->
-        <CompilerVisiblePropert Include="TmlBuildUseDefaultModImpl"/>
-        
-        <!-- Manually set here since it's locked behind BuildMod in tML. -->
-        <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
-        <DotNetName Condition=" '$(OS)' == 'Unix' ">dotnet</DotNetName>
-        <DotNetName Condition=" '$(DotNetName)' == '' ">dotnet</DotNetName>
     </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Properties that our source generators need to see. -->
+        <CompilerVisibleProperty Include="TmlBuildUseDefaultModImpl"/>
+    </ItemGroup>
 
     <!-- Produce a launchSettings.json file to run the mod. -->
     <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
