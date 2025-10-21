@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.ClientBootstrap",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.Parsing", "Tomat.Parsing\Tomat.Parsing.csproj", "{2247F0D8-8D4B-4DE7-AC91-D33E7C313203}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.Build.Analyzers", "Tomat.TML.Build.Analyzers\Tomat.TML.Build.Analyzers.csproj", "{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{2247F0D8-8D4B-4DE7-AC91-D33E7C313203}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2247F0D8-8D4B-4DE7-AC91-D33E7C313203}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2247F0D8-8D4B-4DE7-AC91-D33E7C313203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

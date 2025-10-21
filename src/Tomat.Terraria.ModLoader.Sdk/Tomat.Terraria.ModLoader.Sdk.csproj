@@ -27,6 +27,11 @@
         <!-- Add SDK targets and props. -->
         <None Include="Sdk\**" Pack="true" PackagePath="Sdk"/>
 
+        <!-- Include native dependencies in a known directory. -->
+        <None Include="$(MSBuildProjectDirectory)\native\**" Pack="true" PackagePath="Sdk/native">
+            <Link>Sdk\native\%(Filename)%(Extension)</Link>
+        </None>
+
         <!-- Add referenced assemblies from MSBuild implementation
              dependency. -->
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk">
@@ -44,9 +49,10 @@
             <Link>ClientBootstrap\bin\%(Filename)%(Extension)</Link>
         </None>
 
-        <!-- Include native dependencies in a known directory. -->
-        <None Include="$(MSBuildProjectDirectory)\native\**" Pack="true" PackagePath="Sdk/native">
-            <Link>Sdk\native\%(Filename)%(Extension)</Link>
+        <!-- Pack all source generator project binaries to correct analyzer path
+             so they can be consumed by projects. -->
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="analyzers\dotnet\cs">
+            <Link>Analyzers\bin\%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 
