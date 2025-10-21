@@ -6,6 +6,7 @@
         <TmlBuildSdkRoot>$(MSBuildThisFileDirectory)</TmlBuildSdkRoot>
         <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
         <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
+        <TmlBuildAnalyzersRoot>$(TmlBuildSdkRoot)analyzers\</TmlBuildAnalyzersRoot>
 
         <!-- Manually set here since it's locked behind BuildMod in tML. -->
         <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
