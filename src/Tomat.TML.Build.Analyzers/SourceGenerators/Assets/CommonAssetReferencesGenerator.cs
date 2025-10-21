@@ -1,0 +1,81 @@
+﻿using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
+
+namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
+
+/// <summary>
+///     Generates common type definitions used for various asset generators, as
+///     well as the using directives to access them ergonomically.
+/// </summary>
+[Generator]
+public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
+{
+    void IIncrementalGenerator.Initialize(
+        IncrementalGeneratorInitializationContext context
+    )
+    {
+        var rootNamespaceProvider = GeneratorsHelper.GetRootNamespaceOrAssemblyName(
+            context.AnalyzerConfigOptionsProvider,
+            context.CompilationProvider
+        );
+
+        context.RegisterSourceOutput(
+            rootNamespaceProvider,
+            (ctx, rootNamespace) =>
+            {
+                ctx.AddSource(
+                    "IShaderParameters.g.cs",
+                    SourceText.From(GenerateIShaderParameters(rootNamespace), Encoding.UTF8)
+                );
+
+                ctx.AddSource(
+                    "WrappedShaderData.g.cs",
+                    SourceText.From(GenerateWrappedShaderData(rootNamespace), Encoding.UTF8)
+                );
+            }
+        );
+    }
+
+    private static string GenerateIShaderParameters(string rootNamespace)
+    {
+        return
+            $$"""
+              using Microsoft.Xna.Framework.Graphics;
+
+              namespace {{rootNamespace}}.Core;
+
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal interface IShaderParameters
+              {
+                  void Apply(EffectParameterCollection parameters);
+              }
+              """;
+    }
+
+    private static string GenerateWrappedShaderData(string rootNamespace)
+    {
+        return
+            $$"""
+              using Microsoft.Xna.Framework.Graphics;
+              using ReLogic.Content;
+              using Terraria.Graphics.Shaders;
+
+              namespace {{rootNamespace}}.Core;
+
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal sealed class WrapperShaderData<TParameters>(Asset<Effect> shader, string passName) : ShaderData(shader, passName)
+                  where TParameters : IShaderParameters, new()
+              {
+                  public TParameters Parameters { get; } = new();
+
+                  public override void Apply()
+                  {
+                      Parameters.Apply(Shader.Parameters);
+
+                      base.Apply();
+                  }
+              }
+              """;
+    }
+}

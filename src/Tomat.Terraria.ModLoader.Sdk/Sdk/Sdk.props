@@ -8,6 +8,9 @@
         <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
         <TmlBuildAnalyzersRoot>$(TmlBuildSdkRoot)analyzers\</TmlBuildAnalyzersRoot>
 
+        <!-- Properties that our source generators need to see. -->
+        <CompilerVisiblePropert Include="TmlBuildUseDefaultModImpl"/>
+        
         <!-- Manually set here since it's locked behind BuildMod in tML. -->
         <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
         <DotNetName Condition=" '$(OS)' == 'Unix' ">dotnet</DotNetName>
@@ -16,7 +19,7 @@
 
     <!-- Produce a launchSettings.json file to run the mod. -->
     <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild" Condition="'$(TmlBuildGenerateLaunchSettings)' == 'enable'">
+    <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild" Condition="'$(TmlBuildGenerateLaunchSettings)' == 'true'">
         <LaunchSettingsTask ProjectDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
@@ -29,7 +32,7 @@
 
     <!-- Package the most post-build into a .tmod file. -->
     <UsingTask TaskName="PackageModTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="PackageMod" AfterTargets="Build" Condition="'$(TmlBuildPackageMod)' == 'enable'">
+    <Target Name="PackageMod" AfterTargets="Build" Condition="'$(TmlBuildPackageMod)' == 'true'">
         <!-- all of these refs are TODO -->
         <PackageModTask PackageReferences="@(PackageReferences)"
                         ProjectReferences="@(_ResolvedProjectReferencePaths)"
@@ -45,13 +48,13 @@
     </Target>
 
     <UsingTask TaskName="CompileLocalizationTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="CompileLocalization" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseLocalizationCompiler)' == 'enable'">
+    <Target Name="CompileLocalization" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseLocalizationCompiler)' == 'true'">
         <CompileLocalizationTask CompilationUnits="@(LocalizationCompile)"
                                  ProjectDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
     <UsingTask TaskName="CompileShadersTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="CompileShaders" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseShaderCompile)' == 'enable'">
+    <Target Name="CompileShaders" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseShaderCompile)' == 'true'">
         <CompileShadersTask CompilationUnits="@(ShaderCompile)"
                             NativesDir="$(TmlBuildNativeRoot)"
                             ProjectDirectory="$(MSBuildProjectDirectory)"/>

@@ -42,11 +42,12 @@
         <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
 
         <!-- Configures specific tasks the SDK provides. -->
-        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">enable</TmlBuildUseShaderCompile>
-        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">enable</TmlBuildUseLocalizationCompiler>
-        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">enable</TmlBuildPackageMod>
-        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">enable</TmlBuildIncludeSourceGenerators>
-        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">enable</TmlBuildGenerateLaunchSettings>
+        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">true</TmlBuildUseShaderCompile>
+        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">true</TmlBuildUseLocalizationCompiler>
+        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">true</TmlBuildPackageMod>
+        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">true</TmlBuildIncludeSourceGenerators>
+        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">true</TmlBuildGenerateLaunchSettings>
+        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">false</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>
@@ -89,7 +90,7 @@
 
     <!-- Include analyzers and source generators. -->
     <ItemGroup>
-        <Analyzer Condition="'$(TmlBuildIncludeSourceGenerators)' == 'enable'" Include="$(TmlBuildAnalyzersRoot)Tomat.TML.Build.Analyzers.dll"/>
+        <Analyzer Condition="'$(TmlBuildIncludeSourceGenerators)' == 'true'" Include="$(TmlBuildAnalyzersRoot)Tomat.TML.Build.Analyzers.dll"/>
     </ItemGroup>
 
     <!-- Override tML-provided BuildMod target since we implement our own.
