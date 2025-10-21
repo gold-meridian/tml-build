@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,6 +21,7 @@ namespace Tomat.TML.Build.Analyzers.SourceGenerators;
 ///     to in-game building assuming a mod's internal name is the same as its
 ///     parent directory.
 /// </summary>
+[Generator]
 public sealed class MarkerGenerator : IIncrementalGenerator
 {
     void IIncrementalGenerator.Initialize(
@@ -50,7 +52,7 @@ public sealed class MarkerGenerator : IIncrementalGenerator
 
                 ctx.AddSource(
                     "TmlBuildAnalysisMarker.g.cs",
-                    SourceText.From(fileText)
+                    SourceText.From(fileText, Encoding.UTF8)
                 );
             }
         );

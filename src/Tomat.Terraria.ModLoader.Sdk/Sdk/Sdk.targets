@@ -80,6 +80,11 @@
         <Publicize Include="tModLoader" IncludeCompilerGeneratedMembers="false" IncludeVirtualMembers="false"/>
     </ItemGroup>
 
+    <!-- Include analyzers and source generators. -->
+    <ItemGroup>
+        <Analyzer Include="$(TmlBuildAnalyzersRoot)Tomat.TML.Build.Analyzers.dll"/>
+    </ItemGroup>
+
     <!-- Override tML-provided BuildMod target since we implement our own.
          This is now covered by the BuildMod property, but let's keep this to
          account for older versions. -->
