@@ -54,6 +54,11 @@
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\$(TargetFramework)\*.dll" Pack="true" PackagePath="Sdk/analyzers">
             <Link>Analyzers\%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
+
+        <!-- General patterns to remove already-included libraries.  Can
+             manually re-include them as needed. -->
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
     </ItemGroup>
 
     <ItemGroup>
