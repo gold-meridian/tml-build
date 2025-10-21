@@ -27,7 +27,7 @@ public sealed class MarkerGenerator : IIncrementalGenerator
     )
     {
         var assemblyNameProvider = context.CompilationProvider.Select((compilation, _) => compilation.AssemblyName);
-        
+
         context.RegisterImplementationSourceOutput(
             assemblyNameProvider,
             (ctx, assemblyName) =>
@@ -36,21 +36,23 @@ public sealed class MarkerGenerator : IIncrementalGenerator
                 {
                     throw new InvalidOperationException("Cannot generate build marker for compilation without assembly name");
                 }
-                
-                var syntax = CreateBuildAnalysisMarkerSyntax(assemblyName);
-                
+
+                var fileText =
+                    $$"""
+                      namespace {{assemblyName}};
+
+                      [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+                      file static class __TmlBuildMarker
+                      {
+                          // TODO: Many save the version and stuff here?
+                      }
+                      """;
+
                 ctx.AddSource(
                     "TmlBuildAnalysisMarker.g.cs",
-                    SourceText.From(syntax.NormalizeWhitespace().ToFullString())
+                    SourceText.From(fileText)
                 );
             }
         );
-    }
-
-    private static CompilationUnitSyntax CreateBuildAnalysisMarkerSyntax(string assemblyName)
-    {
-        var classSyntax = ClassDeclaration("__TmlBuildMarker")
-           .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(SyntaxHelpers.GetCompilerGeneratedAttribute()))))
-                         .WithModifiers(TokenList(Token(SyntaxKind.FileKeyword), Token(SyntaxKind.StaticKeyword)));
     }
 }

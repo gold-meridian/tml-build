@@ -11,8 +11,4 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Using Static="true" Include="Microsoft.CodeAnalysis.CSharp.SyntaxFactory"/>
-    </ItemGroup>
-
 </Project>
