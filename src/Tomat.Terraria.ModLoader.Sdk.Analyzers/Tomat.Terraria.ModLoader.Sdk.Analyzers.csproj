@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+
+        <Description>
+            Source generators and analyzers used by
+            Tomat.Terraria.ModLoader.Sdk. Should only be consumed by it.
+        </Description>
+        <Authors>tomat</Authors>
+
+        <PackageId>Tomat.Terraria.ModLoader.Sdk.Analyzers</PackageId>
+        <Version>1.0.0</Version>
+        <PackageVersion>1.0.0</PackageVersion>
+        <RepositoryUrl>https://github.com/gold-meridian/tml-build</RepositoryUrl>
+        <PackageTags>terraria tmodloader</PackageTags>
+        <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Pack all source generator project binaries to correct analyzer path
+             so they can be consumed by projects. -->
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs">
+            <Link>analyzers\dotnet\cs\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
+
+        <!-- General patterns to remove already-included libraries.  Can
+             manually re-include them as needed. -->
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\System.*.dll"/>
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\Microsoft.*.dll"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Tomat.TML.Build.Analyzers\Tomat.TML.Build.Analyzers.csproj"/>
+    </ItemGroup>
+
+</Project>
