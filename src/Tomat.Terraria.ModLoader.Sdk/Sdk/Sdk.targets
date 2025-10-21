@@ -40,6 +40,13 @@
              See FEATURES.md for a list of available flags.
              -->
         <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
+
+        <!-- Configures specific tasks the SDK provides. -->
+        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">enable</TmlBuildUseShaderCompile>
+        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">enable</TmlBuildUseLocalizationCompiler>
+        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">enable</TmlBuildPackageMod>
+        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">enable</TmlBuildIncludeSourceGenerators>
+        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">enable</TmlBuildGenerateLaunchSettings>
     </PropertyGroup>
 
     <Import Project="$(TmlTargetsPath)"/>
@@ -82,7 +89,7 @@
 
     <!-- Include analyzers and source generators. -->
     <ItemGroup>
-        <Analyzer Include="$(TmlBuildAnalyzersRoot)Tomat.TML.Build.Analyzers.dll"/>
+        <Analyzer Condition="'$(TmlBuildIncludeSourceGenerators)' == 'enable'" Include="$(TmlBuildAnalyzersRoot)Tomat.TML.Build.Analyzers.dll"/>
     </ItemGroup>
 
     <!-- Override tML-provided BuildMod target since we implement our own.

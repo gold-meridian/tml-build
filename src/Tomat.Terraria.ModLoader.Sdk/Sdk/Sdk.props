@@ -16,7 +16,7 @@
 
     <!-- Produce a launchSettings.json file to run the mod. -->
     <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild">
+    <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild" Condition="'$(TmlBuildGenerateLaunchSettings)' == 'enable'">
         <LaunchSettingsTask ProjectDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
@@ -29,7 +29,7 @@
 
     <!-- Package the most post-build into a .tmod file. -->
     <UsingTask TaskName="PackageModTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="PackageMod" AfterTargets="Build">
+    <Target Name="PackageMod" AfterTargets="Build" Condition="'$(TmlBuildPackageMod)' == 'enable'">
         <!-- all of these refs are TODO -->
         <PackageModTask PackageReferences="@(PackageReferences)"
                         ProjectReferences="@(_ResolvedProjectReferencePaths)"
@@ -45,13 +45,13 @@
     </Target>
 
     <UsingTask TaskName="CompileLocalizationTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="CompileLocalization" BeforeTargets="PreBuildEvent">
+    <Target Name="CompileLocalization" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseLocalizationCompiler)' == 'enable'">
         <CompileLocalizationTask CompilationUnits="@(LocalizationCompile)"
                                  ProjectDirectory="$(MSBuildProjectDirectory)"/>
     </Target>
 
     <UsingTask TaskName="CompileShadersTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="CompileShaders" BeforeTargets="PreBuildEvent">
+    <Target Name="CompileShaders" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseShaderCompile)' == 'enable'">
         <CompileShadersTask CompilationUnits="@(ShaderCompile)"
                             NativesDir="$(TmlBuildNativeRoot)"
                             ProjectDirectory="$(MSBuildProjectDirectory)"/>
