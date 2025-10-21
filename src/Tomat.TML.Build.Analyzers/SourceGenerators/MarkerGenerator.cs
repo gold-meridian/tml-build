@@ -39,6 +39,8 @@ public sealed class MarkerGenerator : IIncrementalGenerator
 
                 var fileText =
                     $$"""
+                      #nullable enable
+
                       namespace {{assemblyName}};
 
                       [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]

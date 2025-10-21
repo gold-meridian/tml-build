@@ -105,6 +105,8 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
         return
             $$"""
+              #nullable enable
+
               using Terraria.Localization;
 
               namespace {{rootNamespace}}.Core;

@@ -41,6 +41,8 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
     {
         return
             $$"""
+              #nullable enable
+
               using Microsoft.Xna.Framework.Graphics;
 
               namespace {{rootNamespace}}.Core;
@@ -57,6 +59,8 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
     {
         return
             $$"""
+              #nullable enable
+
               using Microsoft.Xna.Framework.Graphics;
               using ReLogic.Content;
               using Terraria.Graphics.Shaders;

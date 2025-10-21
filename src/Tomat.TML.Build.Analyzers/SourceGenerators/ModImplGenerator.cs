@@ -34,7 +34,7 @@ public sealed class ModImplGenerator : IIncrementalGenerator
                 {
                     return;
                 }
-                
+
                 ctx.AddSource(
                     "ModImpl.g.cs",
                     SourceText.From(GenerateModImpl(rootNamespace), Encoding.UTF8)
@@ -47,6 +47,8 @@ public sealed class ModImplGenerator : IIncrementalGenerator
     {
         return
             $$"""
+              #nullable enable
+
               namespace {{rootNamespace}};
 
               [global::JetBrains.Annotations.UsedImplicitly(global::JetBrains.Annotations.ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
