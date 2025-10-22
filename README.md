@@ -12,7 +12,7 @@ It reimplements the entire build toolchain, allowing for strong control over how
 
 ---
 
-There are a lot, but here's a quick rundown:
+There are a lot, but here's a quick rundown (unchecked items are not yet implemented):
 
 - [x] no need to place the mod in `ModSources`, it can resolve tModLoader from *anywhere*,
 - [x] easy tModLoader version referencing/switching,
@@ -27,40 +27,25 @@ There are a lot, but here's a quick rundown:
 - [x] much easier CI integration (no more boilerplate setup; the build system installs tML for you),
 - [ ] easily supports NuGet dependencies without needing to copy references yourself,
 - [ ] easily reference existing mods in your project by including their workshop IDs,
-- [ ] type-safe references to all sorts of assets,
-  - [ ] images,
-  - [ ] sounds,
-  - [ ] shaders (effects),
-  - [ ] and localization,
+- [x] type-safe references to all sorts of assets,
+  - [x] images,
+  - [x] sounds,
+  - [x] shaders (effects),
+  - [x] and localization,
 - [and more!](FEATURES.md)
 
-## what does a project look like?
+## how do I use this?
 
-Like this:
+It's a one-line change in your `.csproj`:
 
-```xml
-<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0" />
-```
-
-or maybe like this:
-
-```xml
-<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0">
-
-</Project>
-```
-
-and sometimes, even like this:
-
-```xml
-<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0">
-
-    <!-- TODO: Add example referencing other mods. -->
-
-</Project>
+```diff
+-<Project Sdk="Microsoft.NET.Sdk">
++<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.0>
 ```
 
 It's that simple; base configuration uses sane defaults that replicate tML.
+
+With this change, you should be good to remove all of tMod's default configuration values as well.
 
 ## license
 
