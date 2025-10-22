@@ -140,9 +140,14 @@ public static class ShaderCompiler
         }
 
         var diag = CanonicalError.Parse(message);
-        if (diag.HasValue && string.IsNullOrWhiteSpace(diag.Value.Origin))
+        if (diag.HasValue)
         {
-            diagnostics.Add(diag.Value with { Origin = filePath });
+            if (string.IsNullOrWhiteSpace(diag.Value.Origin))
+            {
+                diag = diag.Value with { Origin = filePath };
+            }
+
+            diagnostics.Add(diag.Value);
             return;
         }
 
