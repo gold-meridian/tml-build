@@ -62,6 +62,8 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             }
             */
 
+            token.ThrowIfCancellationRequested();
+
             foreach (var key in GetKeysFromFile(text, token))
             {
                 keys.Add(key);
@@ -100,6 +102,8 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
         foreach (var node in root.Nodes.Values)
         {
+            token.ThrowIfCancellationRequested();
+
             sb.Append(GenerateTextFromLocalizationNode(node, "", 1));
         }
 

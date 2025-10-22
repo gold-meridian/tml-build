@@ -6,4 +6,32 @@
         <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ClCompile Include="Assets\Shaders\LiquidEffects\Reflections\PerfectMirror.hlsl" />
+      <ClCompile Include="Assets\Shaders\LiquidEffects\Reflections\WarpedMirror.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\BasicPixelizationShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\CurseField.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\DarkeningMistShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\FlameShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\FourPointLightingShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\ObscuringDistortionShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\ReflectivePlatinumShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\SlashWobble.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\SpaceBrainShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\VanillaVertexStripShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\WatchfulEyeShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\Weapons\FlamelashTrail.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\Weapons\RainbowRodItem.hlsl" />
+      <ClCompile Include="Assets\Shaders\Misc\Weapons\RainbowRodTrail.hlsl" />
+      <ClCompile Include="Assets\Shaders\ScreenFilters\CurseFieldDistort.hlsl" />
+      <ClCompile Include="Assets\Shaders\ScreenFilters\CurseFogOverlay.hlsl" />
+      <ClCompile Include="Assets\Shaders\ScreenFilters\ImpactEffectShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\ScreenFilters\TunnelVisionShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\UI\CoolFlowerShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\UI\ModMenuShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\UI\ModPanelShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\UI\OrbFluidFillShader.hlsl" />
+      <ClCompile Include="Assets\Shaders\UI\OrbFluidOverlayShader.hlsl" />
+    </ItemGroup>
+
 </Project>
