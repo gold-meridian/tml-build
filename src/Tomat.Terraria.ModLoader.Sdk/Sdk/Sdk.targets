@@ -74,6 +74,12 @@
         <AdditionalFiles Include="**/*.mp3"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- Helpful to automaticlly important any libraryes placed in `lib/`
+             (still necessary to explicitly add them to `dllReferences`!). -->
+        <Reference Include="$(MSBuildProjectFileDirectory)lib\**\*.dll"/>
+    </ItemGroup>
+
     <!-- Additional useful references. -->
     <ItemGroup>
         <!-- No reason not to; useful for analyzers.  Would be nice to convince
