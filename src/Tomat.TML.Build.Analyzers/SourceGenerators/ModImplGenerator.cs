@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators;
@@ -24,13 +25,36 @@ public sealed class ModImplGenerator : IIncrementalGenerator
              && enabled == "true"
         );
 
+        // Find any class declarations and check if they extend
+        // `Terraria.ModLoader.Mod`.  If they do, filter to only true cases and
+        // collect into an array, then return whether that array has any
+        // elements.  This should adequately determine if a mod implements the
+        // base Mod class themselves.
+        var alreadyHasModImpl = context.SyntaxProvider.CreateSyntaxProvider(
+            static (n, _) => n is ClassDeclarationSyntax { BaseList: { } baseSyntax },
+            static (n, _) =>
+            {
+                if (n.SemanticModel.GetDeclaredSymbol(n.Node) is not ITypeSymbol typeSymbol)
+                {
+                    return false;
+                }
+
+                if (typeSymbol.BaseType is not { } baseType)
+                {
+                    return false;
+                }
+
+                return baseType.ContainingNamespace.ToString() == "Terraria.ModLoader"
+                    && baseType.Name == "Mod";
+            }
+        ).Where(x => x).Collect().Select((x, _) => x.Length > 0);
+
         context.RegisterSourceOutput(
-            rootNamespaceProvider.Combine(enabledProvider),
+            rootNamespaceProvider.Combine(enabledProvider.Combine(alreadyHasModImpl)),
             (ctx, tuple) =>
             {
-                var (rootNamespace, enabled) = tuple;
-
-                if (!enabled)
+                var (rootNamespace, (enabled, alreadyHasMod)) = tuple;
+                if (!enabled || alreadyHasMod)
                 {
                     return;
                 }

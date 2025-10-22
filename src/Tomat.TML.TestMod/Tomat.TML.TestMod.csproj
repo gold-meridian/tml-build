@@ -2,8 +2,6 @@
 
     <PropertyGroup>
         <AssemblyName>TestMod</AssemblyName>
-
-        <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
 
 </Project>

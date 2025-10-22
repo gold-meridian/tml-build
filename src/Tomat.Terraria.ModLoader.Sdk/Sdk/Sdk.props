@@ -1,4 +1,4 @@
-<Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
         <!-- Configures specific tasks the SDK provides. -->
@@ -8,7 +8,7 @@
         <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">$(TmlBuildMod)</TmlBuildPackageMod>
         <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">$(TmlBuildMod)</TmlBuildIncludeSourceGenerators>
         <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">$(TmlBuildMod)</TmlBuildGenerateLaunchSettings>
-        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">false</TmlBuildUseDefaultModImpl>
+        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildUseDefaultModImpl)' == ''">$(TmlBuildMod)</TmlBuildUseDefaultModImpl>
 
         <!-- Manually set here since it's locked behind BuildMod in tML. -->
         <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
