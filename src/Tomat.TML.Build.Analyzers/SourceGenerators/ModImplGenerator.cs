@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators;
@@ -25,6 +24,7 @@ public sealed class ModImplGenerator : IIncrementalGenerator
              && enabled == "true"
         );
 
+        /*
         // Find any class declarations and check if they extend
         // `Terraria.ModLoader.Mod`.  If they do, filter to only true cases and
         // collect into an array, then return whether that array has any
@@ -48,13 +48,14 @@ public sealed class ModImplGenerator : IIncrementalGenerator
                     && baseType.Name == "Mod";
             }
         ).Where(x => x).Collect().Select((x, _) => x.Length > 0);
+        */
 
         context.RegisterSourceOutput(
-            rootNamespaceProvider.Combine(enabledProvider.Combine(alreadyHasModImpl)),
+            rootNamespaceProvider.Combine(enabledProvider),
             (ctx, tuple) =>
             {
-                var (rootNamespace, (enabled, alreadyHasMod)) = tuple;
-                if (!enabled || alreadyHasMod)
+                var (rootNamespace, enabled) = tuple;
+                if (!enabled)
                 {
                     return;
                 }

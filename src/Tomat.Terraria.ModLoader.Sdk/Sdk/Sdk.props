@@ -8,7 +8,7 @@
         <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">$(TmlBuildMod)</TmlBuildPackageMod>
         <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">$(TmlBuildMod)</TmlBuildIncludeSourceGenerators>
         <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">$(TmlBuildMod)</TmlBuildGenerateLaunchSettings>
-        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildUseDefaultModImpl)' == ''">$(TmlBuildMod)</TmlBuildUseDefaultModImpl>
+        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildUseDefaultModImpl)' == ''">false</TmlBuildUseDefaultModImpl>
 
         <!-- Manually set here since it's locked behind BuildMod in tML. -->
         <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
