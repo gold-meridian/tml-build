@@ -39,15 +39,23 @@ internal static class Platform
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var steamPath = Registry.CurrentUser.GetValue(@"Software\Valve\Steam\SteamPath") as string
-                         ?? Registry.LocalMachine.GetValue(@"Software\Valve\Steam\SteamPath") as string;
-
-            if (steamPath is not null)
+            foreach (var windowsPath in GetWindowsPaths(gameName))
             {
-                yield return Path.Combine(steamPath, "steamapps", "common", gameName);
+                yield return windowsPath;
             }
-
-            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
         }
+    }
+
+    private static IEnumerable<string> GetWindowsPaths(string gameName)
+    {
+        var steamPath = Registry.CurrentUser.GetValue(@"Software\Valve\Steam\SteamPath") as string
+                     ?? Registry.LocalMachine.GetValue(@"Software\Valve\Steam\SteamPath") as string;
+
+        if (steamPath is not null)
+        {
+            yield return Path.Combine(steamPath, "steamapps", "common", gameName);
+        }
+
+        yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
     }
 }
