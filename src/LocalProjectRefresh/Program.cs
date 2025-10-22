@@ -9,6 +9,8 @@ namespace LocalProjectRefresh;
 
 internal static class Program
 {
+    private static readonly string[] versions = ["1.0.0"];
+
     public static void Main(string[] args)
     {
         if (args.Length > 0)
@@ -16,11 +18,22 @@ internal static class Program
             Console.WriteLine($"Known NuGet directories to force-delete: {args[0]}");
         }
 
+        var justDelete = args.Contains("-d");
+        Console.WriteLine("Just deleting without publishing: " + justDelete);
+
         RunCommand("dotnet", "clean Tomat.TML.TestMod");
-        RunCommand("dotnet", "nuget delete -s local Tomat.Terraria.ModLoader.Sdk 1.0.0 --non-interactive");
+        foreach (var version in versions)
+        {
+            RunCommand("dotnet", $"nuget delete -s local Tomat.Terraria.ModLoader.Sdk {version} --non-interactive");
+        }
         foreach (var dir in args[0].Split(';'))
         {
             ForceDeleteDirectory(dir.Trim());
+        }
+
+        if (justDelete)
+        {
+            return;
         }
 
         RunCommand("dotnet", "build Tomat.TML.Build.Analyzers -c Release");
