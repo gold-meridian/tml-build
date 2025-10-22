@@ -279,6 +279,15 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
     private static int GetArgumentCount(string value)
     {
-        return arg_remapping_regex.Matches(value).Count;
+        var max = 0;
+
+        var matches = arg_remapping_regex.Matches(value);
+        for (var i = 0; i < matches.Count; i++)
+        {
+            var match = matches[i];
+            max = Math.Max(max, int.Parse(match.Groups[1].Value));
+        }
+
+        return max;
     }
 }
