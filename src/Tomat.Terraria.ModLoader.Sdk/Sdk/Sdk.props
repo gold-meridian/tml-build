@@ -1,12 +1,13 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
         <!-- Configures specific tasks the SDK provides. -->
-        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">true</TmlBuildUseShaderCompile>
-        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">true</TmlBuildUseLocalizationCompiler>
-        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">true</TmlBuildPackageMod>
-        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">true</TmlBuildIncludeSourceGenerators>
-        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">true</TmlBuildGenerateLaunchSettings>
+        <TmlBuildMod Condition="'$(TmlBuildMod)' == ''">true</TmlBuildMod>
+        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">$(TmlBuildMod)</TmlBuildUseShaderCompile>
+        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">$(TmlBuildMod)</TmlBuildUseLocalizationCompiler>
+        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">$(TmlBuildMod)</TmlBuildPackageMod>
+        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">$(TmlBuildMod)</TmlBuildIncludeSourceGenerators>
+        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">$(TmlBuildMod)</TmlBuildGenerateLaunchSettings>
         <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">false</TmlBuildUseDefaultModImpl>
 
         <!-- Manually set here since it's locked behind BuildMod in tML. -->
