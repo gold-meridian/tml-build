@@ -9,7 +9,7 @@ namespace LocalProjectRefresh;
 
 internal static class Program
 {
-    private static readonly string[] versions = ["1.0.0"];
+    private static readonly string[] versions = ["1.0.0", "1.0.1"];
 
     public static void Main(string[] args)
     {
@@ -40,7 +40,7 @@ internal static class Program
         RunCommand("dotnet", "build Tomat.TML.Build.MSBuild -c Release");
         RunCommand("dotnet", "build Tomat.TML.ClientBootstrap -c Release");
         RunCommand("dotnet", "build Tomat.Terraria.ModLoader.Sdk -c Release");
-        RunCommand("dotnet", "nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.1.0.0.nupkg -s local");
+        RunCommand("dotnet", "nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.1.0.2.nupkg -s local");
         RunCommand("dotnet", "restore Tomat.TML.TestMod");
     }
 
