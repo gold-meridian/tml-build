@@ -85,8 +85,11 @@
 
         <!-- It's reasonable to publicize tModLoader by default. -->
         <Publicize Include="tModLoader" IncludeCompilerGeneratedMembers="false" IncludeVirtualMembers="false"/>
+    </ItemGroup>
 
-        <PackageReference Condition="'$(TmlBuildIncludeSourceGenerators)' == 'true'" Include="Tomat.Terraria.ModLoader.Sdk.Analyzers" Version="1.0.0"/>
+    <!-- Add analyzers and source generators. -->
+    <ItemGroup>
+        <Analyzer Condition="'$(TmlBuildIncludeSourceGenerators)' == 'true'" Include="$(TmlBuildAnalyzersRoot)*.dll"/>
     </ItemGroup>
 
     <!-- Override tML-provided BuildMod target since we implement our own.

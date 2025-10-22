@@ -23,8 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.Parsing", "Tomat.Pars
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.Build.Analyzers", "Tomat.TML.Build.Analyzers\Tomat.TML.Build.Analyzers.csproj", "{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.Terraria.ModLoader.Sdk.Analyzers", "Tomat.Terraria.ModLoader.Sdk.Analyzers\Tomat.Terraria.ModLoader.Sdk.Analyzers.csproj", "{E4DA8AA1-8DFF-4CE4-ADCB-EA7DCC98FA6B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShaderDecompiler", "shader-reader\ShaderDecompiler.csproj", "{5ACD9605-B798-467A-B028-F3235316606D}"
 EndProject
 Global
@@ -76,10 +74,6 @@ Global
 		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4A9A0B3-42AD-4EF8-B2CE-91AB2DAD48FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4DA8AA1-8DFF-4CE4-ADCB-EA7DCC98FA6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4DA8AA1-8DFF-4CE4-ADCB-EA7DCC98FA6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4DA8AA1-8DFF-4CE4-ADCB-EA7DCC98FA6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4DA8AA1-8DFF-4CE4-ADCB-EA7DCC98FA6B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5ACD9605-B798-467A-B028-F3235316606D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5ACD9605-B798-467A-B028-F3235316606D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ACD9605-B798-467A-B028-F3235316606D}.Release|Any CPU.ActiveCfg = Release|Any CPU
