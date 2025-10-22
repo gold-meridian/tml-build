@@ -186,6 +186,8 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
               #nullable enable
               #pragma warning disable CS8981
 
+              global using static {{rootNamespace}}.Core.AssetReferences;
+
               namespace {{rootNamespace}}.Core;
 
               // ReSharper disable InconsistentNaming

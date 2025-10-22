@@ -111,6 +111,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             $$"""
               #nullable enable
 
+              global using static {{rootNamespace}}.Core.LocalizationReferences;
               using Terraria.Localization;
 
               namespace {{rootNamespace}}.Core;
