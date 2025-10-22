@@ -42,15 +42,6 @@
              manually re-include them as needed. -->
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
-        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.Win32.Registry.dll">
-            <Link>Sdk\bin\%(Filename)%(Extension)</Link>
-        </None>
-        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.Security.AccessControl.dll">
-            <Link>Sdk\bin\%(Filename)%(Extension)</Link>
-        </None>
-        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.Security.Principal.Windows.dll">
-            <Link>Sdk\bin\%(Filename)%(Extension)</Link>
-        </None>
 
         <!-- Include all bootstrap project binaries in a known directory to be
              used in launch profiles. -->

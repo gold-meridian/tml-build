@@ -39,7 +39,19 @@ internal static class Platform
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            foreach (var windowsPath in GetWindowsPaths(gameName))
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
+
+            IEnumerable<string> windowsPaths = [];
+            try
+            {
+                windowsPaths = GetWindowsPaths(gameName);
+            }
+            catch
+            {
+                // ignore
+            }
+
+            foreach (var windowsPath in windowsPaths)
             {
                 yield return windowsPath;
             }
@@ -55,7 +67,5 @@ internal static class Platform
         {
             yield return Path.Combine(steamPath, "steamapps", "common", gameName);
         }
-
-        yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
     }
 }
