@@ -9,7 +9,7 @@ namespace LocalProjectRefresh;
 
 internal static class Program
 {
-    private static readonly string[] versions = ["1.0.0", "1.0.1"];
+    private static readonly string[] versions = ["1.0.0", "1.0.1", "1.0.2"];
 
     public static void Main(string[] args)
     {

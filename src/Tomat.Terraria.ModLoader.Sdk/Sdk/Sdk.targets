@@ -42,7 +42,7 @@
         <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
     </PropertyGroup>
 
-    <Import Project="$(TmlTargetsPath)"/>
+    <Import Condition="Exists('$(TmlTargetsPath)')" Project="$(TmlTargetsPath)"/>
 
     <!-- Include relevant non-code files. -->
     <ItemGroup>
