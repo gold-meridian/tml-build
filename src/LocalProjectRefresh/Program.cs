@@ -9,7 +9,8 @@ namespace LocalProjectRefresh;
 
 internal static class Program
 {
-    private static readonly string[] versions = ["1.0.0", "1.0.1", "1.0.2"];
+    private const string in_flight_version = "1.0.3";
+    private static readonly string[] versions = ["1.0.0", "1.0.1", "1.0.2", in_flight_version];
 
     public static void Main(string[] args)
     {
@@ -26,6 +27,7 @@ internal static class Program
         {
             RunCommand("dotnet", $"nuget delete -s local Tomat.Terraria.ModLoader.Sdk {version} --non-interactive");
         }
+
         foreach (var dir in args[0].Split(';'))
         {
             ForceDeleteDirectory(dir.Trim());
@@ -40,7 +42,7 @@ internal static class Program
         RunCommand("dotnet", "build Tomat.TML.Build.MSBuild -c Release");
         RunCommand("dotnet", "build Tomat.TML.ClientBootstrap -c Release");
         RunCommand("dotnet", "build Tomat.Terraria.ModLoader.Sdk -c Release");
-        RunCommand("dotnet", "nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.1.0.2.nupkg -s local");
+        RunCommand("dotnet", $"nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.{in_flight_version}.nupkg -s local");
         RunCommand("dotnet", "restore Tomat.TML.TestMod");
     }
 
@@ -149,33 +151,42 @@ internal static class Program
             Console.WriteLine($"        - \"{path}\"");
         }
 
-        var totalProcesses = new HashSet<ProcessInfo>();
         foreach (var path in paths)
         {
             Console.WriteLine($"    Checking \"{path}\":");
 
             var processes = LockFinder.FindWhatProcessesLockPath(path).ToArray();
-            Console.WriteLine($"        Got processes: {processes.Length}");
+            Console.WriteLine($"        Got processes to kill: {processes.Length}");
 
-            totalProcesses.UnionWith(processes);
-        }
+            foreach (var process in processes)
+            {
+                Console.Write($"        Killing process: PID({process.Pid})... ");
 
-        Console.WriteLine($"    Got {totalProcesses.Count} total processes, attempting to kill...");
-        foreach (var process in totalProcesses)
-        {
-            Console.Write($"        Killing process: PID({process.Pid})... ");
+                try
+                {
+                    var proc = Process.GetProcessById(process.Pid);
+                    proc.Kill(entireProcessTree: true);
+                    Console.WriteLine("SUCCESS");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("FAIL");
+                    Console.Error.WriteLine($"Failed to kill process PID({process.Pid}): {e}");
+                }
+            }
+
+            Console.Write("    Attempting to delete directory again... ");
 
             try
             {
-                var proc = Process.GetProcessById(process.Pid);
-                proc.Kill(entireProcessTree: true);
-                Console.WriteLine("SUCCESS");
+                Directory.Delete(dir, recursive: true);
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine("FAIL");
-                Console.Error.WriteLine($"Failed to kill process PID({process.Pid}): {e}");
+                // ignore
             }
+
+            Console.WriteLine(Directory.Exists(dir) ? "FAIL" : "SUCCESS");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.2">
+﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.3">
 
     <PropertyGroup>
         <AssemblyName>TestMod</AssemblyName>
