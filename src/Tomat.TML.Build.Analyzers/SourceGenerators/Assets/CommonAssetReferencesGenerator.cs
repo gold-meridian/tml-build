@@ -79,35 +79,35 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public string HlslType => hlslType;
               }
 
-              internal sealed class HlslSampler
+              internal struct HlslSampler
               {
                   public Texture? Texture { get; set; }
                   
                   public SamplerState? Sampler { get; set; }
               }
 
-              internal sealed class HlslSampler1D
+              internal struct HlslSampler1D
               {
                   public Texture? Texture { get; set; }
                   
                   public SamplerState? Sampler { get; set; }
               }
 
-              internal sealed class HlslSampler2D
+              internal struct HlslSampler2D
               {
                   public Texture2D? Texture { get; set; }
                   
                   public SamplerState? Sampler { get; set; }
               }
 
-              internal sealed class HlslSampler3D
+              internal struct HlslSampler3D
               {
                   public Texture3D? Texture { get; set; }
                   
                   public SamplerState? Sampler { get; set; }
               }
 
-              internal sealed class HlslSamplerCube
+              internal struct HlslSamplerCube
               {
                   public TextureCube? Texture { get; set; }
                   
