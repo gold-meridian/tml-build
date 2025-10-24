@@ -55,6 +55,9 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   where TParameters : IShaderParameters, new()
               {
                   public TParameters Parameters { get; } = new();
+                  
+                  // Avoid CS9107
+                  private readonly string passName = passName;
 
                   public override void Apply()
                   {
