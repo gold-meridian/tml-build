@@ -39,11 +39,7 @@
              
              See FEATURES.md for a list of available flags.
              -->
-        <TmlBuildBootstrapFeatures>
-            ppeb.netcoredbg;
-            tomat.enablemod;
-            lolxd87.splashskip
-        </TmlBuildBootstrapFeatures>
+        <TmlBuildBootstrapFeatures>ppeb.netcoredbg;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
     </PropertyGroup>
 
     <Import Condition="Exists('$(TmlTargetsPath)')" Project="$(TmlTargetsPath)"/>
