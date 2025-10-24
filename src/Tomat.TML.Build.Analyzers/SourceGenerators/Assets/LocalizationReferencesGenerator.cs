@@ -10,6 +10,7 @@ using System.Threading;
 using Hjson;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json.Linq;
+using Tomat.TML.Build.Common.Assets.Localization;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
@@ -271,10 +272,8 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
     private static string? GetPrefixFromPath(string path)
     {
-        path = Path.GetFileNameWithoutExtension(path);
-        var splitByUnderscore = path.Split('_');
-
-        return splitByUnderscore.Length == 2 ? splitByUnderscore[1] : null;
+        GameCultureParser.TryGetCultureAndPrefixFromPath(path, out _, out var prefix);
+        return prefix;
     }
 
     private static int GetArgumentCount(string value)

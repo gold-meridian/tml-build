@@ -27,5 +27,9 @@
     <ItemGroup>
         <ProjectReference Include="..\paint-label\src\GoldMeridian.PaintLabel\GoldMeridian.PaintLabel.csproj"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <Compile Include="$(MSBuildProjectDirectory)..\..\Tomat.TML.Build.Common\Assets\Localization\GameCultureParser.cs" />
+    </ItemGroup>
 
 </Project>
