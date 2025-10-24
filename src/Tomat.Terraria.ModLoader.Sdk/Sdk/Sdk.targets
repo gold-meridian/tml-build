@@ -48,7 +48,7 @@
     <ItemGroup>
         <!-- build manifests -->
         <AdditionalFiles Include="build.txt"/>
-        <AdditionalFiles Include="TML.Mod.toml"/>
+        <!-- <AdditionalFiles Include="TML.Mod.toml"/> -->
 
         <!-- localization -->
         <!-- <LocalizationCompile Include="**/*.lang"/> -->
