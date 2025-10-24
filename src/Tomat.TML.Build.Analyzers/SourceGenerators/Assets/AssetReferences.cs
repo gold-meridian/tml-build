@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ShaderDecompiler;
-using ShaderDecompiler.Structures;
+using GoldMeridian.PaintLabel;
+using GoldMeridian.PaintLabel.IO;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
@@ -116,7 +116,7 @@ internal sealed class EffectReference : IAssetReference
         string[] Warnings
     )
     {
-        public ShaderParameterDefinition GetDefForTypeInfo(TypeInfo typeInfo)
+        public ShaderParameterDefinition GetDefForTypeInfo(HlslSymbolTypeInfo typeInfo)
         {
             var errors = Errors.ToList();
             var warnings = Warnings.ToList();
@@ -128,12 +128,12 @@ internal sealed class EffectReference : IAssetReference
                 Warnings: warnings
             );
 
-            switch (typeInfo.Class)
+            switch (typeInfo.ParameterClass)
             {
-                case ObjectClass.Object or ObjectClass.Scalar:
+                case HlslSymbolClass.Object or HlslSymbolClass.Scalar:
                     return def with { DotNetType = BaseType };
 
-                case ObjectClass.Vector:
+                case HlslSymbolClass.Vector:
                     if (VectorTypes.Length >= typeInfo.Columns)
                     {
                         return def with { DotNetType = VectorTypes[typeInfo.Columns - 1] };
@@ -142,7 +142,7 @@ internal sealed class EffectReference : IAssetReference
                     errors.Add($"Generator does not support vector of size '{typeInfo.Columns}' for type '{def.RealType}'");
                     return def;
 
-                case ObjectClass.MatrixRows or ObjectClass.MatrixColumns:
+                case HlslSymbolClass.MatrixRows or HlslSymbolClass.MatrixColumns:
                     if (LargeMatrixType is not null)
                     {
                         return def with { DotNetType = LargeMatrixType };
@@ -153,12 +153,12 @@ internal sealed class EffectReference : IAssetReference
                     return def;
 
                 // ReSharper disable once RedundantSwitchExpressionArms
-                case ObjectClass.Struct:
+                case HlslSymbolClass.Struct:
                     errors.Add("Generator does not support struct uniforms");
                     return def;
 
                 default:
-                    errors.Add($"Generator does not know how to handle object kind: {typeInfo.Class}");
+                    errors.Add($"Generator does not know how to handle object kind: {typeInfo.ParameterClass}");
                     return def;
             }
         }
@@ -172,9 +172,9 @@ internal sealed class EffectReference : IAssetReference
         List<string> Warnings
     );
 
-    private static readonly Dictionary<ObjectType, ShaderVariableDescription> uniform_types = new()
+    private static readonly Dictionary<HlslSymbolType, ShaderVariableDescription> uniform_types = new()
     {
-        [ObjectType.Void] = new ShaderVariableDescription(
+        [HlslSymbolType.Void] = new ShaderVariableDescription(
             BaseType: "HlslVoid",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -182,7 +182,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: ["'void' is not supported, a stub uniform has been generated which will not be applied to the shader"]
         ),
 
-        [ObjectType.Bool] = new ShaderVariableDescription(
+        [HlslSymbolType.Bool] = new ShaderVariableDescription(
             BaseType: "bool",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -190,7 +190,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.Int] = new ShaderVariableDescription(
+        [HlslSymbolType.Int] = new ShaderVariableDescription(
             BaseType: "int",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -198,7 +198,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.Float] = new ShaderVariableDescription(
+        [HlslSymbolType.Float] = new ShaderVariableDescription(
             BaseType: "float",
             VectorTypes:
             [
@@ -212,7 +212,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.String] = new ShaderVariableDescription(
+        [HlslSymbolType.String] = new ShaderVariableDescription(
             BaseType: "HlslString",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -220,7 +220,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: ["'string' is not supported, a stub uniform has been generated which will not be applied to the shader"]
         ),
 
-        [ObjectType.Texture] = new ShaderVariableDescription(
+        [HlslSymbolType.Texture] = new ShaderVariableDescription(
             BaseType: "Microsoft.Xna.Framework.Graphics.Texture?",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -228,7 +228,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.Texture1d] = new ShaderVariableDescription(
+        [HlslSymbolType.Texture1D] = new ShaderVariableDescription(
             BaseType: "Microsoft.Xna.Framework.Graphics.Texture?",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -236,7 +236,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.Texture2d] = new ShaderVariableDescription(
+        [HlslSymbolType.Texture2D] = new ShaderVariableDescription(
             BaseType: "Microsoft.Xna.Framework.Graphics.Texture2D?",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -244,7 +244,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.Texture3d] = new ShaderVariableDescription(
+        [HlslSymbolType.Texture3D] = new ShaderVariableDescription(
             BaseType: "Microsoft.Xna.Framework.Graphics.Texture3D?",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -252,7 +252,7 @@ internal sealed class EffectReference : IAssetReference
             Warnings: []
         ),
 
-        [ObjectType.Texturecube] = new ShaderVariableDescription(
+        [HlslSymbolType.TextureCube] = new ShaderVariableDescription(
             BaseType: "Microsoft.Xna.Framework.Graphics.TextureCube?",
             VectorTypes: [],
             LargeMatrixType: null,
@@ -268,8 +268,9 @@ internal sealed class EffectReference : IAssetReference
 
     public bool Eligible(AssetPath path)
     {
-        return path.RelativeOrFullPath.EndsWith(".fxc")
-            || path.RelativeOrFullPath.EndsWith(".xnb");
+        // TODO: Support XNB again.
+        return path.RelativeOrFullPath.EndsWith(".fxc");
+        // || path.RelativeOrFullPath.EndsWith(".xnb");
     }
 
     public string GenerateCode(string assemblyName, AssetFile asset, string indent)
@@ -278,7 +279,29 @@ internal sealed class EffectReference : IAssetReference
 
         var sb = new StringBuilder();
 
-        var effect = Effect.ReadXnbOrFxc(asset.Path.FullPath, out _);
+#pragma warning disable RS1035
+        HlslEffect effect;
+        try
+        {
+            using var fs = File.OpenRead(asset.Path.FullPath);
+            using var reader = new BinaryReader(fs);
+            effect = EffectReader.ReadEffect(reader);
+        }
+        catch (Exception e)
+        {
+            return $"{indent}#error Failed to parse effect file \"{asset.Path.FullPath}\": {e.Message}";
+        }
+#pragma warning restore RS1035
+
+        if (effect.HasErrors)
+        {
+            sb.AppendLine($"{indent}#error Encountered errors parsing effect file \"{asset.Path.FullPath}\":");
+
+            foreach (var error in effect.Errors)
+            {
+                sb.AppendLine($"{indent}#error {error.Message}");
+            }
+        }
 
         sb.AppendLine($"{indent}public sealed class Parameters : IShaderParameters");
         sb.AppendLine($"{indent}{{");
@@ -315,24 +338,26 @@ internal sealed class EffectReference : IAssetReference
             var hadExpression = false;
             foreach (var annotation in param.Annotations)
             {
-                if (!(annotation.Name?.Equals("csharpExpression", StringComparison.InvariantCultureIgnoreCase) ?? false))
+                var value = annotation.Value;
+
+                if (!(value.Name?.Equals("csharpExpression", StringComparison.InvariantCultureIgnoreCase) ?? false))
                 {
                     continue;
                 }
 
-                if (annotation.Object is not uint[] array)
+                if (!value.Values.TryGetArray<int>(out var ints))
                 {
                     sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation but could not get array with index");
                     continue;
                 }
 
-                if (array.Length < 1)
+                if (ints.Length < 1)
                 {
                     sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation but array has no elements");
                     continue;
                 }
 
-                var objIndex = array[0];
+                var objIndex = ints[0];
                 if (objIndex >= effect.Objects.Length)
                 {
                     sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation has object index '{objIndex}' but it's out of bounds of effect objects array ({effect.Objects.Length} elements)");
@@ -340,9 +365,9 @@ internal sealed class EffectReference : IAssetReference
                 }
 
                 var obj = effect.Objects[objIndex];
-                if (obj.Type != ObjectType.String || obj.Object is not string expression)
+                if (obj.Type != HlslSymbolType.String || obj.Value is not HlslEffectString { String: { } expression })
                 {
-                    sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation has object index '{objIndex}' that is not string: {obj} {obj.Object}");
+                    sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation has object index '{objIndex}' that is not string: {obj} {obj.Value}");
                     continue;
                 }
 
@@ -380,15 +405,15 @@ internal sealed class EffectReference : IAssetReference
         return sb.ToString().TrimEnd();
     }
 
-    private static ShaderParameterDefinition GetShaderParameterDefinition(TypeInfo typeInfo)
+    private static ShaderParameterDefinition GetShaderParameterDefinition(HlslSymbolTypeInfo typeInfo)
     {
-        if (!uniform_types.TryGetValue(typeInfo.Type, out var uniformType))
+        if (!uniform_types.TryGetValue(typeInfo.ParameterType, out var uniformType))
         {
             uniformType = new ShaderVariableDescription(
                 BaseType: "object?",
                 VectorTypes: [],
                 LargeMatrixType: null,
-                Errors: [$"Unsupported uniform object type: {typeInfo.Type} (for uniform definition '{typeInfo}')"],
+                Errors: [$"Unsupported uniform object type: {typeInfo.ParameterType} (for uniform definition '{typeInfo}')"],
                 Warnings: []
             );
         }
