@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -181,6 +182,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
         CancellationToken token
     )
     {
+        Debugger.Launch();
         return
             $$"""
               #nullable enable

@@ -186,10 +186,10 @@ internal static class Program
                 // ignore
             }
 
-            var didDeleteAgain = Directory.Exists(dir);
-            Console.WriteLine(didDeleteAgain ? "FAIL" : "SUCCESS");
+            var failed = Directory.Exists(dir);
+            Console.WriteLine(failed ? "FAIL" : "SUCCESS");
 
-            if (didDeleteAgain)
+            if (!failed)
             {
                 break;
             }

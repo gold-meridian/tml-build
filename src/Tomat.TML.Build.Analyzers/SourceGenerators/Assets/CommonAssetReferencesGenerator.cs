@@ -25,37 +25,14 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
             (ctx, rootNamespace) =>
             {
                 ctx.AddSource(
-                    "IShaderParameters.g.cs",
-                    SourceText.From(GenerateIShaderParameters(rootNamespace), Encoding.UTF8)
-                );
-
-                ctx.AddSource(
-                    "WrappedShaderData.g.cs",
-                    SourceText.From(GenerateWrappedShaderData(rootNamespace), Encoding.UTF8)
+                    "ShaderTypes.g.cs",
+                    SourceText.From(GenerateShaderTypes(rootNamespace), Encoding.UTF8)
                 );
             }
         );
     }
 
-    private static string GenerateIShaderParameters(string rootNamespace)
-    {
-        return
-            $$"""
-              #nullable enable
-
-              using Microsoft.Xna.Framework.Graphics;
-
-              namespace {{rootNamespace}}.Core;
-
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
-              internal interface IShaderParameters
-              {
-                  void Apply(EffectParameterCollection parameters);
-              }
-              """;
-    }
-
-    private static string GenerateWrappedShaderData(string rootNamespace)
+    private static string GenerateShaderTypes(string rootNamespace)
     {
         return
             $$"""
@@ -66,6 +43,12 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
               using Terraria.Graphics.Shaders;
 
               namespace {{rootNamespace}}.Core;
+
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal interface IShaderParameters
+              {
+                  void Apply(EffectParameterCollection parameters);
+              }
 
               [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal sealed class WrapperShaderData<TParameters>(Asset<Effect> shader, string passName) : ShaderData(shader, passName)
@@ -79,6 +62,18 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
 
                       base.Apply();
                   }
+              }
+
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal readonly struct HlslVoid;
+
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal readonly struct HlslString;
+
+              [global::System.AttributeUsage(global::System.AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+              internal sealed class OriginalHlslTypeAttribute(string hlslType) : global::System.Attribute
+              {
+                  public string HlslType => hlslType;
               }
               """;
     }
