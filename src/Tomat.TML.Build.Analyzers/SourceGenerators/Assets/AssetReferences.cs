@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -259,6 +260,46 @@ internal sealed class EffectReference : IAssetReference
             Errors: [],
             Warnings: []
         ),
+
+        [HlslSymbolType.Sampler] = new ShaderVariableDescription(
+            BaseType: "HlslSampler",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [HlslSymbolType.Sampler1D] = new ShaderVariableDescription(
+            BaseType: "HlslSampler1D",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [HlslSymbolType.Sampler2D] = new ShaderVariableDescription(
+            BaseType: "HlslSampler2D",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [HlslSymbolType.Sampler3D] = new ShaderVariableDescription(
+            BaseType: "HlslSampler3D",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [HlslSymbolType.SamplerCube] = new ShaderVariableDescription(
+            BaseType: "HlslSamplerCube",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
     };
 
     public bool PermitsVariant(string path)
@@ -331,7 +372,92 @@ internal sealed class EffectReference : IAssetReference
             sb.AppendLine();
         }
 
-        sb.AppendLine($"{indent}    public void Apply(Microsoft.Xna.Framework.Graphics.EffectParameterCollection parameters)");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}    private static readonly global::System.Collections.Generic.Dictionary<string, global::System.Collections.Generic.Dictionary<string, int>> register_map = new()");
+        sb.AppendLine($"{indent}    {{");
+
+        // should always be 1 but whatever
+        if (effect.Techniques.Length > 0)
+        {
+            var technique = effect.Techniques[0];
+
+            var registersPerPass = new Dictionary<string, Dictionary<string, int>>();
+
+            foreach (var pass in technique.Passes)
+            {
+                if (pass.Name is null)
+                {
+                    continue;
+                }
+
+                if (!registersPerPass.TryGetValue(pass.Name, out var passRegisters))
+                {
+                    registersPerPass[pass.Name] = passRegisters = [];
+                }
+
+                var shaders = pass.States.Where(x => x.Type is HlslRenderStateType.PixelShader or HlslRenderStateType.VertexShader);
+                foreach (var shader in shaders)
+                {
+                    if (!shader.Value.Values.TryGetArray<int>(out var ints))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        var obj = effect.Objects[ints[0]];
+                        if (obj.Type is not HlslSymbolType.PixelShader and not HlslSymbolType.VertexShader)
+                        {
+                            continue;
+                        }
+
+                        if (!obj.TryGetShader(out var objShader))
+                        {
+                            continue;
+                        }
+
+                        foreach (var constant in objShader.Value.Constants)
+                        {
+                            if (constant.Name is null)
+                            {
+                                continue;
+                            }
+
+                            passRegisters[constant.Name] = constant.RegIndex;
+                        }
+                    }
+                    catch
+                    {
+                        // TODO: error handling perhaps
+                        continue;
+                    }
+                }
+            }
+
+            foreach (var kvp in registersPerPass)
+            {
+                var passName = kvp.Key;
+                var registerMap = kvp.Value;
+
+                sb.AppendLine($"{indent}        [\"{passName}\"] = new()");
+                sb.AppendLine($"{indent}        {{");
+
+                foreach (var kvp2 in registerMap)
+                {
+                    var uniformName = kvp2.Key;
+                    var register = kvp2.Value;
+
+                    sb.AppendLine($"{indent}            [\"{uniformName}\"] = {register},");
+                }
+
+                sb.AppendLine($"{indent}        }},");
+            }
+        }
+
+        sb.AppendLine($"{indent}    }};");
+        sb.AppendLine();
+
+        sb.AppendLine($"{indent}    public void Apply(Microsoft.Xna.Framework.Graphics.EffectParameterCollection parameters, string passName)");
         sb.AppendLine($"{indent}    {{");
         foreach (var param in effect.Parameters)
         {

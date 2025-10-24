@@ -47,7 +47,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
               [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal interface IShaderParameters
               {
-                  void Apply(EffectParameterCollection parameters);
+                  void Apply(EffectParameterCollection parameters, string passName);
               }
 
               [global::System.Runtime.CompilerServices.CompilerGenerated]
@@ -58,7 +58,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
 
                   public override void Apply()
                   {
-                      Parameters.Apply(Shader.Parameters);
+                      Parameters.Apply(Shader.Parameters, passName);
 
                       base.Apply();
                   }
@@ -74,6 +74,41 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
               internal sealed class OriginalHlslTypeAttribute(string hlslType) : global::System.Attribute
               {
                   public string HlslType => hlslType;
+              }
+
+              internal sealed class HlslSampler
+              {
+                  public Texture? Texture { get; set; }
+                  
+                  public SamplerState? Sampler { get; set; }
+              }
+
+              internal sealed class HlslSampler1D
+              {
+                  public Texture? Texture { get; set; }
+                  
+                  public SamplerState? Sampler { get; set; }
+              }
+
+              internal sealed class HlslSampler2D
+              {
+                  public Texture2D? Texture { get; set; }
+                  
+                  public SamplerState? Sampler { get; set; }
+              }
+
+              internal sealed class HlslSampler3D
+              {
+                  public Texture3D? Texture { get; set; }
+                  
+                  public SamplerState? Sampler { get; set; }
+              }
+
+              internal sealed class HlslSamplerCube
+              {
+                  public TextureCube? Texture { get; set; }
+                  
+                  public SamplerState? Sampler { get; set; }
               }
               """;
     }
