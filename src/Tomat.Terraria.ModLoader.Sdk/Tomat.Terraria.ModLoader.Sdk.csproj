@@ -40,8 +40,10 @@
 
         <!-- General patterns to remove already-included libraries.  Can
              manually re-include them as needed. -->
+        <!--
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
+        -->
 
         <!-- Include all bootstrap project binaries in a known directory to be
              used in launch profiles. -->
@@ -57,8 +59,10 @@
 
         <!-- General patterns to remove already-included libraries.  Can
              manually re-include them as needed. -->
+        <!--
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\System.*.dll"/>
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\Microsoft.*.dll"/>
+        -->
     </ItemGroup>
 
     <ItemGroup>
