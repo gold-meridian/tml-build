@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
@@ -37,29 +38,22 @@ internal static class Platform
             // TODO: what does it look like on macOS?
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
+            yield break;
+        }
 
-            IEnumerable<string> windowsPaths = [];
-            try
-            {
-                windowsPaths = GetWindowsPaths(gameName);
-            }
-            catch
-            {
-                // ignore
-            }
-
-            foreach (var windowsPath in windowsPaths)
-            {
-                yield return windowsPath;
-            }
+        foreach (var windowsPath in GetWindowsPaths(gameName))
+        {
+            yield return windowsPath;
         }
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private static IEnumerable<string> GetWindowsPaths(string gameName)
     {
+        yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
+
         var steamPath = Registry.CurrentUser.GetValue(@"Software\Valve\Steam\SteamPath") as string
                      ?? Registry.LocalMachine.GetValue(@"Software\Valve\Steam\SteamPath") as string;
 
