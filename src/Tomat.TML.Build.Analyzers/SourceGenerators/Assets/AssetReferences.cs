@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -347,6 +346,9 @@ internal sealed class EffectReference : IAssetReference
         sb.AppendLine($"{indent}public sealed class Parameters : IShaderParameters");
         sb.AppendLine($"{indent}{{");
 
+        var samplersWithRegisters = new HashSet<string>();
+        var texturesWithRegisters = new HashSet<string>();
+
         foreach (var param in effect.Parameters)
         {
             var parameterDef = GetShaderParameterDefinition(param.Value.Type);
@@ -365,6 +367,15 @@ internal sealed class EffectReference : IAssetReference
             if (parameterDef.IsArray)
             {
                 typeToUse += "[]?";
+            }
+
+            if (typeToUse.StartsWith("HlslSampler"))
+            {
+                samplersWithRegisters.Add(param.Value.Name!);
+            }
+            else if (typeToUse.StartsWith("Microsoft.Xna.Framework.Graphics.Texture"))
+            {
+                texturesWithRegisters.Add(param.Value.Name!);
             }
 
             sb.AppendLine($"{indent}    [OriginalHlslType(\"{parameterDef.RealType}\")]");
@@ -506,7 +517,40 @@ internal sealed class EffectReference : IAssetReference
                 continue;
             }
 
-            sb.AppendLine($"{indent}        parameters[\"{param.Value.Name}\"]?.SetValue({param.Value.Name});");
+            if (samplersWithRegisters.Contains(param.Value.Name!))
+            {
+                sb.AppendLine($"{indent}        {{");
+                sb.AppendLine($"{indent}            if (register_map.TryGetValue(passName, out var passRegisters) && passRegisters.TryGetValue(\"{param.Value.Name}\", out var register))");
+                sb.AppendLine($"{indent}            {{");
+                sb.AppendLine($"{indent}                if ({param.Value.Name}.Texture is not null)");
+                sb.AppendLine($"{indent}                {{");
+                sb.AppendLine($"{indent}                    global::Terraria.Main.graphics.GraphicsDevice.Textures[register] = {param.Value.Name}.Texture;");
+                sb.AppendLine($"{indent}                }}");
+                sb.AppendLine();
+                sb.AppendLine($"{indent}                if ({param.Value.Name}.Sampler is not null)");
+                sb.AppendLine($"{indent}                {{");
+                sb.AppendLine($"{indent}                    global::Terraria.Main.graphics.GraphicsDevice.SamplerStates[register] = {param.Value.Name}.Sampler;");
+                sb.AppendLine($"{indent}                }}");
+                sb.AppendLine($"{indent}            }}");
+                sb.AppendLine($"{indent}        }}");
+            }
+            else if (texturesWithRegisters.Contains(param.Value.Name!))
+            {
+                sb.AppendLine($"{indent}        {{");
+                sb.AppendLine($"{indent}            if (register_map.TryGetValue(passName, out var passRegisters) && passRegisters.TryGetValue(\"{param.Value.Name}\", out var register))");
+                sb.AppendLine($"{indent}            {{");
+                sb.AppendLine($"{indent}                global::Terraria.Main.graphics.GraphicsDevice.Textures[register] = {param.Value.Name};");
+                sb.AppendLine($"{indent}            }}");
+                sb.AppendLine($"{indent}            else");
+                sb.AppendLine($"{indent}            {{");
+                sb.AppendLine($"{indent}                parameters[\"{param.Value.Name}\"]?.SetValue({param.Value.Name});");
+                sb.AppendLine($"{indent}            }}");
+                sb.AppendLine($"{indent}        }}");
+            }
+            else
+            {
+                sb.AppendLine($"{indent}        parameters[\"{param.Value.Name}\"]?.SetValue({param.Value.Name});");
+            }
         }
 
         sb.AppendLine($"{indent}    }}");
