@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using ShaderDecompiler;
+using ShaderDecompiler.Structures;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
@@ -106,6 +108,159 @@ internal sealed class SoundReference : IAssetReference
 
 internal sealed class EffectReference : IAssetReference
 {
+    public readonly record struct ShaderVariableDescription(
+        string BaseType,
+        string[] VectorTypes,
+        string? LargeMatrixType,
+        string[] Errors,
+        string[] Warnings
+    )
+    {
+        public ShaderParameterDefinition GetDefForTypeInfo(TypeInfo typeInfo)
+        {
+            var errors = Errors.ToList();
+            var warnings = Warnings.ToList();
+            var def = new ShaderParameterDefinition(
+                DotNetType: "object?",
+                RealType: typeInfo.ToString(),
+                IsArray: typeInfo.Elements > 1,
+                Errors: errors,
+                Warnings: warnings
+            );
+
+            switch (typeInfo.Class)
+            {
+                case ObjectClass.Object or ObjectClass.Scalar:
+                    return def with { DotNetType = BaseType };
+
+                case ObjectClass.Vector:
+                    if (VectorTypes.Length >= typeInfo.Columns)
+                    {
+                        return def with { DotNetType = VectorTypes[typeInfo.Columns - 1] };
+                    }
+
+                    errors.Add($"Generator does not support vector of size '{typeInfo.Columns}' for type '{def.RealType}'");
+                    return def;
+
+                case ObjectClass.MatrixRows or ObjectClass.MatrixColumns:
+                    if (LargeMatrixType is not null)
+                    {
+                        return def with { DotNetType = LargeMatrixType };
+                    }
+
+                    // errors.Add($"Generator does not support matrix of dimensions '{typeInfo.Rows}x{typeInfo.Columns}' for type '{def.RealType}'");
+                    errors.Add($"Generator does not support 4x4 matrix (satisfies '{typeInfo.Rows}x{typeInfo.Columns}') for type '{def.RealType}'");
+                    return def;
+
+                // ReSharper disable once RedundantSwitchExpressionArms
+                case ObjectClass.Struct:
+                    errors.Add("Generator does not support struct uniforms");
+                    return def;
+
+                default:
+                    errors.Add($"Generator does not know how to handle object kind: {typeInfo.Class}");
+                    return def;
+            }
+        }
+    }
+
+    public readonly record struct ShaderParameterDefinition(
+        string DotNetType,
+        string RealType,
+        bool IsArray,
+        List<string> Errors,
+        List<string> Warnings
+    );
+
+    private static readonly Dictionary<ObjectType, ShaderVariableDescription> uniform_types = new()
+    {
+        [ObjectType.Void] = new ShaderVariableDescription(
+            BaseType: "HlslVoid",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: ["'void' is not supported, a stub uniform has been generated which will not be applied to the shader"]
+        ),
+
+        [ObjectType.Bool] = new ShaderVariableDescription(
+            BaseType: "bool",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.Int] = new ShaderVariableDescription(
+            BaseType: "int",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.Float] = new ShaderVariableDescription(
+            BaseType: "float",
+            VectorTypes:
+            [
+                "float",
+                "Microsoft.Xna.Framework.Vector2",
+                "Microsoft.Xna.Framework.Vector3",
+                "Microsoft.Xna.Framework.Vector4",
+            ],
+            LargeMatrixType: "Microsoft.Xna.Framework.Matrix",
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.String] = new ShaderVariableDescription(
+            BaseType: "HlslString",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: ["'string' is not supported, a stub uniform has been generated which will not be applied to the shader"]
+        ),
+
+        [ObjectType.Texture] = new ShaderVariableDescription(
+            BaseType: "Microsoft.Xna.Framework.Graphics.Texture?",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.Texture1d] = new ShaderVariableDescription(
+            BaseType: "Microsoft.Xna.Framework.Graphics.Texture?",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.Texture2d] = new ShaderVariableDescription(
+            BaseType: "Microsoft.Xna.Framework.Graphics.Texture2D?",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.Texture3d] = new ShaderVariableDescription(
+            BaseType: "Microsoft.Xna.Framework.Graphics.Texture3D?",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+
+        [ObjectType.Texturecube] = new ShaderVariableDescription(
+            BaseType: "Microsoft.Xna.Framework.Graphics.TextureCube?",
+            VectorTypes: [],
+            LargeMatrixType: null,
+            Errors: [],
+            Warnings: []
+        ),
+    };
+
     public bool PermitsVariant(string path)
     {
         return false;
@@ -130,8 +285,26 @@ internal sealed class EffectReference : IAssetReference
 
         foreach (var param in effect.Parameters)
         {
-            var uniformType = GetUniformType(param.Value.Type.ToString());
-            sb.AppendLine($"{indent}    public {uniformType} {param.Value.Name} {{ get; set; }}");
+            var parameterDef = GetShaderParameterDefinition(param.Value.Type);
+
+            foreach (var warning in parameterDef.Warnings)
+            {
+                sb.AppendLine($"{indent}    #warning {warning}");
+            }
+
+            foreach (var error in parameterDef.Errors)
+            {
+                sb.AppendLine($"{indent}    #error {error}");
+            }
+
+            var typeToUse = parameterDef.DotNetType;
+            if (parameterDef.IsArray)
+            {
+                typeToUse += "[]?";
+            }
+
+            sb.AppendLine($"{indent}    [OriginalHlslType(\"{parameterDef.RealType}\")]");
+            sb.AppendLine($"{indent}    public {typeToUse} {param.Value.Name} {{ get; set; }}");
             sb.AppendLine();
         }
 
@@ -139,9 +312,46 @@ internal sealed class EffectReference : IAssetReference
         sb.AppendLine($"{indent}    {{");
         foreach (var param in effect.Parameters)
         {
-            if (param.Value.Name == "uTime")
+            var hadExpression = false;
+            foreach (var annotation in param.Annotations)
             {
-                sb.AppendLine($"{indent}        parameters[\"{param.Value.Name}\"]?.SetValue(Terraria.Main.GlobalTimeWrappedHourly);");
+                if (!(annotation.Name?.Equals("csharpExpression", StringComparison.InvariantCultureIgnoreCase) ?? false))
+                {
+                    continue;
+                }
+
+                if (annotation.Object is not uint[] array)
+                {
+                    sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation but could not get array with index");
+                    continue;
+                }
+
+                if (array.Length < 1)
+                {
+                    sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation but array has no elements");
+                    continue;
+                }
+
+                var objIndex = array[0];
+                if (objIndex >= effect.Objects.Length)
+                {
+                    sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation has object index '{objIndex}' but it's out of bounds of effect objects array ({effect.Objects.Length} elements)");
+                    continue;
+                }
+
+                var obj = effect.Objects[objIndex];
+                if (obj.Type != ObjectType.String || obj.Object is not string expression)
+                {
+                    sb.AppendLine($"{indent}        #error Parameter '{param.Value.Name}' has 'csharpExpression' annotation has object index '{objIndex}' that is not string: {obj} {obj.Object}");
+                    continue;
+                }
+
+                sb.AppendLine($"{indent}        parameters[\"{param.Value.Name}\"]?.SetValue({expression});");
+                hadExpression = true;
+            }
+
+            if (hadExpression)
+            {
                 continue;
             }
 
@@ -170,37 +380,19 @@ internal sealed class EffectReference : IAssetReference
         return sb.ToString().TrimEnd();
     }
 
-    private static string GetUniformType(string uniformType)
+    private static ShaderParameterDefinition GetShaderParameterDefinition(TypeInfo typeInfo)
     {
-        var isArray = false;
-        if (uniformType.Contains("["))
+        if (!uniform_types.TryGetValue(typeInfo.Type, out var uniformType))
         {
-            var baseType = uniformType[..uniformType.IndexOf('[')];
-            uniformType = baseType;
-            isArray = true;
+            uniformType = new ShaderVariableDescription(
+                BaseType: "object?",
+                VectorTypes: [],
+                LargeMatrixType: null,
+                Errors: [$"Unsupported uniform object type: {typeInfo.Type} (for uniform definition '{typeInfo}')"],
+                Warnings: []
+            );
         }
 
-        var finalType = uniformType switch
-        {
-            "float" => "float",
-            "float2" => "Microsoft.Xna.Framework.Vector2",
-            "float3" => "Microsoft.Xna.Framework.Vector3",
-            "float4" => "Microsoft.Xna.Framework.Vector4",
-            "float4x4" => "Microsoft.Xna.Framework.Matrix",
-            "matrix" => "Microsoft.Xna.Framework.Matrix",
-            "sampler" => "Microsoft.Xna.Framework.Graphics.Texture2D?",
-            "sampler2D" => "Microsoft.Xna.Framework.Graphics.Texture2D?",
-            "texture" => "Microsoft.Xna.Framework.Graphics.Texture2D?",
-            "texture2D" => "Microsoft.Xna.Framework.Graphics.Texture2D?",
-            "bool" => "bool",
-            _ => throw new InvalidOperationException("Unsupported uniform type: " + uniformType),
-        };
-
-        if (isArray)
-        {
-            finalType += "[]?";
-        }
-
-        return finalType;
+        return uniformType.GetDefForTypeInfo(typeInfo);
     }
 }
