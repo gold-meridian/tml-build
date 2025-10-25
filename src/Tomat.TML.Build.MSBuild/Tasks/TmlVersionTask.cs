@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Tomat.TML.Build.Common.Shared;
@@ -45,17 +46,26 @@ public sealed class TmlVersionTask : BaseTask
             return false;
         }
 
+        var newTargetsText = $"""
+                              <Project>
+                                  <Import Project="{targets}"/>
+                              </Project>
+                              """;
+
+        if (File.Exists(TargetsPath))
+        {
+            var existingTargetsText = File.ReadAllText(TargetsPath);
+
+            if (string.Equals(existingTargetsText.Trim(), newTargetsText.Trim(), StringComparison.InvariantCultureIgnoreCase))
+            {
+                return true;
+            }
+        }
+
         // write a dummy targets file that imports the real targets file
         Directory.CreateDirectory(Path.GetDirectoryName(TargetsPath)!);
         Log.LogMessage(TargetsPath);
-        File.WriteAllText(
-            TargetsPath,
-            $"""
-             <Project>
-                 <Import Project="{targets}"/>
-             </Project>
-             """
-        );
+        File.WriteAllText(TargetsPath, newTargetsText);
 
         return true;
     }
