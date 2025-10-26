@@ -59,7 +59,7 @@ public sealed class LaunchSettingsTask : BaseTask
             {
                 { "commandName", "Executable" },
                 { "executablePath", "$(DotNetName)" },
-                { "commandLineArgs", "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLServerPath)\" --mode server --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)" },
+                { "commandLineArgs", "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode server --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)" },
                 { "workingDirectory", "$(TmlBuildBootstrapRoot)" },
             };
 
