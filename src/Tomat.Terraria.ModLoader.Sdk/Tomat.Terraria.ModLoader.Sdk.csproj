@@ -11,8 +11,8 @@
         <Authors>tomat</Authors>
 
         <PackageId>Tomat.Terraria.ModLoader.Sdk</PackageId>
-        <Version>1.0.5</Version>
-        <PackageVersion>1.0.5</PackageVersion>
+        <Version>1.0.6</Version>
+        <PackageVersion>1.0.6</PackageVersion>
         <RepositoryUrl>https://github.com/gold-meridian/tml-build</RepositoryUrl>
         <PackageType>MSBuildSdk</PackageType>
         <PackageTags>MSBuildSdk terraria tmodloader</PackageTags>
