@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Microsoft.Win32;
 
 namespace Tomat.TML.Build.Common.Utilities;
 
@@ -28,38 +26,27 @@ internal static class Platform
 
     private static IEnumerable<string> GetSteamGamePaths(string gameName)
     {
-        var home = Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Environment.GetEnvironmentVariable("HOME");
-        if (home is not null)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
+            var xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Environment.GetEnvironmentVariable("HOME");
+            var unixHome = Environment.GetEnvironmentVariable("HOME");
+            var home = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? xdgDataHome : unixHome;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                yield return $"{home}/Applications/{gameName}.app/";
+                yield return $"{home}/Library/Application Support/Steam/steamapps/common/{gameName}/";
+            }
+
             yield return $"{home}/.steam/steam/steamapps/common/{gameName}";
             yield return $"{home}/.local/share/Steam/steamapps/common/{gameName}";
             yield return $"{home}/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/{gameName}";
-
-            // TODO: what does it look like on macOS?
         }
 
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            yield break;
-        }
-
-        foreach (var windowsPath in GetWindowsPaths(gameName))
-        {
-            yield return windowsPath;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private static IEnumerable<string> GetWindowsPaths(string gameName)
-    {
-        yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
-
-        var steamPath = Registry.CurrentUser.GetValue(@"Software\Valve\Steam\SteamPath") as string
-                     ?? Registry.LocalMachine.GetValue(@"Software\Valve\Steam\SteamPath") as string;
-
-        if (steamPath is not null)
-        {
-            yield return Path.Combine(steamPath, "steamapps", "common", gameName);
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", gameName);
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Steam", "steamapps", "common", gameName);
         }
     }
 }
