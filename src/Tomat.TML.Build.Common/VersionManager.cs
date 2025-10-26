@@ -70,7 +70,16 @@ public static class VersionManager
             File.Delete(versionCacheFile);
         }
 
-        WriteCache(Cache = ResolveVersions(), versionCacheFile);
+        try
+        {
+            WriteCache(Cache = ResolveVersions(), versionCacheFile);
+        }
+        catch
+        {
+            // Not a big deal if we can't actually write the cache.  Either we
+            // don't have permission or it's in use.  This may cause rate
+            // limiting when requesting versions from GitHub, though.
+        }
         return true;
     }
 
