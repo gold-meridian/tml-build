@@ -17,6 +17,22 @@
         <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <!-- Configures specific tasks the SDK provides. -->
+        <TmlBuildMod Condition="'$(TmlBuildMod)' == ''">true</TmlBuildMod>
+        <TmlBuildUseShaderCompile Condition="'$(TmlBuildUseShaderCompile)' == ''">$(TmlBuildMod)</TmlBuildUseShaderCompile>
+        <TmlBuildUseLocalizationCompiler Condition="'$(TmlBuildUseLocalizationCompiler)' == ''">$(TmlBuildMod)</TmlBuildUseLocalizationCompiler>
+        <TmlBuildPackageMod Condition="'$(TmlBuildPackageMod)' == ''">$(TmlBuildMod)</TmlBuildPackageMod>
+        <TmlBuildIncludeSourceGenerators Condition="'$(TmlBuildIncludeSourceGenerators)' == ''">$(TmlBuildMod)</TmlBuildIncludeSourceGenerators>
+        <TmlBuildGenerateLaunchSettings Condition="'$(TmlBuildGenerateLaunchSettings)' == ''">$(TmlBuildMod)</TmlBuildGenerateLaunchSettings>
+        <TmlBuildUseDefaultModImpl Condition="'$(TmlBuildUseDefaultModImpl)' == ''">false</TmlBuildUseDefaultModImpl>
+
+        <!-- Manually set here since it's locked behind BuildMod in tML. -->
+        <DotNetName Condition=" '$(OS)' == 'Windows_NT' ">dotnet.exe</DotNetName>
+        <DotNetName Condition=" '$(OS)' == 'Unix' ">dotnet</DotNetName>
+        <DotNetName Condition=" '$(DotNetName)' == '' ">dotnet</DotNetName>
+    </PropertyGroup>
+
     <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
         <!-- TmodOutputPath may be specified to override default logic -->
@@ -114,5 +130,48 @@
          This is now covered by the BuildMod property, but let's keep this to
          account for older versions. -->
     <Target Name="BuildMod"/>
+
+    <!-- Produce a launchSettings.json file to run the mod. -->
+    <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild" Condition="'$(TmlBuildGenerateLaunchSettings)' == 'true'">
+        <LaunchSettingsTask ProjectDirectory="$(MSBuildProjectDirectory)"/>
+    </Target>
+
+    <!-- Install the requested tML version before any processing occurs that
+         tries to use it. -->
+    <UsingTask TaskName="TmlVersionTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="ProcessTmlVersionBeforeReferencesAreResolved" BeforeTargets="ResolveReferences">
+        <TmlVersionTask Version="$(TmlVersion)" TargetsPath="$(TmlTargetsPath)"/>
+    </Target>
+
+    <!-- Package the most post-build into a .tmod file. -->
+    <UsingTask TaskName="PackageModTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="PackageMod" AfterTargets="Build" Condition="'$(TmlBuildPackageMod)' == 'true'">
+        <!-- all of these refs are TODO -->
+        <PackageModTask PackageReferences="@(PackageReferences)"
+                        ProjectReferences="@(_ResolvedProjectReferencePaths)"
+                        ReferencePaths="@(ModReference)"
+                        ModReferences="@(ReferencePath)"
+                        ProjectDirectory="$(MSBuildProjectDirectory)"
+                        OutputPath="$(OutputPath)"
+                        AssemblyName="$(AssemblyName)"
+                        TmlVersion="$(TmlVersion)"
+                        TmodOutputPath="$(TmodOutputPath)"
+                        BuildFilePath="$(ModManifestPath)"
+                        DescriptionFilePath="$(ModDescriptionPath)"/>
+    </Target>
+
+    <UsingTask TaskName="CompileLocalizationTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="CompileLocalization" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseLocalizationCompiler)' == 'true'">
+        <CompileLocalizationTask CompilationUnits="@(LocalizationCompile)"
+                                 ProjectDirectory="$(MSBuildProjectDirectory)"/>
+    </Target>
+
+    <UsingTask TaskName="CompileShadersTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="CompileShaders" BeforeTargets="PreBuildEvent" Condition="'$(TmlBuildUseShaderCompile)' == 'true'">
+        <CompileShadersTask CompilationUnits="@(ShaderCompile)"
+                            NativesDir="$(TmlBuildNativeRoot)"
+                            ProjectDirectory="$(MSBuildProjectDirectory)"/>
+    </Target>
 
 </Project>

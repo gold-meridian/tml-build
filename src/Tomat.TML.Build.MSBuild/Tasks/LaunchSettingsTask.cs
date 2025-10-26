@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Framework;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Tomat.TML.Build.MSBuild.Tasks;
 
@@ -33,44 +34,60 @@ public sealed class LaunchSettingsTask : BaseTask
         var launchSettingsJson = File.Exists(launchSettingsPath) ? File.ReadAllText(launchSettingsPath) : "{}";
         try
         {
-            var launchSettings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, string>>>>(launchSettingsJson);
-            if (launchSettings is null)
-            {
-                Log.LogMessage("Failed to deserialize launchSettings.json, aborting...");
-                return false;
-            }
+            var launchSettings = JObject.Parse(launchSettingsJson);
 
             Log.LogMessage("Creating generated profiles...");
 
-            if (!launchSettings.TryGetValue("profiles", out var profiles))
-            {
-                launchSettings["profiles"] = profiles = [];
-            }
+            var profiles = (JObject?)launchSettings["profiles"] ?? new JObject();
+            launchSettings["profiles"] = profiles;
 
-            profiles["Terraria Client"] = new Dictionary<string, string>
-            {
-                { "commandName", "Executable" },
-                { "executablePath", "$(DotNetName)" },
-                { "commandLineArgs", "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode client --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)" },
-                { "workingDirectory", "$(TmlBuildBootstrapRoot)" },
-            };
-
-            profiles["Terraria Server"] = new Dictionary<string, string>
-            {
-                { "commandName", "Executable" },
-                { "executablePath", "$(DotNetName)" },
-                { "commandLineArgs", "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode server --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)" },
-                { "workingDirectory", "$(TmlBuildBootstrapRoot)" },
-            };
+            profiles["Terraria Client"] = MakeLaunchSettings("client");
+            profiles["Terraria Server"] = MakeLaunchSettings("server");
 
             Log.LogMessage("Writing generated profiles...");
-            File.WriteAllText(launchSettingsPath, JsonConvert.SerializeObject(launchSettings, Formatting.Indented));
+            File.WriteAllText(launchSettingsPath, launchSettings.ToString(Formatting.Indented));
             return true;
         }
         catch (Exception e)
         {
             Log.LogError($"Failed to read and write launch settings, aborting: {e}");
             return false;
+        }
+
+        static JObject MakeLaunchSettings(string mode)
+        {
+            var settings = new[]
+            {
+                // The working directory to change to.
+                "--working-directory", "\"$(tMLSteamPath).\"",
+
+                // The name of the tModLoader assembly in the new working
+                // directory.
+                "--binary", "\"$(tMLPath)\"",
+
+                // The mode (client/server).
+                "--mode", mode,
+
+                // The requesting mod.
+                "--mod", "$(AssemblyName)",
+
+                // Any additional features/plugins for the bootstrapper to
+                // enable.
+                "--features", "$(TmlBuildBootstrapFeatures)",
+            };
+
+            return new JObject
+            {
+                ["commandName"] = "Executable",
+                ["executablePath"] = "$(DotNetName)",
+                ["commandLineArgs"] = $"Tomat.TML.ClientBootstrap.dll {string.Join(" ", settings)}",
+                ["workingDirectory"] = "$(TmlBuildBootstrapRoot)",
+                ["environmentVariables"] = new JObject
+                {
+                    ["APP_PATHS"] = "$(tMLSteamPath)",
+                    ["DOTNET_ADDITIONAL_DEPS"] = "$(tMLSteamPath)tModLoader.deps.json",
+                },
+            };
         }
     }
 }

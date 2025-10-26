@@ -4,13 +4,21 @@
       "commandName": "Executable",
       "executablePath": "$(DotNetName)",
       "commandLineArgs": "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode client --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)",
-      "workingDirectory": "$(TmlBuildBootstrapRoot)"
+      "workingDirectory": "$(TmlBuildBootstrapRoot)",
+      "environmentVariables": {
+        "APP_PATHS": "$(tMLSteamPath)",
+        "DOTNET_ADDITIONAL_DEPS": "$(tMLSteamPath)tModLoader.deps.json"
+      }
     },
     "Terraria Server": {
       "commandName": "Executable",
       "executablePath": "$(DotNetName)",
       "commandLineArgs": "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode server --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)",
-      "workingDirectory": "$(TmlBuildBootstrapRoot)"
+      "workingDirectory": "$(TmlBuildBootstrapRoot)",
+      "environmentVariables": {
+        "APP_PATHS": "$(tMLSteamPath)",
+        "DOTNET_ADDITIONAL_DEPS": "$(tMLSteamPath)tModLoader.deps.json"
+      }
     }
   }
 }

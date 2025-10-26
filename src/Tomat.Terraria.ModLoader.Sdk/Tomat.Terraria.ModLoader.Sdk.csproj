@@ -38,31 +38,23 @@
             <Link>Sdk\bin\%(Filename)%(Extension)</Link>
         </None>
 
-        <!-- General patterns to remove already-included libraries.  Can
-             manually re-include them as needed. -->
-        <!--
-        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\System.*.dll"/>
-        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.MSBuild\bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll"/>
-        -->
-
-        <!-- Include all bootstrap project binaries in a known directory to be
-             used in launch profiles. -->
-        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\**\*" Pack="true" PackagePath="Sdk/bootstrap">
-            <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
-        </None>
-
         <!-- Pack all source generator project binaries to correct analyzer path
              so they can be consumed by projects. -->
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\*.dll" Pack="true" PackagePath="Sdk/analyzers">
             <Link>Analyzers\%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
 
-        <!-- General patterns to remove already-included libraries.  Can
-             manually re-include them as needed. -->
-        <!--
-        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\System.*.dll"/>
-        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\bin\$(Configuration)\Microsoft.*.dll"/>
-        -->
+        <!-- The bootstrapper dogfoods the SDK and will produce copies of all
+             the tML binaries, which we don't want.  It's redundant and also
+             means it won't play nice with arbitrary version resolution.  As
+             such, we must include the files we care about explicitly. -->
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Tomat.TML.ClientBootstrap.*" Pack="true" PackagePath="Sdk/bootstrap">
+            <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\CliFx.*" Pack="true" PackagePath="Sdk/bootstrap">
+            <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
+        <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Tomat.TML.ClientBootstrap.deps.json"/>
     </ItemGroup>
 
     <ItemGroup>

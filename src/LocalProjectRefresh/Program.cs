@@ -24,12 +24,19 @@ internal static class Program
         }
 
         var justDelete = args.Contains("-d");
-        Console.WriteLine("Just deleting without publishing: " + justDelete);
+        Console.WriteLine("Just deleting without building or publishing: " + justDelete);
 
-        RunCommand("dotnet", "clean Tomat.TML.TestMod");
+        if (!justDelete)
+        {
+            RunCommand("dotnet", "build Tomat.TML.Build.Analyzers -c Release");
+            RunCommand("dotnet", "build Tomat.TML.Build.MSBuild -c Release");
+            RunCommand("dotnet", "build Tomat.TML.ClientBootstrap -c Release");
+            RunCommand("dotnet", "build Tomat.Terraria.ModLoader.Sdk -c Release");
+        }
+
         foreach (var version in versions)
         {
-            RunCommand("dotnet", $"nuget delete -s local Tomat.Terraria.ModLoader.Sdk {version} --non-interactive");
+            RunCommand("dotnet", $"nuget delete -s local Tomat.Terraria.ModLoader.Sdk {version} --non-interactive", canFail: true);
         }
 
         foreach (var dir in args[0].Split(';'))
@@ -37,20 +44,14 @@ internal static class Program
             ForceDeleteDirectory(dir.Trim());
         }
 
-        if (justDelete)
+        if (!justDelete)
         {
-            return;
+            RunCommand("dotnet", $"nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.{in_flight_version}.nupkg -s local");
+            RunCommand("dotnet", "restore Tomat.TML.TestMod");
         }
-
-        RunCommand("dotnet", "build Tomat.TML.Build.Analyzers -c Release");
-        RunCommand("dotnet", "build Tomat.TML.Build.MSBuild -c Release");
-        RunCommand("dotnet", "build Tomat.TML.ClientBootstrap -c Release");
-        RunCommand("dotnet", "build Tomat.Terraria.ModLoader.Sdk -c Release");
-        RunCommand("dotnet", $"nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.{in_flight_version}.nupkg -s local");
-        RunCommand("dotnet", "restore Tomat.TML.TestMod");
     }
 
-    private static void RunCommand(string program, string arguments)
+    private static void RunCommand(string program, string arguments, bool canFail = false)
     {
         Console.WriteLine($"> {program} {arguments}");
 
@@ -100,6 +101,11 @@ internal static class Program
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"!!! Command failed with exit code: {process.ExitCode}");
         Console.ResetColor();
+
+        if (!canFail)
+        {
+            Environment.Exit(1);
+        }
     }
 
     private static void ForceDeleteDirectory(string dir)

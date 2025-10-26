@@ -1,7 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <!-- TODO: Replace with SDK when it's actually usable. -->
-    <Import Project="C:\Program Files (x86)\Steam\steamapps\common\tModLoader\tMLMod.targets"/>
+﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.6">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -9,18 +6,11 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
 
-        <BuildMod>false</BuildMod>
+        <TmlBuildMod>false</TmlBuildMod>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="CliFx" Version="2.3.6"/>
-        <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.1"/>
-
-        <Publicize Include="tModLoader" IncludeCompilerGeneratedMembers="false" IncludeVirtualMembers="false"/>
     </ItemGroup>
 
 </Project>
