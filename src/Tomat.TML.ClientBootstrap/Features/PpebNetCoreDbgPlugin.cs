@@ -48,7 +48,7 @@ public sealed class PpebNetCoreDbgPlugin : LaunchPlugin
                             if (File.Exists(possibleAssemblyPath))
                             {
                                 logger.Info($"Attempting to load \"{self.Name}\" (assembly=\"{possibleAssemblyPath}\", pdb=\"{self.properties.eacPath}\")...");
-                                self.assembly = self.LoadFromAssemblyPath(possibleAssemblyPath);
+                                self.assembly = LoadAssemblyFromPath(self, possibleAssemblyPath, self.properties.eacPath);
                                 logger.Info($"Successfully loaded \"{self.Name}\"!");
                             }
                             else
@@ -73,5 +73,27 @@ public sealed class PpebNetCoreDbgPlugin : LaunchPlugin
                 }
             }
         );
+    }
+
+    private static Assembly LoadAssemblyFromPath(
+        AssemblyManager.ModLoadContext self,
+        string assemblyPath,
+        string pdbPath
+    )
+    {
+        var codeBytes = File.ReadAllBytes(assemblyPath);
+        var asm = self.LoadFromAssemblyPath(assemblyPath);
+        var name = asm.GetName().Name!;
+        self.assemblyBytes[name] = codeBytes;
+        self.assemblies[name] = asm;
+        self.bytesLoaded += codeBytes.Length;
+
+        if (File.Exists(pdbPath))
+        {
+            // stupid as hell and kinda incorrect
+            self.bytesLoaded += File.ReadAllBytes(pdbPath).Length;
+        }
+
+        return asm;
     }
 }
