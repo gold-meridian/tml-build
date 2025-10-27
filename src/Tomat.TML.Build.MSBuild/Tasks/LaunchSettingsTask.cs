@@ -45,7 +45,12 @@ public sealed class LaunchSettingsTask : BaseTask
             profiles["Terraria Server"] = MakeLaunchSettings("server");
 
             Log.LogMessage("Writing generated profiles...");
-            File.WriteAllText(launchSettingsPath, launchSettings.ToString(Formatting.Indented));
+
+            // Explicitly use ToString(Formatting, JsonConverter[]) overload
+            // because VS references an older version of Newtonsoft.Json which
+            // only has that one for formatting.
+            var lsText = launchSettings.ToString(Formatting.Indented, []);
+            File.WriteAllText(launchSettingsPath, lsText);
             return true;
         }
         catch (Exception e)
