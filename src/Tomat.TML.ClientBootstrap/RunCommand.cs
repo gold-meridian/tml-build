@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
-using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json.Linq;
 using Tomat.TML.ClientBootstrap.Framework;
 
@@ -100,8 +98,6 @@ public sealed class RunCommand : ICommand
     private const string rc_ext = ".runtimeconfig.json";
     private const string rc_dev_ext = ".runtimeconfig.dev.json";
 
-    private static readonly Dictionary<string, Assembly> assemblies = [];
-
     private static Assembly InstallAssemblyResolver(string baseDir, string binaryName)
     {
         Console.WriteLine("Setting up assembly resolver...");
@@ -119,39 +115,9 @@ public sealed class RunCommand : ICommand
         Console.WriteLine($"    {rcPath}");
         Console.WriteLine($"    {rcDevPath}");
 
-        Console.WriteLine("Attempting to build dependencies list...");
-        if (!File.Exists(depsPath))
-        {
-            throw new FileNotFoundException($"Cannot build dependencies list, no .deps file: {depsPath}");
-        }
-
-        using var depsStream = File.OpenRead(depsPath);
-        var depReader = new DependencyContextJsonReader();
-        var depContext = depReader.Read(depsStream);
-
-        /*
-        var depsJson = JObject.Parse(File.ReadAllText(depsPath));
-        var libraries = (JObject?)depsJson["libraries"] ?? new JObject();
-
-        var dependencies = new List<(string name, string version, string basePath)>();
-
-        foreach (var (libName, libToken) in libraries)
-        {
-            var splitName = libName.Split('/', 2);
-
-            // It's possible for path to be missing; just assume default dir.
-            dependencies.Add((splitName[0], splitName[1], libToken?["path"]?.Value<string>() ?? string.Empty));
-        }
-
-        Console.WriteLine("Got dependencies:");
-        foreach (var dep in dependencies)
-        {
-            Console.WriteLine($"    {dep.name}/{dep.version} (basePath={dep.basePath})");
-        }*/
-
         var probePaths = new List<string> { baseDir };
-        Console.WriteLine("Finding probing paths...");
         var runtimeConfigs = new[] { rcPath, rcDevPath };
+        Console.WriteLine("Finding probing paths...");
         foreach (var rc in runtimeConfigs)
         {
             Console.WriteLine($"    Reading runtime config: {rc}");
@@ -186,60 +152,9 @@ public sealed class RunCommand : ICommand
             Console.WriteLine($"    {path}");
         }
 
-        AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
-        {
-            var asmName = new AssemblyName(args.Name).Name ?? args.Name;
-            if (assemblies.TryGetValue(asmName, out var assembly))
-            {
-                return assembly;
-            }
+        var resolver = new AssemblyResolver(depsPath, probePaths.ToArray());
 
-            var runtimeLib = depContext.RuntimeLibraries.FirstOrDefault(x => x.Name == asmName);
-            if (runtimeLib is null)
-            {
-                return null;
-            }
-
-            foreach (var asmGroup in runtimeLib.RuntimeAssemblyGroups)
-            {
-                foreach (var runtimeFile in asmGroup.RuntimeFiles)
-                {
-                    foreach (var probePath in probePaths)
-                    {
-                        string[] potentialPaths = runtimeLib.Path is null
-                            ? [Path.Combine(probePath, Path.Combine(runtimeLib.Name, runtimeLib.Version), runtimeFile.Path), Path.Combine(probePath, runtimeFile.Path)]
-                            : [Path.Combine(probePath, runtimeLib.Path, runtimeFile.Path)];
-
-                        foreach (var potentialPath in potentialPaths)
-                        {
-                            if (!File.Exists(potentialPath))
-                            {
-                                continue;
-                            }
-
-                            Console.WriteLine("Resolver: Attempting to load assembly: " + potentialPath);
-
-                            try
-                            {
-                                var loadedAsm = Assembly.LoadFrom(potentialPath);
-                                assemblies[loadedAsm.GetName().Name ?? loadedAsm.FullName ?? potentialPath] = loadedAsm;
-
-                                if (loadedAsm.GetName().Name == asmName)
-                                {
-                                    return assemblies[asmName] = loadedAsm;
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Console.Error.WriteLine($"Failed to load assembly ({potentialPath}): {e}");
-                            }
-                        }
-                    }
-                }
-            }
-
-            return null;
-        };
+        AppDomain.CurrentDomain.AssemblyResolve += (_, args) => resolver.ResolveAssembly(new AssemblyName(args.Name));
 
         // With everything set up, this should automatically resolve.
         return Assembly.Load(assemblyName);
