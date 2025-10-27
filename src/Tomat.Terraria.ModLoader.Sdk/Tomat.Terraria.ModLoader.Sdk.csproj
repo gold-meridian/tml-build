@@ -54,6 +54,12 @@
         <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\CliFx.*" Pack="true" PackagePath="Sdk/bootstrap">
             <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Microsoft.Extensions.DependencyModel.*" Pack="true" PackagePath="Sdk/bootstrap">
+            <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
+        <None Include="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Newtonsoft.Json.*" Pack="true" PackagePath="Sdk/bootstrap">
+            <Link>ClientBootstrap\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </None>
         <None Remove="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Tomat.TML.ClientBootstrap.deps.json"/>
     </ItemGroup>
 

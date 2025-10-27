@@ -6,4 +6,8 @@
         <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
 </Project>

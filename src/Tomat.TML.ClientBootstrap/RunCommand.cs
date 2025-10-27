@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
+using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json.Linq;
 using Tomat.TML.ClientBootstrap.Framework;
 
@@ -99,6 +100,8 @@ public sealed class RunCommand : ICommand
     private const string rc_ext = ".runtimeconfig.json";
     private const string rc_dev_ext = ".runtimeconfig.dev.json";
 
+    private static readonly Dictionary<string, Assembly> assemblies = [];
+
     private static Assembly InstallAssemblyResolver(string baseDir, string binaryName)
     {
         Console.WriteLine("Setting up assembly resolver...");
@@ -122,6 +125,11 @@ public sealed class RunCommand : ICommand
             throw new FileNotFoundException($"Cannot build dependencies list, no .deps file: {depsPath}");
         }
 
+        using var depsStream = File.OpenRead(depsPath);
+        var depReader = new DependencyContextJsonReader();
+        var depContext = depReader.Read(depsStream);
+
+        /*
         var depsJson = JObject.Parse(File.ReadAllText(depsPath));
         var libraries = (JObject?)depsJson["libraries"] ?? new JObject();
 
@@ -139,7 +147,7 @@ public sealed class RunCommand : ICommand
         foreach (var dep in dependencies)
         {
             Console.WriteLine($"    {dep.name}/{dep.version} (basePath={dep.basePath})");
-        }
+        }*/
 
         var probePaths = new List<string> { baseDir };
         Console.WriteLine("Finding probing paths...");
@@ -171,7 +179,7 @@ public sealed class RunCommand : ICommand
                 probePaths.Add(fullPath);
             }
         }
-        
+
         Console.WriteLine("Using probing paths (in order):");
         foreach (var path in probePaths)
         {
@@ -180,7 +188,57 @@ public sealed class RunCommand : ICommand
 
         AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
         {
-            
+            var asmName = new AssemblyName(args.Name).Name ?? args.Name;
+            if (assemblies.TryGetValue(asmName, out var assembly))
+            {
+                return assembly;
+            }
+
+            var runtimeLib = depContext.RuntimeLibraries.FirstOrDefault(x => x.Name == asmName);
+            if (runtimeLib is null)
+            {
+                return null;
+            }
+
+            foreach (var asmGroup in runtimeLib.RuntimeAssemblyGroups)
+            {
+                foreach (var runtimeFile in asmGroup.RuntimeFiles)
+                {
+                    foreach (var probePath in probePaths)
+                    {
+                        string[] potentialPaths = runtimeLib.Path is null
+                            ? [Path.Combine(probePath, Path.Combine(runtimeLib.Name, runtimeLib.Version), runtimeFile.Path), Path.Combine(probePath, runtimeFile.Path)]
+                            : [Path.Combine(probePath, runtimeLib.Path, runtimeFile.Path)];
+
+                        foreach (var potentialPath in potentialPaths)
+                        {
+                            if (!File.Exists(potentialPath))
+                            {
+                                continue;
+                            }
+
+                            Console.WriteLine("Resolver: Attempting to load assembly: " + potentialPath);
+
+                            try
+                            {
+                                var loadedAsm = Assembly.LoadFrom(potentialPath);
+                                assemblies[loadedAsm.GetName().Name ?? loadedAsm.FullName ?? potentialPath] = loadedAsm;
+
+                                if (loadedAsm.GetName().Name == asmName)
+                                {
+                                    return assemblies[asmName] = loadedAsm;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Console.Error.WriteLine($"Failed to load assembly ({potentialPath}): {e}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
         };
 
         // With everything set up, this should automatically resolve.
