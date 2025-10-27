@@ -82,11 +82,6 @@ public sealed class LaunchSettingsTask : BaseTask
                 ["executablePath"] = "$(DotNetName)",
                 ["commandLineArgs"] = $"Tomat.TML.ClientBootstrap.dll {string.Join(" ", settings)}",
                 ["workingDirectory"] = "$(TmlBuildBootstrapRoot)",
-                ["environmentVariables"] = new JObject
-                {
-                    ["APP_PATHS"] = "$(tMLSteamPath)",
-                    ["DOTNET_ADDITIONAL_DEPS"] = "$(tMLSteamPath)tModLoader.deps.json",
-                },
             };
         }
     }

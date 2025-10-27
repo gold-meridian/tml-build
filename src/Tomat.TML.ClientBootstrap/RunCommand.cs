@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
+using Newtonsoft.Json.Linq;
 using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap;
@@ -57,7 +60,7 @@ public sealed class RunCommand : ICommand
         Environment.CurrentDirectory = tmlDir;
         await console.Output.WriteLineAsync("Set working directory: " + Environment.CurrentDirectory);
 
-        var tmod = Assembly.LoadFile(Path.Combine(tmlDir, BinaryName));
+        var tmod = InstallAssemblyResolver(tmlDir, BinaryName);
         await console.Output.WriteLineAsync($"Loaded tModLoader assembly: {tmod}");
 
         var ctx = new LaunchContext(
@@ -90,5 +93,97 @@ public sealed class RunCommand : ICommand
             Console.Error.WriteLine("Could not parse launch more into known value: " + mode);
             return LaunchMode.Client;
         }
+    }
+
+    private const string deps_ext = ".deps.json";
+    private const string rc_ext = ".runtimeconfig.json";
+    private const string rc_dev_ext = ".runtimeconfig.dev.json";
+
+    private static Assembly InstallAssemblyResolver(string baseDir, string binaryName)
+    {
+        Console.WriteLine("Setting up assembly resolver...");
+
+        var assemblyName = Path.GetFileNameWithoutExtension(binaryName);
+        Console.WriteLine("Will attempt to resolve assembly name: " + assemblyName);
+
+        var binaryPath = Path.Combine(baseDir, binaryName);
+        var depsPath = Path.Combine(baseDir, assemblyName + deps_ext);
+        var rcPath = Path.Combine(baseDir, assemblyName + rc_ext);
+        var rcDevPath = Path.Combine(baseDir, assemblyName + rc_dev_ext);
+        Console.WriteLine("Assembly resolve-related paths:");
+        Console.WriteLine($"    {binaryPath}");
+        Console.WriteLine($"    {depsPath}");
+        Console.WriteLine($"    {rcPath}");
+        Console.WriteLine($"    {rcDevPath}");
+
+        Console.WriteLine("Attempting to build dependencies list...");
+        if (!File.Exists(depsPath))
+        {
+            throw new FileNotFoundException($"Cannot build dependencies list, no .deps file: {depsPath}");
+        }
+
+        var depsJson = JObject.Parse(File.ReadAllText(depsPath));
+        var libraries = (JObject?)depsJson["libraries"] ?? new JObject();
+
+        var dependencies = new List<(string name, string version, string basePath)>();
+
+        foreach (var (libName, libToken) in libraries)
+        {
+            var splitName = libName.Split('/', 2);
+
+            // It's possible for path to be missing; just assume default dir.
+            dependencies.Add((splitName[0], splitName[1], libToken?["path"]?.Value<string>() ?? string.Empty));
+        }
+
+        Console.WriteLine("Got dependencies:");
+        foreach (var dep in dependencies)
+        {
+            Console.WriteLine($"    {dep.name}/{dep.version} (basePath={dep.basePath})");
+        }
+
+        var probePaths = new List<string> { baseDir };
+        Console.WriteLine("Finding probing paths...");
+        var runtimeConfigs = new[] { rcPath, rcDevPath };
+        foreach (var rc in runtimeConfigs)
+        {
+            Console.WriteLine($"    Reading runtime config: {rc}");
+
+            if (!File.Exists(rc))
+            {
+                Console.WriteLine("        Not found, skipping...");
+                continue;
+            }
+
+            var rcJson = JObject.Parse(File.ReadAllText(rc));
+            var paths = (JArray?)rcJson["runtimeOptions"]?["additionalProbingPaths"];
+            var additionalProbingPaths = paths?.Select(p => p.ToString()).ToList() ?? [];
+
+            if (additionalProbingPaths.Count == 0)
+            {
+                Console.WriteLine("        No probing paths specified, skipping...");
+                continue;
+            }
+
+            foreach (var path in additionalProbingPaths)
+            {
+                var fullPath = Path.Combine(baseDir, path);
+                Console.WriteLine($"        Got probing path: {fullPath}");
+                probePaths.Add(fullPath);
+            }
+        }
+        
+        Console.WriteLine("Using probing paths (in order):");
+        foreach (var path in probePaths)
+        {
+            Console.WriteLine($"    {path}");
+        }
+
+        AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+        {
+            
+        };
+
+        // With everything set up, this should automatically resolve.
+        return Assembly.Load(assemblyName);
     }
 }
