@@ -55,7 +55,7 @@
              
              See FEATURES.md for a list of available flags.
              -->
-        <TmlBuildBootstrapFeatures Condition="'$(TmlBuildBootstrapFeatures)' == ''">tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
+        <TmlBuildBootstrapFeatures Condition="'$(TmlBuildBootstrapFeatures)' == ''">tomat.enablemod;lolxd87.splashskip;ppeb.netcoredbg</TmlBuildBootstrapFeatures>
     </PropertyGroup>
 
     <Import Condition="Exists('$(TmlTargetsPath)')" Project="$(TmlTargetsPath)"/>
