@@ -1,13 +1,8 @@
-﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.7">
+﻿<Project Sdk="Tomat.Terraria.ModLoader.Sdk/1.0.8">
 
     <PropertyGroup>
         <AssemblyName>TestMod</AssemblyName>
-
         <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
 
 </Project>
