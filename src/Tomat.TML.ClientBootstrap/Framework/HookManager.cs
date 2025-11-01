@@ -62,6 +62,8 @@ public sealed class HookManager : IDisposable
             throw new InvalidOperationException("Cannot apply hooks after manager has applied once; create a new instance.");
         }
 
+        applied = true;
+
         if (inParallel)
         {
             Parallel.Invoke(applications.ToArray());
