@@ -19,6 +19,9 @@ internal static class ProcessIdentifier
 
     public static bool Compatible(string? runtime)
     {
-        return string.IsNullOrEmpty(runtime) || Rid.Equals(runtime, StringComparison.InvariantCultureIgnoreCase);
+        return string.IsNullOrEmpty(runtime)
+            || OsId.Equals(runtime, StringComparison.InvariantCultureIgnoreCase)
+            || ArchId.Equals(runtime, StringComparison.InvariantCultureIgnoreCase)
+            || Rid.Equals(runtime, StringComparison.InvariantCultureIgnoreCase);
     }
 }
