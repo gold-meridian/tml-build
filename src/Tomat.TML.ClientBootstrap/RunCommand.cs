@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
@@ -153,10 +155,104 @@ public sealed class RunCommand : ICommand
         }
 
         var resolver = new AssemblyResolver(depsPath, probePaths.ToArray());
+        var nativeFiles = resolver.GetNativeFiles().ToArray();
+        var nativeDirs = nativeFiles.Select(x => new FileInfo(x).Directory).Where(x => x is not null).Distinct();
 
         AppDomain.CurrentDomain.AssemblyResolve += (_, args) => resolver.ResolveAssembly(new AssemblyName(args.Name));
+        AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, s) =>
+        {
+            foreach (var nativeDir in nativeDirs)
+            {
+                if (nativeDir is null || !nativeDir.Exists)
+                {
+                    continue;
+                }
+
+                foreach (var nativeFile in GetNativeFileNames(s))
+                {
+                    var nativePath = Path.Combine(nativeDir.FullName, nativeFile);
+                    if (!File.Exists(nativePath))
+                    {
+                        continue;
+                    }
+
+                    if (NativeLibrary.TryLoad(nativePath, out var handle))
+                    {
+                        return handle;
+                    }
+                }
+            }
+
+            return 0;
+        };
 
         // With everything set up, this should automatically resolve.
         return Assembly.Load(assemblyName);
+    }
+
+    private static readonly string[] windows_native_formats =
+    [
+        "{0}",
+        "{0}.dll",
+    ];
+
+    private static readonly string[] unix_native_formats =
+    [
+        "{0}.{1}",
+        "lib{0}.{1}",
+        "{0}",
+        "lib{0}",
+    ];
+
+    private static readonly string[] linux_so_native_formats =
+    [
+        "{0}",
+        "lib{0}",
+        "{0}.so",
+        "lib{0}.so",
+    ];
+
+    private static IEnumerable<string> GetNativeFileNames(string fileName)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            if (fileName.EndsWith(".dll"))
+            {
+                yield return fileName;
+            }
+            else
+            {
+                foreach (var windowsFmt in windows_native_formats)
+                {
+                    yield return string.Format(windowsFmt, fileName);
+                }
+            }
+
+            yield break;
+        }
+
+        var isMac = OperatingSystem.IsMacOS();
+        var isLinux = OperatingSystem.IsLinux();
+        if (!isMac && !isLinux)
+        {
+            yield break;
+        }
+
+        var ext = isMac ? "dylib" : "so";
+
+        if (isLinux && (fileName.EndsWith(".so") || fileName.Contains(".so.")))
+        {
+            foreach (var soFmt in linux_so_native_formats)
+            {
+                yield return string.Format(soFmt, fileName);
+            }
+
+            yield break;
+        }
+
+        foreach (var unixFmt in unix_native_formats)
+        {
+            yield return string.Format(unixFmt, fileName, ext);
+        }
     }
 }

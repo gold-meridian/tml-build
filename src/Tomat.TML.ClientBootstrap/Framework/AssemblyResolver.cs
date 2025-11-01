@@ -124,9 +124,12 @@ public sealed class AssemblyResolver
 
     private readonly DependencyContext dependencyContext;
     private readonly CompositeCompilationAssemblyResolver resolver;
+    private readonly string[] probePaths;
 
     public AssemblyResolver(string depsPath, string[] probePaths)
     {
+        this.probePaths = probePaths;
+
         using var depsStream = File.OpenRead(depsPath);
 
         var reader = new DependencyContextJsonReader();
@@ -192,5 +195,52 @@ public sealed class AssemblyResolver
         return assemblies.Count != 0
             ? AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblies.First(x => Path.GetFileNameWithoutExtension(x) == assemblyName.Name))
             : null;
+    }
+
+    public IEnumerable<string> GetNativeFiles()
+    {
+        foreach (var probePath in probePaths)
+        {
+            foreach (var nativeDir in GetNativeFiles(probePath))
+            {
+                yield return nativeDir;
+            }
+        }
+    }
+    
+    public IEnumerable<string> GetNativeFiles(string path)
+    {
+        foreach (var runtimeLibrary in dependencyContext.RuntimeLibraries)
+        {
+            var paths = new List<string>();
+
+            if (runtimeLibrary.Path is not null)
+            {
+                paths.Add(Path.Combine(path, runtimeLibrary.Path));
+            }
+            
+            paths.Add(Path.Combine(path, runtimeLibrary.Name));
+            paths.Add(Path.Combine(path, runtimeLibrary.Name, runtimeLibrary.Version));
+            
+            foreach (var nativeLibrary in runtimeLibrary.NativeLibraryGroups)
+            {
+                if (!ProcessIdentifier.Compatible(nativeLibrary.Runtime))
+                {
+                    continue;
+                }
+
+                foreach (var nativeFile in nativeLibrary.RuntimeFiles)
+                {
+                    foreach (var runtimePath in paths)
+                    {
+                        var fullNativePath = Path.Combine(runtimePath, nativeFile.Path);
+                        if (File.Exists(fullNativePath))
+                        {
+                            yield return fullNativePath;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
