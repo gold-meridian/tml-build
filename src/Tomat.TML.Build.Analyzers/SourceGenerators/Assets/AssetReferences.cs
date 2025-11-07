@@ -591,3 +591,29 @@ internal sealed class EffectReference : IAssetReference
         return uniformType.GetDefForTypeInfo(typeInfo);
     }
 }
+
+internal sealed class ModelReference : IAssetReference
+{
+    public bool PermitsVariant(string path)
+    {
+        return false;
+    }
+
+    public bool Eligible(AssetPath path)
+    {
+        return path.RelativeOrFullPath.EndsWith(".obj");
+    }
+
+    public string GenerateCode(string assemblyName, AssetFile asset, string indent)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"{indent}public const string KEY = \"{assemblyName}/{Path.ChangeExtension(asset.Path.RelativeOrFullPath.Replace('\\', '/'), null)}\";");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}public static ReLogic.Content.Asset<{assemblyName}.Core.ObjModel> Asset => lazy.Value;");
+        sb.AppendLine();
+        sb.AppendLine($"{indent}private static readonly System.Lazy<ReLogic.Content.Asset<{assemblyName}.Core.ObjModel>> lazy = new(() => Terraria.ModLoader.ModContent.Request<{assemblyName}.Core.ObjModel>(KEY));");
+
+        return sb.ToString().TrimEnd();
+    }
+}

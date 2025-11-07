@@ -88,6 +88,9 @@
         <AdditionalFiles Include="**/*.wav"/>
         <AdditionalFiles Include="**/*.ogg"/>
         <AdditionalFiles Include="**/*.mp3"/>
+
+		<!-- 3d models -->
+		<AdditionalFiles Include="**/*.obj"/> <!-- not included by tml -->
     </ItemGroup>
 
     <ItemGroup>

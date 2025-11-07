@@ -47,6 +47,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
         new TextureReference(),
         new SoundReference(),
         new EffectReference(),
+        new ModelReference(),
     ];
 
     void IIncrementalGenerator.Initialize(
