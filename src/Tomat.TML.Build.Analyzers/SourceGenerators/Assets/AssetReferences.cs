@@ -8,8 +8,6 @@ using GoldMeridian.PaintLabel.IO;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
-
-
 internal sealed class TextureGenerator : IAssetGenerator
 {
     public bool PermitsVariant(string path)

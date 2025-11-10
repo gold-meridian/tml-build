@@ -10,8 +10,6 @@ using Microsoft.CodeAnalysis;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
-
-
 internal sealed record PathNode(
     string Name,
     Dictionary<string, PathNode> Nodes,
@@ -31,13 +29,6 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
     private static readonly Regex non_alphanumeric = new(@"[^\w]", RegexOptions.Compiled);
 
     private static readonly char[] number_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-    private static readonly IAssetGenerator[] asset_references =
-    [
-        new TextureGenerator(),
-        new SoundGenerator(),
-        new EffectGenerator(),
-    ];
 
     void IIncrementalGenerator.Initialize(
         IncrementalGeneratorInitializationContext context
@@ -148,7 +139,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
 
         static bool Eligible(AssetPath path, out IAssetGenerator generator)
         {
-            foreach (var assetReference in asset_references)
+            foreach (var assetReference in AssetGeneratorProvider.KnownGenerators)
             {
                 if (!assetReference.Eligible(path))
                 {
