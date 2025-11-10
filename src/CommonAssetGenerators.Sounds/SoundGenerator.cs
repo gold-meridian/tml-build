@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Tomat.TML.Build.Analyzers;
@@ -55,14 +54,5 @@ internal sealed class SoundGenerator : IAssetGenerator
 
         sb.AppendLine();
         return sb.ToString().TrimEnd();
-    }
-}
-
-internal static class Loader
-{
-    [ModuleInitializer]
-    public static void LoadGenerator()
-    {
-        AssetGeneratorProvider.AddGenerator<SoundGenerator>();
     }
 }

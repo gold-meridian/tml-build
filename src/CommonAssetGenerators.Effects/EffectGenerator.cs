@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using GoldMeridian.PaintLabel;
 using GoldMeridian.PaintLabel.IO;
@@ -495,14 +494,5 @@ internal sealed class EffectGenerator : IAssetGenerator
         }
 
         return uniformType.GetDefForTypeInfo(typeInfo);
-    }
-}
-
-internal static class Loader
-{
-    [ModuleInitializer]
-    public static void LoadGenerator()
-    {
-        AssetGeneratorProvider.AddGenerator<EffectGenerator>();
     }
 }

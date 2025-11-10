@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Tomat.TML.Build.Analyzers;
@@ -28,14 +27,5 @@ internal sealed class TextureGenerator : IAssetGenerator
         sb.AppendLine($"{indent}private static readonly System.Lazy<ReLogic.Content.Asset<Microsoft.Xna.Framework.Graphics.Texture2D>> lazy = new(() => Terraria.ModLoader.ModContent.Request<Microsoft.Xna.Framework.Graphics.Texture2D>(KEY));");
 
         return sb.ToString().TrimEnd();
-    }
-}
-
-internal static class Loader
-{
-    [ModuleInitializer]
-    public static void LoadGenerator()
-    {
-        AssetGeneratorProvider.AddGenerator<TextureGenerator>();
     }
 }
