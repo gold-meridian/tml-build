@@ -8,25 +8,9 @@ using GoldMeridian.PaintLabel.IO;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
-internal sealed class AssetPath(string fullPath, string? relativePath)
-{
-    public string FullPath => fullPath;
 
-    public string? RelativePath { get; set; } = relativePath;
 
-    public string RelativeOrFullPath => RelativePath ?? FullPath;
-}
-
-internal interface IAssetReference
-{
-    bool PermitsVariant(string path);
-
-    bool Eligible(AssetPath path);
-
-    string GenerateCode(string assemblyName, AssetFile asset, string indent);
-}
-
-internal sealed class TextureReference : IAssetReference
+internal sealed class TextureGenerator : IAssetGenerator
 {
     public bool PermitsVariant(string path)
     {
@@ -53,7 +37,7 @@ internal sealed class TextureReference : IAssetReference
     }
 }
 
-internal sealed class SoundReference : IAssetReference
+internal sealed class SoundGenerator : IAssetGenerator
 {
     public bool PermitsVariant(string path)
     {
@@ -106,7 +90,7 @@ internal sealed class SoundReference : IAssetReference
     }
 }
 
-internal sealed class EffectReference : IAssetReference
+internal sealed class EffectGenerator : IAssetGenerator
 {
     public readonly record struct ShaderVariableDescription(
         string BaseType,

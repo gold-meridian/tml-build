@@ -10,17 +10,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
 
-internal readonly record struct VariantData(int Start, int End)
-{
-    public int Count => End - Start + 1;
-}
 
-internal readonly record struct AssetFile(
-    string Name,
-    AssetPath Path,
-    IAssetReference Reference,
-    VariantData? Variants = null
-);
 
 internal sealed record PathNode(
     string Name,
@@ -42,11 +32,11 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
 
     private static readonly char[] number_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-    private static readonly IAssetReference[] asset_references =
+    private static readonly IAssetGenerator[] asset_references =
     [
-        new TextureReference(),
-        new SoundReference(),
-        new EffectReference(),
+        new TextureGenerator(),
+        new SoundGenerator(),
+        new EffectGenerator(),
     ];
 
     void IIncrementalGenerator.Initialize(
@@ -156,7 +146,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
             return rootNode;
         }
 
-        static bool Eligible(AssetPath path, out IAssetReference reference)
+        static bool Eligible(AssetPath path, out IAssetGenerator generator)
         {
             foreach (var assetReference in asset_references)
             {
@@ -165,11 +155,11 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                     continue;
                 }
 
-                reference = assetReference;
+                generator = assetReference;
                 return true;
             }
 
-            reference = null!;
+            generator = null!;
             return false;
         }
     }
@@ -224,7 +214,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
 
                 var file = root.Files[i];
 
-                if (file.Reference.PermitsVariant(file.Path.RelativeOrFullPath))
+                if (file.Generator.PermitsVariant(file.Path.RelativeOrFullPath))
                 {
                     var numberMatch = end_number_regex.Match(file.Name);
                     if (numberMatch.Success)
@@ -248,7 +238,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                             sb.AppendLine($"{indent}    public static class {NormalizeName(variantFile.Name)}");
                             sb.AppendLine($"{indent}    {{");
 
-                            sb.AppendLine(variantFile.Reference.GenerateCode(assemblyName, variantFile, $"{indent}        "));
+                            sb.AppendLine(variantFile.Generator.GenerateCode(assemblyName, variantFile, $"{indent}        "));
 
                             sb.AppendLine($"{indent}    }}");
                             sb.AppendLine();
@@ -259,7 +249,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                 sb.AppendLine($"{indent}    public static class {NormalizeName(file.Name)}");
                 sb.AppendLine($"{indent}    {{");
 
-                sb.AppendLine(file.Reference.GenerateCode(assemblyName, file, $"{indent}        "));
+                sb.AppendLine(file.Generator.GenerateCode(assemblyName, file, $"{indent}        "));
 
                 sb.AppendLine($"{indent}    }}");
 
