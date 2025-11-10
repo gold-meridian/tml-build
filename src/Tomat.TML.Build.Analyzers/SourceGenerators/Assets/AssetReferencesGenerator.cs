@@ -66,11 +66,12 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
             {
                 var (rootNamespace, (assemblyName, (files, projectDir))) = tuple;
 
-                var root = CreateAssetTree(files, projectDir, ctx.CancellationToken);
+                var generators = AssetGeneratorProvider.KnownGenerators.ToArray();
+                var root = CreateAssetTree(generators, files, projectDir, ctx.CancellationToken);
 
                 ctx.AddSource(
                     "AssetReferences.g.cs",
-                    GenerateAssetFile(rootNamespace, assemblyName, root, ctx.CancellationToken)
+                    GenerateAssetFile(generators, rootNamespace, assemblyName, root, ctx.CancellationToken)
                 );
             }
         );
@@ -78,6 +79,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
         return;
 
         static PathNode CreateAssetTree(
+            IAssetGenerator[] generators,
             ImmutableArray<AssetPath> paths,
             string projectDir,
             CancellationToken token
@@ -108,7 +110,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
 
                 path.RelativePath = path.RelativePath.Replace('\\', '/');
 
-                if (!Eligible(path, out var reference))
+                if (!Eligible(generators, path, out var reference))
                 {
                     continue;
                 }
@@ -137,9 +139,9 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
             return rootNode;
         }
 
-        static bool Eligible(AssetPath path, out IAssetGenerator generator)
+        static bool Eligible(IAssetGenerator[] generators, AssetPath path, out IAssetGenerator generator)
         {
-            foreach (var assetReference in AssetGeneratorProvider.KnownGenerators)
+            foreach (var assetReference in generators)
             {
                 if (!assetReference.Eligible(path))
                 {
@@ -156,6 +158,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
     }
 
     private static string GenerateAssetFile(
+        IAssetGenerator[] generators,
         string rootNamespace,
         string assemblyName,
         PathNode root,
@@ -170,9 +173,14 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
               global using static {{rootNamespace}}.Core.AssetReferences;
 
               namespace {{rootNamespace}}.Core;
+              
+              // Using the following generators ({{generators.Length}}):
+              {{string.Join("\n", generators.Select(x => $"- {x.GetType().FullName}"))}}
+              {{string.Join("\n", AppDomain.CurrentDomain.GetAssemblies().Select(x => x.FullName))}}
 
               // ReSharper disable InconsistentNaming
-              internal static class AssetReferences
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal static partial class AssetReferences
               {
               {{GenerateTextFromPathNode(assemblyName, root, token)}}
               }
@@ -193,6 +201,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
 
             if (depth != 0)
             {
+                sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
                 sb.AppendLine($"{indent}public static class {NormalizeName(root.Name)}");
                 sb.AppendLine($"{indent}{{");
             }
@@ -226,6 +235,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                                 Variants = GetVariantData(root.Files.Select(x => x.Name), trimmedName),
                             };
 
+                            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGenerated]");
                             sb.AppendLine($"{indent}    public static class {NormalizeName(variantFile.Name)}");
                             sb.AppendLine($"{indent}    {{");
 
@@ -237,6 +247,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                     }
                 }
 
+                sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGenerated]");
                 sb.AppendLine($"{indent}    public static class {NormalizeName(file.Name)}");
                 sb.AppendLine($"{indent}    {{");
 

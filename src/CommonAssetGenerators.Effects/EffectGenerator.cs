@@ -248,6 +248,7 @@ internal sealed class EffectGenerator : IAssetGenerator
         }
         */
 
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
         sb.AppendLine($"{indent}public sealed class Parameters : IShaderParameters");
         sb.AppendLine($"{indent}{{");
 

@@ -118,7 +118,8 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
               namespace {{rootNamespace}}.Core;
 
               // ReSharper disable MemberHidesStaticFromOuterClass
-              internal static class LocalizationReferences
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              internal static partial class LocalizationReferences
               {
               {{sb.ToString().TrimEnd()}}
               }
@@ -137,6 +138,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             sb.AppendLine();
         }
 
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
         sb.AppendLine($"{indent}public static class {node.Name}");
         sb.AppendLine($"{indent}{{");
         sb.AppendLine($"{indent}    public const string KEY = \"{ourKey}\";");
@@ -159,6 +161,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             var name = key.Split('.').Last();
             var args = GetArgumentCount(value);
 
+            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGenerated]");
             sb.AppendLine($"{indent}    public static class {name}");
             sb.AppendLine($"{indent}    {{");
             sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");

@@ -73,12 +73,14 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
               [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal readonly struct HlslString;
 
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
               [global::System.AttributeUsage(global::System.AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
               internal sealed class OriginalHlslTypeAttribute(string hlslType) : global::System.Attribute
               {
                   public string HlslType => hlslType;
               }
 
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal struct HlslSampler
               {
                   public Texture? Texture { get; set; }
@@ -86,6 +88,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal struct HlslSampler1D
               {
                   public Texture? Texture { get; set; }
@@ -93,6 +96,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal struct HlslSampler2D
               {
                   public Texture2D? Texture { get; set; }
@@ -100,6 +104,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal struct HlslSampler3D
               {
                   public Texture3D? Texture { get; set; }
@@ -107,6 +112,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
+              [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal struct HlslSamplerCube
               {
                   public TextureCube? Texture { get; set; }
