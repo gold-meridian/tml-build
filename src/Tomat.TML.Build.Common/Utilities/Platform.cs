@@ -28,19 +28,20 @@ internal static class Platform
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            var xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Environment.GetEnvironmentVariable("HOME");
-            var unixHome = Environment.GetEnvironmentVariable("HOME");
-            var home = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? xdgDataHome : unixHome;
+            // Implementation provided by Qther <qther@tuta.io>:
+            // https://github.com/gold-meridian/tml-build/issues/2
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var dataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                yield return $"{home}/Applications/{gameName}.app/";
-                yield return $"{home}/Library/Application Support/Steam/steamapps/common/{gameName}/";
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                yield return Path.Combine(appDir, $"{gameName}.app");
             }
 
-            yield return $"{home}/.steam/steam/steamapps/common/{gameName}";
-            yield return $"{home}/.local/share/Steam/steamapps/common/{gameName}";
-            yield return $"{home}/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/{gameName}";
+            yield return Path.Combine(dataDir, "Steam", "steamapps", "common", gameName);
+            yield return Path.Combine(home, ".steam", "steam", "steamapps", "common", gameName);
+            yield return Path.Combine(home, ".var", "app", "com.valvesoftware.Steam", "data", "Steam", "steamapps", "common", gameName);
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
