@@ -201,7 +201,6 @@ partial class BuildProperties
                 break;
 
             case "buildIgnore":
-                EnsureBooleanValue("buildIgnore", value);
                 properties.BuildIgnores = value.Split(',')
                                                .Select(s => s.Trim().Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar))
                                                .Where(s => s.Length > 0)
