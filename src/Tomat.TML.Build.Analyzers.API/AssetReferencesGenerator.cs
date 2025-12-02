@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
+namespace Tomat.TML.Build.Analyzers;
 
 internal sealed record PathNode(
     string Name,
@@ -22,13 +22,14 @@ internal sealed record PathNode(
 ///     Provides direct access to their value (lazily-loaded), as well as
 ///     potentially additional type-safe bindings depending on the file type.
 /// </summary>
-[Generator]
-public sealed class AssetReferencesGenerator : IIncrementalGenerator
+public abstract class AssetReferencesGenerator : IIncrementalGenerator
 {
     private static readonly Regex end_number_regex = new(@"([^\d]+)([\d]+)$", RegexOptions.Compiled);
     private static readonly Regex non_alphanumeric = new(@"[^\w]", RegexOptions.Compiled);
 
     private static readonly char[] number_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    public abstract IAssetGenerator[] Generators { get; }
 
     void IIncrementalGenerator.Initialize(
         IncrementalGeneratorInitializationContext context
@@ -43,10 +44,9 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
             static (compilation, _) => compilation.AssemblyName ?? throw new InvalidOperationException("Cannot generate asset references for compilation without assembly name")
         );
 
-        // TODO: Naive, can at least filter some extensions ahead of time?
         var filesProvider = context.AdditionalTextsProvider.Select(
             static (file, _) => new AssetPath(file.Path, relativePath: null)
-        );
+        ).Where(path => Generators.Any(g => g.Eligible(path)));
 
         var projectDirProvider = context.AnalyzerConfigOptionsProvider.Select(
             static (options, _) => options.GlobalOptions.TryGetValue("build_property.ProjectDir", out var projectDir)
@@ -62,11 +62,11 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                     )
                 )
             ),
-            static (ctx, tuple) =>
+            (ctx, tuple) =>
             {
                 var (rootNamespace, (assemblyName, (files, projectDir))) = tuple;
 
-                var generators = AssetGeneratorProvider.KnownGenerators.ToArray();
+                var generators = Generators;
                 var root = CreateAssetTree(generators, files, projectDir, ctx.CancellationToken);
 
                 ctx.AddSource(
@@ -173,13 +173,11 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
               global using static {{rootNamespace}}.Core.AssetReferences;
 
               namespace {{rootNamespace}}.Core;
-              
+
               // Using the following generators ({{generators.Length}}):
-              {{string.Join("\n", generators.Select(x => $"- {x.GetType().FullName}"))}}
-              {{string.Join("\n", AppDomain.CurrentDomain.GetAssemblies().Select(x => x.FullName))}}
+              {{string.Join("\n", generators.Select(x => $"// - {x.GetType().FullName}"))}}
 
               // ReSharper disable InconsistentNaming
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
               internal static partial class AssetReferences
               {
               {{GenerateTextFromPathNode(assemblyName, root, token)}}
@@ -201,7 +199,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
 
             if (depth != 0)
             {
-                sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
+                sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
                 sb.AppendLine($"{indent}public static class {NormalizeName(root.Name)}");
                 sb.AppendLine($"{indent}{{");
             }
@@ -235,7 +233,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                                 Variants = GetVariantData(root.Files.Select(x => x.Name), trimmedName),
                             };
 
-                            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGenerated]");
+                            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
                             sb.AppendLine($"{indent}    public static class {NormalizeName(variantFile.Name)}");
                             sb.AppendLine($"{indent}    {{");
 
@@ -247,7 +245,7 @@ public sealed class AssetReferencesGenerator : IIncrementalGenerator
                     }
                 }
 
-                sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGenerated]");
+                sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
                 sb.AppendLine($"{indent}    public static class {NormalizeName(file.Name)}");
                 sb.AppendLine($"{indent}    {{");
 

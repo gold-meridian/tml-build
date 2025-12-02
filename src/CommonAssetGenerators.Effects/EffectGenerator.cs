@@ -6,7 +6,7 @@ using System.Text;
 using GoldMeridian.PaintLabel;
 using GoldMeridian.PaintLabel.IO;
 
-namespace Tomat.TML.Build.Analyzers;
+namespace Tomat.TML.Build.Analyzers.Effects;
 
 internal sealed class EffectGenerator : IAssetGenerator
 {
@@ -247,7 +247,7 @@ internal sealed class EffectGenerator : IAssetGenerator
         }
         */
 
-        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
         sb.AppendLine($"{indent}public sealed class Parameters : IShaderParameters");
         sb.AppendLine($"{indent}{{");
 

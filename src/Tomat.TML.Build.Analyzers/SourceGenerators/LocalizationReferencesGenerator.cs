@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,7 +11,7 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 using Tomat.TML.Build.Common.Assets.Localization;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
+namespace Tomat.TML.Build.Analyzers.SourceGenerators;
 
 /// <summary>
 ///     Generates strongly-typed references to localization keys.
@@ -118,7 +117,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
               namespace {{rootNamespace}}.Core;
 
               // ReSharper disable MemberHidesStaticFromOuterClass
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal static partial class LocalizationReferences
               {
               {{sb.ToString().TrimEnd()}}
@@ -138,7 +137,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             sb.AppendLine();
         }
 
-        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
+        sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
         sb.AppendLine($"{indent}public static class {node.Name}");
         sb.AppendLine($"{indent}{{");
         sb.AppendLine($"{indent}    public const string KEY = \"{ourKey}\";");
@@ -161,7 +160,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             var name = key.Split('.').Last();
             var args = GetArgumentCount(value);
 
-            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGenerated]");
+            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
             sb.AppendLine($"{indent}    public static class {name}");
             sb.AppendLine($"{indent}    {{");
             sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");

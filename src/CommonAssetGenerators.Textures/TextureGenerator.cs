@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Tomat.TML.Build.Analyzers;
+namespace Tomat.TML.Build.Analyzers.Textures;
 
 internal sealed class TextureGenerator : IAssetGenerator
 {

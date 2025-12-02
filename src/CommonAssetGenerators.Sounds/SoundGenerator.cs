@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Tomat.TML.Build.Analyzers;
+namespace Tomat.TML.Build.Analyzers.Sounds;
 
 internal sealed class SoundGenerator : IAssetGenerator
 {
@@ -26,7 +26,7 @@ internal sealed class SoundGenerator : IAssetGenerator
         if (asset.Path.RelativeOrFullPath.Contains("Music"))
         {
             var addMusicPath = Path.ChangeExtension(asset.Path.RelativeOrFullPath, null);
-            sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGenerated]");
+            sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
             sb.AppendLine($"{indent}private sealed class Loader : Terraria.ModLoader.ILoadable");
             sb.AppendLine($"{indent}{{");
             sb.AppendLine($"{indent}    public void Load(Terraria.ModLoader.Mod mod)");

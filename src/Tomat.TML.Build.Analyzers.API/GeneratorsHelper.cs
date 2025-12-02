@@ -5,8 +5,15 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Tomat.TML.Build.Analyzers;
 
-internal static class GeneratorsHelper
+/// <summary>
+///     Utilities for source generation.
+/// </summary>
+public static class GeneratorsHelper
 {
+    /// <summary>
+    ///     Gets the root namespace of a project, or the assembly name if the
+    ///     root namespace cannot be resolved.
+    /// </summary>
     public static IncrementalValueProvider<string> GetRootNamespaceOrAssemblyName(
         IncrementalValueProvider<AnalyzerConfigOptionsProvider> configProvider,
         IncrementalValueProvider<Compilation> compilationProvider

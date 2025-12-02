@@ -77,7 +77,7 @@ public sealed class ModImplGenerator : IIncrementalGenerator
               namespace {{rootNamespace}};
 
               [global::JetBrains.Annotations.UsedImplicitly(global::JetBrains.Annotations.ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               public sealed partial class ModImpl : global::Terraria.ModLoader.Mod;
               """;
     }

@@ -2,14 +2,14 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators.Assets;
+namespace Tomat.TML.Build.Analyzers.Effects;
 
 /// <summary>
 ///     Generates common type definitions used for various asset generators, as
 ///     well as the using directives to access them ergonomically.
 /// </summary>
 [Generator]
-public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
+public sealed class CommonTypesGenerator : IIncrementalGenerator
 {
     void IIncrementalGenerator.Initialize(
         IncrementalGeneratorInitializationContext context
@@ -25,7 +25,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
             (ctx, rootNamespace) =>
             {
                 ctx.AddSource(
-                    "ShaderTypes.g.cs",
+                    "EffectTypes.g.cs",
                     SourceText.From(GenerateShaderTypes(rootNamespace), Encoding.UTF8)
                 );
             }
@@ -44,13 +44,13 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
 
               namespace {{rootNamespace}}.Core;
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal interface IShaderParameters
               {
                   void Apply(EffectParameterCollection parameters, string passName);
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal sealed class WrapperShaderData<TParameters>(Asset<Effect> shader, string passName) : ShaderData(shader, passName)
                   where TParameters : IShaderParameters, new()
               {
@@ -67,20 +67,20 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   }
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal readonly struct HlslVoid;
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal readonly struct HlslString;
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               [global::System.AttributeUsage(global::System.AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
               internal sealed class OriginalHlslTypeAttribute(string hlslType) : global::System.Attribute
               {
                   public string HlslType => hlslType;
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal struct HlslSampler
               {
                   public Texture? Texture { get; set; }
@@ -88,7 +88,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal struct HlslSampler1D
               {
                   public Texture? Texture { get; set; }
@@ -96,7 +96,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal struct HlslSampler2D
               {
                   public Texture2D? Texture { get; set; }
@@ -104,7 +104,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal struct HlslSampler3D
               {
                   public Texture3D? Texture { get; set; }
@@ -112,7 +112,7 @@ public sealed class CommonAssetReferencesGenerator : IIncrementalGenerator
                   public SamplerState? Sampler { get; set; }
               }
 
-              [global::System.Runtime.CompilerServices.CompilerGenerated]
+              [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               internal struct HlslSamplerCube
               {
                   public TextureCube? Texture { get; set; }

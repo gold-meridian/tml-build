@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 
-        <RootNamespace>Tomat.TML.Build.Analyzers</RootNamespace>
+        <RootNamespace>Tomat.TML.Build.Analyzers.Textures</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
