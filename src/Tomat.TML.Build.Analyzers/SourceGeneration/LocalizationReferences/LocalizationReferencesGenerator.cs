@@ -164,11 +164,19 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             sb.AppendLine();
 
             var (key, value) = node.Keys[i];
-            var name = key.Split('.').Last();
             var args = GetArgumentCount(value);
 
+            var rawName = key.Split('.').Last();
+            var name = NormalizeName(rawName);
+
+            // TODO: Really crappy fix.
+            if (NameAppearsInAncestors(name, parentKey))
+            {
+                name = '_' + name;
+            }
+            
             sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-            sb.AppendLine($"{indent}    public static class {NormalizeName(name)}");
+            sb.AppendLine($"{indent}    public static class {name}");
             sb.AppendLine($"{indent}    {{");
             sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");
             sb.AppendLine($"{indent}        public const int ARG_COUNT = {args};");
@@ -236,6 +244,24 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             return non_alphanumeric
                   .Replace(name, "_")
                   .TrimEnd('_');
+        }
+
+        static bool NameAppearsInAncestors(string name, string parentKey)
+        {
+            if (string.IsNullOrEmpty(parentKey))
+            {
+                return false;
+            }
+
+            foreach (var part in parentKey.Split('.'))
+            {
+                if (NormalizeName(part) == name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
