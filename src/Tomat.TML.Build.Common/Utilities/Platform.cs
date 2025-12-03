@@ -11,6 +11,8 @@ namespace Tomat.TML.Build.Common.Utilities;
 /// </summary>
 internal static class Platform
 {
+    private const string tml_build_env_var_prefix = "TML_BUILD_GAME_DIR_";
+    
     /// <summary>
     ///     Gets the directory to our application data.
     /// </summary>
@@ -21,7 +23,20 @@ internal static class Platform
 
     public static string? GetSteamGamePath(string gameName)
     {
-        return GetSteamGamePaths(gameName).FirstOrDefault(Directory.Exists);
+        var envKey = Environment.GetEnvironmentVariable(tml_build_env_var_prefix + gameName);
+        if (!string.IsNullOrEmpty(envKey) && Directory.Exists(envKey))
+        {
+            return envKey;
+        }
+
+        try
+        {
+            return GetSteamGamePaths(gameName).FirstOrDefault(Directory.Exists);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static IEnumerable<string> GetSteamGamePaths(string gameName)
