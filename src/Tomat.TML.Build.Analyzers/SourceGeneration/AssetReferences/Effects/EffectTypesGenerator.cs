@@ -2,20 +2,19 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Tomat.TML.Build.Analyzers.Effects;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 /// <summary>
-///     Generates common type definitions used for various asset generators, as
-///     well as the using directives to access them ergonomically.
+///     Generates common type definitions used for the effect asset generator.
 /// </summary>
 [Generator]
-public sealed class CommonTypesGenerator : IIncrementalGenerator
+public sealed class EffectTypesGenerator : IIncrementalGenerator
 {
     void IIncrementalGenerator.Initialize(
         IncrementalGeneratorInitializationContext context
     )
     {
-        var rootNamespaceProvider = GeneratorsHelper.GetRootNamespaceOrAssemblyName(
+        var rootNamespaceProvider = AdditionalValueProviders.GetRootNamespaceOrAssemblyName(
             context.AnalyzerConfigOptionsProvider,
             context.CompilationProvider
         );

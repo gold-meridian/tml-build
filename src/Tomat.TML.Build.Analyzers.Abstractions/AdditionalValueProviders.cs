@@ -6,9 +6,9 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Tomat.TML.Build.Analyzers;
 
 /// <summary>
-///     Utilities for source generation.
+///     Provides more APIs for creating useful value providers.
 /// </summary>
-public static class GeneratorsHelper
+public static class AdditionalValueProviders
 {
     /// <summary>
     ///     Gets the root namespace of a project, or the assembly name if the

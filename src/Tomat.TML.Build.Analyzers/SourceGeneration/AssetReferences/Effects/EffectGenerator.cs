@@ -6,7 +6,7 @@ using System.Text;
 using GoldMeridian.PaintLabel;
 using GoldMeridian.PaintLabel.IO;
 
-namespace Tomat.TML.Build.Analyzers.Effects;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 internal sealed class EffectGenerator : IAssetGenerator
 {

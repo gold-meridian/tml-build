@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Tomat.TML.Build.Analyzers.API\Tomat.TML.Build.Analyzers.API.csproj"/>
+        <ProjectReference Include="..\Tomat.TML.Build.Analyzers.Abstractions\Tomat.TML.Build.Analyzers.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

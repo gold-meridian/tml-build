@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-namespace Tomat.TML.Build.Analyzers;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 internal sealed record PathNode(
     string Name,
@@ -35,7 +35,7 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
         IncrementalGeneratorInitializationContext context
     )
     {
-        var rootNamespaceProvider = GeneratorsHelper.GetRootNamespaceOrAssemblyName(
+        var rootNamespaceProvider = AdditionalValueProviders.GetRootNamespaceOrAssemblyName(
             context.AnalyzerConfigOptionsProvider,
             context.CompilationProvider
         );

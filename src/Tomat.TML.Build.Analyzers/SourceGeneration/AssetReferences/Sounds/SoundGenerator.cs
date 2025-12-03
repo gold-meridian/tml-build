@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Tomat.TML.Build.Analyzers.Sounds;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 internal sealed class SoundGenerator : IAssetGenerator
 {

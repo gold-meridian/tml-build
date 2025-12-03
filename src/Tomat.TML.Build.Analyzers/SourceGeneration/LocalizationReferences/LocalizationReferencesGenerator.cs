@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 using Tomat.TML.Build.Common.Assets.Localization;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 /// <summary>
 ///     Generates strongly-typed references to localization keys.
@@ -29,7 +29,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
     void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var rootNamespaceProvider = GeneratorsHelper.GetRootNamespaceOrAssemblyName(
+        var rootNamespaceProvider = AdditionalValueProviders.GetRootNamespaceOrAssemblyName(
             context.AnalyzerConfigOptionsProvider,
             context.CompilationProvider
         );

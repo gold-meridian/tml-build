@@ -34,6 +34,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ext", "ext", "{251EE17C-ABBD-432D-A7F5-BAB8C4EF42A1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{CEA14C37-B2AC-461E-A880-BBC7F185AA1E}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8A1FBBE3-8344-45CF-BDFC-F2AB7094697F}"
 EndProject
@@ -41,13 +44,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sdk", "sdk", "{D17942B2-89D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "analyzers", "analyzers", "{EEE1A03B-24F7-4C8B-A66A-7E0FAC741C4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.Build.Analyzers.API", "Tomat.TML.Build.Analyzers.API\Tomat.TML.Build.Analyzers.API.csproj", "{497E7117-976A-49B5-AC8D-E8460DC152A2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAssetGenerators.Textures", "CommonAssetGenerators.Textures\CommonAssetGenerators.Textures.csproj", "{FB3F9A00-4FE2-4AE9-A525-94A75AB31B57}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAssetGenerators.Effects", "CommonAssetGenerators.Effects\CommonAssetGenerators.Effects.csproj", "{54883070-7560-4AED-B277-B3D891E25476}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAssetGenerators.Sounds", "CommonAssetGenerators.Sounds\CommonAssetGenerators.Sounds.csproj", "{B14B1CBB-D9DC-413C-8723-719DF18937C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tomat.TML.Build.Analyzers.Abstractions", "Tomat.TML.Build.Analyzers.Abstractions\Tomat.TML.Build.Analyzers.Abstractions.csproj", "{497E7117-976A-49B5-AC8D-E8460DC152A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,18 +107,6 @@ Global
 		{497E7117-976A-49B5-AC8D-E8460DC152A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{497E7117-976A-49B5-AC8D-E8460DC152A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{497E7117-976A-49B5-AC8D-E8460DC152A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB3F9A00-4FE2-4AE9-A525-94A75AB31B57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB3F9A00-4FE2-4AE9-A525-94A75AB31B57}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB3F9A00-4FE2-4AE9-A525-94A75AB31B57}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB3F9A00-4FE2-4AE9-A525-94A75AB31B57}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54883070-7560-4AED-B277-B3D891E25476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54883070-7560-4AED-B277-B3D891E25476}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54883070-7560-4AED-B277-B3D891E25476}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54883070-7560-4AED-B277-B3D891E25476}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B14B1CBB-D9DC-413C-8723-719DF18937C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B14B1CBB-D9DC-413C-8723-719DF18937C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B14B1CBB-D9DC-413C-8723-719DF18937C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B14B1CBB-D9DC-413C-8723-719DF18937C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D4FB7D8E-5497-4751-B487-6999DDF8BBDB} = {5F76555E-D420-4F2E-9FA4-B3E51381265E}
@@ -140,8 +125,5 @@ Global
 		{980B7995-1B76-4CDF-A2EA-C293A2493E2E} = {D17942B2-89D2-4A10-BA45-3B2D343BBB26}
 		{9E457F15-14A7-4DF4-AD71-FB92574122DF} = {CEA14C37-B2AC-461E-A880-BBC7F185AA1E}
 		{497E7117-976A-49B5-AC8D-E8460DC152A2} = {EEE1A03B-24F7-4C8B-A66A-7E0FAC741C4C}
-		{FB3F9A00-4FE2-4AE9-A525-94A75AB31B57} = {EEE1A03B-24F7-4C8B-A66A-7E0FAC741C4C}
-		{54883070-7560-4AED-B277-B3D891E25476} = {EEE1A03B-24F7-4C8B-A66A-7E0FAC741C4C}
-		{B14B1CBB-D9DC-413C-8723-719DF18937C6} = {EEE1A03B-24F7-4C8B-A66A-7E0FAC741C4C}
 	EndGlobalSection
 EndGlobal

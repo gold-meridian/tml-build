@@ -39,9 +39,10 @@ internal static class Program
             RunCommand("dotnet", $"nuget delete -s local Tomat.Terraria.ModLoader.Sdk {version} --non-interactive", canFail: true);
         }
 
+        foreach (var version in versions)
         foreach (var dir in args[0].Split(';'))
         {
-            ForceDeleteDirectory(dir.Trim());
+            ForceDeleteDirectory(Path.Combine(dir.Trim(), version));
         }
 
         if (!justDelete)

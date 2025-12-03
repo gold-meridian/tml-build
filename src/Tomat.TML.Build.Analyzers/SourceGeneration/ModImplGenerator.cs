@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 /// <summary>
 ///     Generates a default <c>ModImpl</c> definition extending
@@ -13,7 +13,7 @@ public sealed class ModImplGenerator : IIncrementalGenerator
 {
     void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var rootNamespaceProvider = GeneratorsHelper.GetRootNamespaceOrAssemblyName(
+        var rootNamespaceProvider = AdditionalValueProviders.GetRootNamespaceOrAssemblyName(
             context.AnalyzerConfigOptionsProvider,
             context.CompilationProvider
         );

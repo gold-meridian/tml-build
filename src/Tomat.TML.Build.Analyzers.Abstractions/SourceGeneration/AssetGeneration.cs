@@ -1,4 +1,4 @@
-﻿namespace Tomat.TML.Build.Analyzers;
+﻿namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 /// <summary>
 ///     Represents a known range of variants.

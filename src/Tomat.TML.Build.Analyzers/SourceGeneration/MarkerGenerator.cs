@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 /// <summary>
 ///     Generates a definite marker indicating a given assembly (usually a mod)
@@ -46,7 +46,7 @@ public sealed class MarkerGenerator : IIncrementalGenerator
                       [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
                       file static class __TmlBuildMarker
                       {
-                          // TODO: Many save the version and stuff here?
+                          // TODO: Maybe save the version and stuff here?
                       }
                       """;
 

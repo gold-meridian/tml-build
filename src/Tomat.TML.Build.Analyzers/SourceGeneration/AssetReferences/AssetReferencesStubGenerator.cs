@@ -1,15 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Tomat.TML.Build.Analyzers.SourceGenerators;
+namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 
 [Generator]
-public sealed class AssetReferencesGenerator : IIncrementalGenerator
+public sealed class AssetReferencesStubGenerator : IIncrementalGenerator
 {
     void IIncrementalGenerator.Initialize(
         IncrementalGeneratorInitializationContext context
     )
     {
-        var rootNamespaceProvider = GeneratorsHelper.GetRootNamespaceOrAssemblyName(
+        var rootNamespaceProvider = AdditionalValueProviders.GetRootNamespaceOrAssemblyName(
             context.AnalyzerConfigOptionsProvider,
             context.CompilationProvider
         );
