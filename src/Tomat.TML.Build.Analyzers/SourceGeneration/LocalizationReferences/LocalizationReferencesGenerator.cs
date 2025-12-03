@@ -49,7 +49,11 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         );
     }
 
-    private static string GenerateLocalization(ImmutableArray<AdditionalText> texts, string rootNamespace, CancellationToken token)
+    private static string GenerateLocalization(
+        ImmutableArray<AdditionalText> texts,
+        string rootNamespace,
+        CancellationToken token
+    )
     {
         var localizationKeys = new Dictionary<string, string>();
 
@@ -80,7 +84,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         {
             var key = kvp.Key;
             var value = kvp.Value;
-            
+
             var parts = key.Split('.');
             var current = root;
 
@@ -132,12 +136,26 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
               """;
     }
 
-    private static string GenerateTextFromLocalizationNode(LocalizationNode node, string parentKey, int depth = 0)
+    private static string GenerateTextFromLocalizationNode(
+        LocalizationNode node,
+        string parentKey,
+        int depth = 0,
+        IReadOnlyList<string>? pathSegments = null,
+        IReadOnlyList<string>? ancestors = null
+    )
     {
         var ourKey = (parentKey + '.' + node.Name).TrimStart('.');
 
+        pathSegments ??= [];
+        ancestors ??= [];
+        var usedNames = new HashSet<string>(StringComparer.Ordinal);
+
         var sb = new StringBuilder();
         var indent = new string(' ', depth * 4);
+
+        var nodeTypeName = depth == 0
+            ? "LocalizationReferences"
+            : NameSanitizer.MakeUniqueIdentifier(node.Name, pathSegments, usedNames, ancestors);
 
         if (depth > 1)
         {
@@ -159,6 +177,9 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         sb.AppendLine($"{indent}        return Language.GetTextValue(KEY + '.' + childKey, values);");
         sb.AppendLine($"{indent}    }}");
 
+        var newPathSegments = pathSegments.Concat([node.Name]).ToArray();
+        var newAncestors = ancestors.Concat([nodeTypeName]).ToArray();
+
         for (var i = 0; i < node.Keys.Count; i++)
         {
             sb.AppendLine();
@@ -167,16 +188,16 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             var args = GetArgumentCount(value);
 
             var rawName = key.Split('.').Last();
-            var name = NormalizeName(rawName);
 
-            // TODO: Really crappy fix.
-            if (NameAppearsInAncestors(name, parentKey))
-            {
-                name = '_' + name;
-            }
-            
+            var uniqueName = NameSanitizer.MakeUniqueIdentifier(
+                rawName,
+                newPathSegments,
+                usedNames,
+                newAncestors
+            );
+
             sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-            sb.AppendLine($"{indent}    public static class {name}");
+            sb.AppendLine($"{indent}    public static class {uniqueName}");
             sb.AppendLine($"{indent}    {{");
             sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");
             sb.AppendLine($"{indent}        public const int ARG_COUNT = {args};");
@@ -224,45 +245,20 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
         foreach (var child in node.Nodes.Values)
         {
-            sb.Append(GenerateTextFromLocalizationNode(child, ourKey, depth + 1));
+            sb.Append(
+                GenerateTextFromLocalizationNode(
+                    child,
+                    ourKey,
+                    depth + 1,
+                    newPathSegments,
+                    newAncestors
+                )
+            );
         }
 
         sb.AppendLine($"{indent}}}");
 
         return sb.ToString();
-        
-        static string NormalizeName(string name)
-        {
-            if (name.Length > 0 && char.IsDigit(name.First()))
-            {
-                name = '_' + name;
-            }
-            
-            // - Replace any non-alphanumeric characters with underscores,
-            // - trim trailing underscores as a result of variant number slices
-            //   or simply poor naming.
-            return non_alphanumeric
-                  .Replace(name, "_")
-                  .TrimEnd('_');
-        }
-
-        static bool NameAppearsInAncestors(string name, string parentKey)
-        {
-            if (string.IsNullOrEmpty(parentKey))
-            {
-                return false;
-            }
-
-            foreach (var part in parentKey.Split('.'))
-            {
-                if (NormalizeName(part) == name)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
     }
 
     private static Dictionary<string, string> GetKeysFromFile(AdditionalText file, CancellationToken token)

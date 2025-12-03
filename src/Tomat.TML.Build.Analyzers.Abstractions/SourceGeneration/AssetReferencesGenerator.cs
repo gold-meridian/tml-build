@@ -188,21 +188,33 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
             string assemblyName,
             PathNode root,
             CancellationToken token,
-            int depth = 0
+            int depth = 0,
+            IReadOnlyList<string>? pathSegments = null,
+            IReadOnlyList<string>? ancestors = null
         )
         {
             token.ThrowIfCancellationRequested();
 
-            var sb = new StringBuilder();
+            pathSegments ??= [];
+            ancestors ??= [];
+            var usedNames = new HashSet<string>(StringComparer.Ordinal);
 
             var indent = new string(' ', depth * 4);
+            var sb = new StringBuilder();
+
+            var nodeTypeName = depth == 0
+                ? "AssetReferences"
+                : NameSanitizer.MakeUniqueIdentifier(root.Name, pathSegments, usedNames, ancestors);
 
             if (depth != 0)
             {
                 sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-                sb.AppendLine($"{indent}public static class {NormalizeName(root.Name)}");
+                sb.AppendLine($"{indent}public static class {NameSanitizer.ToValidIdentifier(root.Name)}");
                 sb.AppendLine($"{indent}{{");
             }
+
+            var newPathSegments = pathSegments.Concat([root.Name]).ToArray();
+            var newAncestors = ancestors.Concat([nodeTypeName]).ToArray();
 
             var seenVariantBases = new HashSet<string>();
 
@@ -211,6 +223,12 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
                 token.ThrowIfCancellationRequested();
 
                 var file = root.Files[i];
+                var fileTypeName = NameSanitizer.MakeUniqueIdentifier(
+                    file.Name,
+                    newPathSegments,
+                    usedNames,
+                    newAncestors
+                );
 
                 if (file.Generator.PermitsVariant(file.Path.RelativeOrFullPath))
                 {
@@ -233,8 +251,15 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
                                 Variants = GetVariantData(root.Files.Select(x => x.Name), trimmedName),
                             };
 
+                            var uniqueVariantName = NameSanitizer.MakeUniqueIdentifier(
+                                trimmedName,
+                                newPathSegments,
+                                usedNames,
+                                newAncestors
+                            );
+
                             sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-                            sb.AppendLine($"{indent}    public static class {NormalizeName(variantFile.Name)}");
+                            sb.AppendLine($"{indent}    public static class {uniqueVariantName}");
                             sb.AppendLine($"{indent}    {{");
 
                             sb.AppendLine(variantFile.Generator.GenerateCode(assemblyName, variantFile, $"{indent}        "));
@@ -246,7 +271,7 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
                 }
 
                 sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-                sb.AppendLine($"{indent}    public static class {NormalizeName(file.Name)}");
+                sb.AppendLine($"{indent}    public static class {fileTypeName}");
                 sb.AppendLine($"{indent}    {{");
 
                 sb.AppendLine(file.Generator.GenerateCode(assemblyName, file, $"{indent}        "));
@@ -272,7 +297,16 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
                     sb.AppendLine();
                 }
 
-                sb.AppendLine(GenerateTextFromPathNode(assemblyName, node, token, depth + 1));
+                sb.AppendLine(
+                    GenerateTextFromPathNode(
+                        assemblyName,
+                        node,
+                        token,
+                        depth + 1,
+                        newPathSegments,
+                        newAncestors
+                    )
+                );
             }
 
             if (depth != 0)
@@ -281,21 +315,6 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
             }
 
             return sb.ToString().TrimEnd();
-        }
-
-        static string NormalizeName(string name)
-        {
-            if (name.Length > 0 && char.IsDigit(name.First()))
-            {
-                name = '_' + name;
-            }
-            
-            // - Replace any non-alphanumeric characters with underscores,
-            // - trim trailing underscores as a result of variant number slices
-            //   or simply poor naming.
-            return non_alphanumeric
-                  .Replace(name, "_")
-                  .TrimEnd('_');
         }
     }
 
