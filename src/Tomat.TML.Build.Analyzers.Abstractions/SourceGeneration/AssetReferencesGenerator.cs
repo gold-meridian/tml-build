@@ -285,6 +285,11 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
 
         static string NormalizeName(string name)
         {
+            if (name.Length > 0 && char.IsDigit(name.First()))
+            {
+                name = '_' + name;
+            }
+            
             // - Replace any non-alphanumeric characters with underscores,
             // - trim trailing underscores as a result of variant number slices
             //   or simply poor naming.

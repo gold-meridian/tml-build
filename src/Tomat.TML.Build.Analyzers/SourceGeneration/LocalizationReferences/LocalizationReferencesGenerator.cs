@@ -19,6 +19,7 @@ namespace Tomat.TML.Build.Analyzers.SourceGeneration;
 [Generator]
 public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 {
+    private static readonly Regex non_alphanumeric = new(@"[^\w]", RegexOptions.Compiled);
     private static readonly Regex arg_remapping_regex = new(@"(?<={\^?)(\d+)(?=(?::[^\r\n]+?)?})", RegexOptions.Compiled);
 
     public sealed record LocalizationNode(
@@ -50,7 +51,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
     private static string GenerateLocalization(ImmutableArray<AdditionalText> texts, string rootNamespace, CancellationToken token)
     {
-        var keys = new HashSet<(string key, string value)>();
+        var localizationKeys = new Dictionary<string, string>();
 
         foreach (var text in texts)
         {
@@ -64,17 +65,23 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
             token.ThrowIfCancellationRequested();
 
-            foreach (var key in GetKeysFromFile(text, token))
+            foreach (var localizationKey in GetKeysFromFile(text, token))
             {
-                keys.Add(key);
+                if (!localizationKeys.ContainsKey(localizationKey.Key))
+                {
+                    localizationKeys.Add(localizationKey.Key, localizationKey.Value);
+                }
             }
         }
 
         var root = new LocalizationNode("", [], []);
 
-        foreach (var key in keys)
+        foreach (var kvp in localizationKeys)
         {
-            var parts = key.key.Split('.');
+            var key = kvp.Key;
+            var value = kvp.Value;
+            
+            var parts = key.Split('.');
             var current = root;
 
             for (var i = 0; i < parts.Length; i++)
@@ -83,7 +90,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
                 if (i == parts.Length - 1)
                 {
-                    current.Keys.Add(key);
+                    current.Keys.Add((key, value));
                 }
                 else
                 {
@@ -161,7 +168,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             var args = GetArgumentCount(value);
 
             sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-            sb.AppendLine($"{indent}    public static class {name}");
+            sb.AppendLine($"{indent}    public static class {NormalizeName(name)}");
             sb.AppendLine($"{indent}    {{");
             sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");
             sb.AppendLine($"{indent}        public const int ARG_COUNT = {args};");
@@ -215,11 +222,26 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         sb.AppendLine($"{indent}}}");
 
         return sb.ToString();
+        
+        static string NormalizeName(string name)
+        {
+            if (name.Length > 0 && char.IsDigit(name.First()))
+            {
+                name = '_' + name;
+            }
+            
+            // - Replace any non-alphanumeric characters with underscores,
+            // - trim trailing underscores as a result of variant number slices
+            //   or simply poor naming.
+            return non_alphanumeric
+                  .Replace(name, "_")
+                  .TrimEnd('_');
+        }
     }
 
-    private static List<(string key, string value)> GetKeysFromFile(AdditionalText file, CancellationToken token)
+    private static Dictionary<string, string> GetKeysFromFile(AdditionalText file, CancellationToken token)
     {
-        var keys = new List<(string key, string value)>();
+        var keys = new Dictionary<string, string>();
         var prefix = GetPrefixFromPath(file.Path);
         var text = file.GetText(token)?.ToString() ?? throw new InvalidOperationException($"Failed to read HJSON file: {file.Path}");
         var json = HjsonValue.Parse(text).ToString();
@@ -266,7 +288,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
                 _ => t.ToString(),
             };
 
-            keys.Add((path, value));
+            keys.Add(path, value);
         }
 
         return keys;
