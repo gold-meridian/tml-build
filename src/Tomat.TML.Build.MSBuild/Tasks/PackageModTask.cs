@@ -46,9 +46,11 @@ public sealed class PackageModTask : BaseTask
 
     protected override bool Run()
     {
+        var cache = VersionManager.ReadOrCreateVersionCache(VersionManager.DefaultCacheDir);
+
         if (string.IsNullOrEmpty(TmodOutputPath))
         {
-            TmodOutputPath = SavePathLocator.FindSavePath(TmlVersion, AssemblyName, Log);
+            TmodOutputPath = SavePathLocator.FindSavePath(cache, TmlVersion, AssemblyName, Log);
         }
 
         Log.LogMessage($"Using path for .tmod file: {TmodOutputPath}");
@@ -91,7 +93,7 @@ public sealed class PackageModTask : BaseTask
         var description = File.ReadAllText(DescriptionFilePath);
         properties.Description = description;
 
-        var tmlVersion = GetTmlVersion(TmlVersion);
+        var tmlVersion = GetTmlVersion(cache, TmlVersion);
         var tmodFile = new TmodFile(TmodOutputPath, AssemblyName, properties.Version, tmlVersion);
 
         tmodFile.AddFile(modDllName, File.ReadAllBytes(modDllPath));
@@ -237,12 +239,12 @@ public sealed class PackageModTask : BaseTask
         }
     }
 
-    private Version GetTmlVersion(string tmlVersion)
+    private Version GetTmlVersion(VersionCache cache, string tmlVersion)
     {
         return tmlVersion.ToLowerInvariant() switch
         {
-            "stable" => ModLoaderVersion.Stable.ToSystemVersion(),
-            "preview" => ModLoaderVersion.Preview.ToSystemVersion(),
+            "stable" => cache.StableVersion.ToSystemVersion(),
+            "preview" => cache.PreviewVersion.ToSystemVersion(),
             "dev" or "steam" => throw new NotImplementedException(),
             _ => Version.Parse(tmlVersion),
         };

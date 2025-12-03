@@ -9,13 +9,14 @@ namespace Tomat.TML.Build.Common;
 /// <param name="Minor"></param>
 /// <param name="Patch"></param>
 /// <param name="Build"></param>
-public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, int Build) : IComparable<ModLoaderVersion>
+public readonly record struct ModLoaderVersion(
+    int Major,
+    int Minor,
+    int Patch,
+    int Build
+)
 {
-    public static readonly ModLoaderVersion UNKNOWN = new(0, 0, 0, 0);
-
-    public static ModLoaderVersion Stable => VersionManager.Cache.StableVersion;
-
-    public static ModLoaderVersion Preview => VersionManager.Cache.PreviewVersion;
+    public static ModLoaderVersion Unknown { get; } = default;
 
     public override string ToString()
     {
@@ -39,49 +40,4 @@ public readonly record struct ModLoaderVersion(int Major, int Minor, int Patch, 
         version = default(ModLoaderVersion);
         return false;
     }
-
-#region Comparison
-    public int CompareTo(ModLoaderVersion other)
-    {
-        var majorComparison = Major.CompareTo(other.Major);
-        if (majorComparison != 0)
-        {
-            return majorComparison;
-        }
-
-        var minorComparison = Minor.CompareTo(other.Minor);
-        if (minorComparison != 0)
-        {
-            return minorComparison;
-        }
-
-        var patchComparison = Patch.CompareTo(other.Patch);
-        if (patchComparison != 0)
-        {
-            return patchComparison;
-        }
-
-        return Build.CompareTo(other.Build);
-    }
-
-    public static bool operator <(ModLoaderVersion left, ModLoaderVersion right)
-    {
-        return left.CompareTo(right) < 0;
-    }
-
-    public static bool operator <=(ModLoaderVersion left, ModLoaderVersion right)
-    {
-        return left.CompareTo(right) <= 0;
-    }
-
-    public static bool operator >(ModLoaderVersion left, ModLoaderVersion right)
-    {
-        return left.CompareTo(right) > 0;
-    }
-
-    public static bool operator >=(ModLoaderVersion left, ModLoaderVersion right)
-    {
-        return left.CompareTo(right) >= 0;
-    }
-#endregion
 }

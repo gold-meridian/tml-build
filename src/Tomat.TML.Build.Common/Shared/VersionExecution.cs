@@ -5,18 +5,18 @@ namespace Tomat.TML.Build.Common.Shared;
 
 public static class VersionExecution
 {
-    public static async Task<bool> DownloadVersionAsync(string tmlVersion, ILogWrapper logger)
+    public static async Task<bool> DownloadVersionAsync(VersionCache cache, string tmlVersion, ILogWrapper logger)
     {
         ModLoaderVersion version;
 
         switch (tmlVersion.ToLowerInvariant())
         {
             case "stable":
-                version = ModLoaderVersion.Stable;
+                version = cache.StableVersion;
                 break;
 
             case "preview":
-                version = ModLoaderVersion.Preview;
+                version = cache.PreviewVersion;
                 break;
 
             case "steam":
@@ -34,13 +34,13 @@ public static class VersionExecution
                 break;
         }
 
-        if (!VersionManager.IsVersionKnown(version))
+        if (!cache.IsVersionKnown(version))
         {
             logger.Error($"Unknown tModLoader version: {version}");
             return false;
         }
 
-        if (VersionManager.IsVersionCached(version))
+        if (cache.IsVersionCached(version))
         {
             logger.Info($"Version is already cached: {version}");
             return true;
@@ -49,7 +49,7 @@ public static class VersionExecution
         try
         {
             logger.Info($"Downloading version: {version}...");
-            await VersionManager.DownloadVersionAsync(version);
+            await cache.DownloadVersionAsync(version);
             logger.Info($"Downloaded version: {version}!");
             return true;
         }
@@ -60,42 +60,42 @@ public static class VersionExecution
         }
     }
 
-    public static bool DownloadVersion(string version, ILogWrapper logger)
+    public static bool DownloadVersion(VersionCache cache, string version, ILogWrapper logger)
     {
-        return DownloadVersionAsync(version, logger).GetAwaiter().GetResult();
+        return DownloadVersionAsync(cache, version, logger).GetAwaiter().GetResult();
     }
 
-    public static string? GetVersionPath(string tmlVersion, ILogWrapper logger)
+    public static string? GetVersionPath(VersionCache cache, string tmlVersion, ILogWrapper logger)
     {
         ModLoaderVersion version;
 
         switch (tmlVersion.ToLowerInvariant())
         {
             case "stable":
-                version = ModLoaderVersion.Stable;
+                version = cache.StableVersion;
                 break;
 
             case "preview":
-                version = ModLoaderVersion.Preview;
+                version = cache.PreviewVersion;
                 break;
 
             case "steam":
-                if (VersionManager.SteamPath is null)
+                if (cache.SteamPath is null)
                 {
                     logger.Error("Failed to get path to Steam version; not found (is it installed?).");
                     return null;
                 }
 
-                return VersionManager.SteamPath;
+                return cache.SteamPath;
 
             case "dev":
-                if (VersionManager.DevPath is null)
+                if (cache.DevPath is null)
                 {
                     logger.Error("Failed to get path to Dev version; not found (have you built it?).");
                     return null;
                 }
 
-                return VersionManager.DevPath;
+                return cache.DevPath;
 
             default:
                 if (!ModLoaderVersion.TryParse(tmlVersion, out version))
@@ -107,18 +107,18 @@ public static class VersionExecution
                 break;
         }
 
-        if (!VersionManager.IsVersionKnown(version))
+        if (!cache.IsVersionKnown(version))
         {
             logger.Error($"Unknown tModLoader version: {version}");
             return null;
         }
 
-        if (!VersionManager.IsVersionCached(version))
+        if (!cache.IsVersionCached(version))
         {
             logger.Info($"Version is not installed (not cached): {version}");
             return null;
         }
 
-        return VersionManager.GetVersionDirectory(version);
+        return cache.GetVersionDirectory(version);
     }
 }

@@ -18,61 +18,73 @@ namespace Tomat.TML.Build.Common;
 /// </summary>
 public static class VersionManager
 {
-    public readonly record struct GitHubRelease(
-        ModLoaderVersion Version,
-        string DownloadUrl
-    );
+    private const string cached_versions = "cached_versions";
 
-    public readonly record struct VersionCache(
-        DateTime LastUpdated,
-        List<GitHubRelease> GitHubReleases,
-        ModLoaderVersion StableVersion,
-        ModLoaderVersion PreviewVersion
-    );
+    public static string DefaultCacheDir => Platform.GetAppDir();
 
-    static VersionManager()
+    /// <summary>
+    ///     Reads the cache at the given directory, creating it there if it
+    ///     doesn't exist.
+    /// </summary>
+    public static VersionCache ReadOrCreateVersionCache(
+        string versionCacheDir
+    )
     {
-        Directory.CreateDirectory(Platform.GetAppDir());
+        Directory.CreateDirectory(versionCacheDir);
 
-        var versionCacheFile = Path.Combine(Platform.GetAppDir(), "cached_versions");
+        var versionCacheFile = Path.Combine(versionCacheDir, cached_versions);
+
+        VersionCache cache;
         if (File.Exists(versionCacheFile))
         {
-            Cache = ReadCache(versionCacheFile);
+            cache = ReadCache(versionCacheDir);
 
             // Trigger a cache refresh every day, ideally.
-            RefreshCache(forced: false, cooldown: TimeSpan.FromDays(1));
+            RefreshCache(ref cache, cooldown: TimeSpan.FromDays(1));
         }
         else
         {
-            WriteCache(Cache = ResolveVersions(), versionCacheFile);
+            WriteCache(cache = ResolveVersions(versionCacheDir), versionCacheFile);
         }
 
-        SteamPath = Platform.GetSteamGamePath("tModLoader");
-        DevPath = Platform.GetSteamGamePath("tModLoaderDev");
+        return cache;
     }
 
-    public static VersionCache Cache { get; private set; }
-
-    public static string? SteamPath { get; }
-
-    public static string? DevPath { get; }
-
-    public static bool RefreshCache(bool forced, TimeSpan cooldown)
+    /// <summary>
+    ///     Refreshes the cache, updating known versions.
+    /// </summary>
+    /// <param name="cache">The cache to refresh.</param>
+    /// <param name="cooldown">
+    ///     The cooldown between cache updates.  If no value is given, an update
+    ///     will be forced.
+    /// </param>
+    /// <returns>
+    ///     Whether the cache needed updating based on the cooldown.
+    /// </returns>
+    public static bool RefreshCache(
+        ref VersionCache cache,
+        TimeSpan? cooldown
+    )
     {
-        if (!forced && DateTime.Now - Cache.LastUpdated < cooldown)
+        if (cooldown.HasValue && DateTime.Now - cache.LastUpdated < cooldown.Value)
         {
             return false;
         }
 
-        var versionCacheFile = Path.Combine(Platform.GetAppDir(), "cached_versions");
+        var versionCacheFile = Path.Combine(cache.RootDirectory, cached_versions);
+        
+        // Don't delete the cache file prematurely, just try to overwrite it and
+        // see if that fails.
+        /*
         if (File.Exists(versionCacheFile))
         {
             File.Delete(versionCacheFile);
         }
+        */
 
         try
         {
-            WriteCache(Cache = ResolveVersions(), versionCacheFile);
+            WriteCache(cache = ResolveVersions(cache.RootDirectory), versionCacheFile);
         }
         catch
         {
@@ -80,50 +92,11 @@ public static class VersionManager
             // don't have permission or it's in use.  This may cause rate
             // limiting when requesting versions from GitHub, though.
         }
+
         return true;
     }
 
-    public static bool IsVersionKnown(ModLoaderVersion version)
-    {
-        return Cache.GitHubReleases.Any(x => x.Version == version);
-    }
-
-    public static bool IsVersionCached(ModLoaderVersion version)
-    {
-        return Directory.Exists(GetVersionDirectory(version));
-    }
-
-    public static async Task DownloadVersionAsync(ModLoaderVersion version)
-    {
-        if (IsVersionCached(version))
-        {
-            return;
-        }
-
-        if (!IsVersionKnown(version))
-        {
-            throw new ArgumentException($"Version '{version}' is not known.");
-        }
-
-        var release = Cache.GitHubReleases.First(x => x.Version == version);
-        var tempFile = Path.GetTempFileName();
-        {
-            using var client = new HttpClient();
-            using var stream = await client.GetStreamAsync(release.DownloadUrl);
-            using var file = File.Create(tempFile);
-            await stream.CopyToAsync(file);
-        }
-
-        ZipFile.ExtractToDirectory(tempFile, GetVersionDirectory(version));
-        File.Delete(tempFile);
-    }
-
-    public static string GetVersionDirectory(ModLoaderVersion version)
-    {
-        return Path.Combine(Platform.GetAppDir(), version.ToString());
-    }
-
-    private static VersionCache ResolveVersions()
+    private static VersionCache ResolveVersions(string versionCacheDir)
     {
         var gh = new GitHubClient(
             new ProductHeaderValue(
@@ -133,13 +106,13 @@ public static class VersionManager
         );
 
         var releases = gh.Repository.Release.GetAll("tModLoader", "tModLoader").Result
-                         .OrderByDescending(x => x.CreatedAt)
+                         .OrderByDescending(x => x.PublishedAt)
                          .ToArray();
 
         var stable = releases.First(x => !x.Prerelease);
         var preview = releases.First(x => x.Prerelease);
 
-        var gitHubReleases = new List<GitHubRelease>(releases.Length);
+        var gitHubReleases = new List<VersionCache.Release>(releases.Length);
         foreach (var release in releases)
         {
             if (!ModLoaderVersion.TryParse(release.TagName, out var version))
@@ -152,24 +125,27 @@ public static class VersionManager
                 continue;
             }
 
-            gitHubReleases.Add(new GitHubRelease(version, asset.BrowserDownloadUrl));
+            gitHubReleases.Add(new VersionCache.Release(version, asset.BrowserDownloadUrl));
         }
 
         if (!ModLoaderVersion.TryParse(stable.TagName, out var stableVersion))
         {
-            stableVersion = ModLoaderVersion.UNKNOWN;
+            stableVersion = ModLoaderVersion.Unknown;
         }
 
         if (!ModLoaderVersion.TryParse(preview.TagName, out var previewVersion))
         {
-            previewVersion = ModLoaderVersion.UNKNOWN;
+            previewVersion = ModLoaderVersion.Unknown;
         }
 
         return new VersionCache(
+            versionCacheDir,
             DateTime.Now,
             gitHubReleases,
             stableVersion,
-            previewVersion
+            previewVersion,
+            Platform.GetSteamGamePath("tModLoader"),
+            Platform.GetSteamGamePath("tModLoaderDev")
         );
     }
 
@@ -213,21 +189,23 @@ public static class VersionManager
         }
     }
 
-    private static VersionCache ReadCache(string file)
+    private static VersionCache ReadCache(string versionCacheDir)
     {
-        using var fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+        var cachedVersionsPath = Path.Combine(versionCacheDir, cached_versions);
+
+        using var fs = new FileStream(cachedVersionsPath, FileMode.Open, FileAccess.Read);
         using var br = new BinaryReader(fs);
 
         // LastUpdated
         var lastUpdated = DateTime.FromBinary(br.ReadInt64());
 
         // GitHubReleases
-        var gitHubReleases = new List<GitHubRelease>(br.ReadInt32());
+        var gitHubReleases = new List<VersionCache.Release>(br.ReadInt32());
         {
             for (var i = 0; i < gitHubReleases.Capacity; i++)
             {
                 gitHubReleases.Add(
-                    new GitHubRelease(
+                    new VersionCache.Release(
                         new ModLoaderVersion(
                             br.ReadInt32(),
                             br.ReadInt32(),
@@ -257,10 +235,13 @@ public static class VersionManager
         );
 
         return new VersionCache(
+            versionCacheDir,
             lastUpdated,
             gitHubReleases,
             stableVersion,
-            previewVersion
+            previewVersion,
+            Platform.GetSteamGamePath("tModLoader"),
+            Platform.GetSteamGamePath("tModLoaderDev")
         );
     }
 }

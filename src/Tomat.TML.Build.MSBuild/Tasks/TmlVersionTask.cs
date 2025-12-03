@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
+using Tomat.TML.Build.Common;
 using Tomat.TML.Build.Common.Shared;
 
 namespace Tomat.TML.Build.MSBuild.Tasks;
@@ -18,14 +19,16 @@ public sealed class TmlVersionTask : BaseTask
     {
         Log.LogMessage("Using tML version (unparsed): {0}", Version);
 
+        var cache = VersionManager.ReadOrCreateVersionCache(VersionManager.DefaultCacheDir);
+        
         // check if the process exited with a non-zero exit code
-        if (!VersionExecution.DownloadVersion(Version, new Logger(Log)))
+        if (!VersionExecution.DownloadVersion(cache, Version, new Logger(Log)))
         {
             Log.LogError($"Failed to download requested tML version in task, aborting: {Version}");
             return false;
         }
 
-        if (VersionExecution.GetVersionPath(Version, new Logger(Log)) is not { } path)
+        if (VersionExecution.GetVersionPath(cache, Version, new Logger(Log)) is not { } path)
         {
             Log.LogError("Failed to get the path of tML version {0}.", Version);
             return false;

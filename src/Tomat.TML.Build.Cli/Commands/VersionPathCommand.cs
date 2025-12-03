@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
+using Tomat.TML.Build.Common;
 using Tomat.TML.Build.Common.Shared;
 
 namespace Tomat.TML.Build.Cli.Commands;
@@ -15,7 +16,8 @@ public class VersionPathCommand : ICommand
 
     async ValueTask ICommand.ExecuteAsync(IConsole console)
     {
-        var result = VersionExecution.GetVersionPath(Version, new Logger(console));
+        var cache = VersionManager.ReadOrCreateVersionCache(VersionManager.DefaultCacheDir);
+        var result = VersionExecution.GetVersionPath(cache, Version, new Logger(console));
         if (result is null)
         {
             Environment.ExitCode = 1;

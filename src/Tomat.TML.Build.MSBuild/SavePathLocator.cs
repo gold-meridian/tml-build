@@ -20,19 +20,20 @@ public static class SavePathLocator
     private const string dev_dir = "tModLoader-dev";
 
     public static string FindSavePath(
+        VersionCache cache,
         string tmlVersion,
         string assemblyName,
         TaskLoggingHelper log
     )
     {
-        var saveFolder = FindSaveFolder(tmlVersion, log);
+        var saveFolder = FindSaveFolder(cache, tmlVersion, log);
 
         return Path.Combine(saveFolder, "Mods", Path.ChangeExtension(assemblyName, ".tmod"));
     }
 
-    private static string FindSaveFolder(string tmlVersion, TaskLoggingHelper log)
+    private static string FindSaveFolder(VersionCache cache, string tmlVersion, TaskLoggingHelper log)
     {
-        var branchDir = GetBuildPurpose(tmlVersion, log) switch
+        var branchDir = GetBuildPurpose(cache, tmlVersion, log) switch
         {
             BuildPurpose.Stable => stable_dir,
             BuildPurpose.Preview => preview_dir,
@@ -40,7 +41,7 @@ public static class SavePathLocator
             _ => stable_dir,
         };
 
-        var steamPath = VersionManager.SteamPath;
+        var steamPath = cache.SteamPath;
         if (steamPath is null)
         {
             log.LogWarning("Could not locate Steam install path; not checking for savehere.txt");
@@ -100,12 +101,12 @@ public static class SavePathLocator
         return text;
     }
 
-    private static BuildPurpose GetBuildPurpose(string tmlVersion, TaskLoggingHelper log)
+    private static BuildPurpose GetBuildPurpose(VersionCache cache, string tmlVersion, TaskLoggingHelper log)
     {
         tmlVersion = tmlVersion.ToLowerInvariant();
 
         log.LogMessage($"Determining build purpose based on tML version: {tmlVersion}");
-        log.LogMessage($"Known special versions: stable({ModLoaderVersion.Stable}), preview({ModLoaderVersion.Preview}), dev, steam");
+        log.LogMessage($"Known special versions: stable({cache.StableVersion}), preview({cache.PreviewVersion}), dev, steam");
 
         if (ModLoaderVersion.TryParse(tmlVersion, out var version))
         {
@@ -116,13 +117,13 @@ public static class SavePathLocator
 
             log.LogMessage("Parsed tML version as numeric version");
 
-            if (version == ModLoaderVersion.Stable)
+            if (version == cache.StableVersion)
             {
                 log.LogMessage("Matched tML version with known stable");
                 return BuildPurpose.Stable;
             }
 
-            if (version == ModLoaderVersion.Preview)
+            if (version == cache.PreviewVersion)
             {
                 log.LogMessage("Matched tML version with known preview");
             }
