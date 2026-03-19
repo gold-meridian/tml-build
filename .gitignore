@@ -8,3 +8,6 @@ obj/
 *.user
 
 .tml-build/
+
+# Files are copied to here for local staging.
+src/Tomat.Terraria.ModLoader.Sdk/Sdk/
