@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/build/">
+    <File Path="Directory.Build.props" />
+    <Project Path="Tomat.TML.Build.Cli/Tomat.TML.Build.Cli.csproj" />
+    <Project Path="Tomat.TML.Build.Common/Tomat.TML.Build.Common.csproj" />
+    <Project Path="Tomat.TML.Build.MSBuild/Tomat.TML.Build.MSBuild.csproj" />
+    <Project Path="Tomat.TML.ClientBootstrap/Tomat.TML.ClientBootstrap.csproj" />
+  </Folder>
+  <Folder Name="/build/analyzers/">
+    <Project Path="Tomat.TML.Build.Analyzers.Abstractions/Tomat.TML.Build.Analyzers.Abstractions.csproj" />
+    <Project Path="Tomat.TML.Build.Analyzers/Tomat.TML.Build.Analyzers.csproj" />
+  </Folder>
+  <Folder Name="/build/sdk/">
+    <Project Path="Tomat.Terraria.ModLoader.Sdk/Tomat.Terraria.ModLoader.Sdk.csproj" />
+  </Folder>
+  <Folder Name="/lib/">
+    <Project Path="Tomat.Files/Tomat.Files.csproj" />
+    <Project Path="Tomat.Parsing/Tomat.Parsing.csproj" />
+  </Folder>
+  <Folder Name="/lib/ext/">
+    <Project Path="paint-label/src/GoldMeridian.PaintLabel/GoldMeridian.PaintLabel.csproj" />
+  </Folder>
+  <Folder Name="/local/">
+    <Project Path="LocalProjectRefresh/LocalProjectRefresh.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="Tomat.TML.Build.Tests/Tomat.TML.Build.Tests.csproj" />
+    <Project Path="Tomat.TML.TestMod/Tomat.TML.TestMod.csproj" />
+  </Folder>
+</Solution>
