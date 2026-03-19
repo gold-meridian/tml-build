@@ -12,13 +12,31 @@ namespace Tomat.TML.Build.Common.Utilities;
 internal static class Platform
 {
     private const string tml_build_env_var_prefix = "TML_BUILD_GAME_DIR_";
-    
+
     /// <summary>
     ///     Gets the directory to our application data.
     /// </summary>
     public static string GetAppDir()
     {
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tml-build");
+        // return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tml-build");
+
+        // Must now mirror the logic in Sdk.props.
+        if (Environment.GetEnvironmentVariable("TML_BUILD_CACHE_DIRECTORY") is { } cacheDir && !string.IsNullOrEmpty(cacheDir))
+        {
+            return cacheDir;
+        }
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tml-build");
+        }
+
+        if (Environment.GetEnvironmentVariable("XDG_DATA_HOME") is not { } dataHome)
+        {
+            dataHome = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "share");
+        }
+
+        return Path.Combine(dataHome, "tml-build");
     }
 
     public static string? GetSteamGamePath(string gameName)

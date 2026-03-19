@@ -40,7 +40,7 @@ public static class VersionExecution
             return false;
         }
 
-        if (cache.IsVersionCached(version))
+        if (cache.IsVersionExtracted(version))
         {
             logger.Info($"Version is already cached: {version}");
             return true;
@@ -49,7 +49,7 @@ public static class VersionExecution
         try
         {
             logger.Info($"Downloading version: {version}...");
-            await cache.DownloadVersionAsync(version);
+            await cache.EnsureVersionExtractedAsync(version);
             logger.Info($"Downloaded version: {version}!");
             return true;
         }
@@ -113,12 +113,12 @@ public static class VersionExecution
             return null;
         }
 
-        if (!cache.IsVersionCached(version))
+        if (!cache.IsVersionExtracted(version))
         {
             logger.Info($"Version is not installed (not cached): {version}");
             return null;
         }
 
-        return cache.GetVersionDirectory(version);
+        return cache.GetVersionExtractDir(version);
     }
 }
