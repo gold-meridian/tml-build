@@ -79,8 +79,12 @@
         <ProjectReference Include="..\Tomat.TML.Build.MSBuild\Tomat.TML.Build.MSBuild.csproj"/>
     </ItemGroup>
 
-    <!-- Make sure the bootstrapper gets built. -->
-    <Target Name="BuildClientBootstrap" BeforeTargets="Build;StageSdkLayout">
+    <!-- Build target dependencies -->
+    <Target Name="BuildDependencies" BeforeTargets="Build;StageSdkLayout">
+        <MSBuild Projects="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\Tomat.TML.Build.Analyzers.csproj"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration)"/>
+        
         <MSBuild Projects="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\Tomat.TML.ClientBootstrap.csproj"
                  Targets="Build"
                  Properties="Configuration=$(Configuration)"/>

@@ -123,7 +123,6 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
               #nullable enable
 
               global using static {{rootNamespace}}.Core.LocalizationReferences;
-              using Terraria.Localization;
 
               namespace {{rootNamespace}}.Core;
 
@@ -167,14 +166,14 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         sb.AppendLine($"{indent}{{");
         sb.AppendLine($"{indent}    public const string KEY = \"{ourKey}\";");
         sb.AppendLine();
-        sb.AppendLine($"{indent}    public static LocalizedText GetChildText(string childKey)");
+        sb.AppendLine($"{indent}    public static global::Terraria.Localization.LocalizedText GetChildText(string childKey)");
         sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        return Language.GetText(KEY + '.' + childKey);");
+        sb.AppendLine($"{indent}        return global::Terraria.Localization.Language.GetText(KEY + '.' + childKey);");
         sb.AppendLine($"{indent}    }}");
         sb.AppendLine();
         sb.AppendLine($"{indent}    public static string GetChildTextValue(string childKey, params object?[] values)");
         sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        return Language.GetTextValue(KEY + '.' + childKey, values);");
+        sb.AppendLine($"{indent}        return global::Terraria.Localization.Language.GetTextValue(KEY + '.' + childKey, values);");
         sb.AppendLine($"{indent}    }}");
 
         var newPathSegments = pathSegments.Concat([node.Name]).ToArray();
@@ -202,9 +201,9 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");
             sb.AppendLine($"{indent}        public const int ARG_COUNT = {args};");
             sb.AppendLine();
-            sb.AppendLine($"{indent}        public static LocalizedText GetText()");
+            sb.AppendLine($"{indent}        public static global::Terraria.Localization.LocalizedText GetText()");
             sb.AppendLine($"{indent}        {{");
-            sb.AppendLine($"{indent}            return Language.GetText(KEY);");
+            sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetText(KEY);");
             sb.AppendLine($"{indent}        }}");
             sb.AppendLine();
 
@@ -212,7 +211,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             {
                 sb.AppendLine($"{indent}        public static string GetTextValue()");
                 sb.AppendLine($"{indent}        {{");
-                sb.AppendLine($"{indent}            return Language.GetTextValue(KEY);");
+                sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetTextValue(KEY);");
                 sb.AppendLine($"{indent}        }}");
             }
             else
@@ -225,19 +224,19 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
                 sb.AppendLine($"{indent}        public static string GetTextValue({string.Join(", ", argNames.Select(x => $"object? {x}"))})");
                 sb.AppendLine($"{indent}        {{");
-                sb.AppendLine($"{indent}            return Language.GetTextValue(KEY, {string.Join(", ", argNames)});");
+                sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetTextValue(KEY, {string.Join(", ", argNames)});");
                 sb.AppendLine($"{indent}        }}");
             }
 
             sb.AppendLine();
-            sb.AppendLine($"{indent}        public static LocalizedText GetChildText(string childKey)");
+            sb.AppendLine($"{indent}        public static global::Terraria.Localization.LocalizedText GetChildText(string childKey)");
             sb.AppendLine($"{indent}        {{");
-            sb.AppendLine($"{indent}            return Language.GetText(KEY + '.' + childKey);");
+            sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetText(KEY + '.' + childKey);");
             sb.AppendLine($"{indent}        }}");
             sb.AppendLine();
             sb.AppendLine($"{indent}        public static string GetChildTextValue(string childKey, params object?[] values)");
             sb.AppendLine($"{indent}        {{");
-            sb.AppendLine($"{indent}            return Language.GetTextValue(KEY + '.' + childKey, values);");
+            sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetTextValue(KEY + '.' + childKey, values);");
             sb.AppendLine($"{indent}        }}");
 
             sb.AppendLine($"{indent}    }}");
