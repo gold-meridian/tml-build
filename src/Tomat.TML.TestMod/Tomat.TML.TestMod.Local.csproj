@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="..\Tomat.Terraria.ModLoader.Sdk\Sdk\Sdk.props"/>
+
+    <PropertyGroup>
+        <AssemblyName>TestMod</AssemblyName>
+        <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
+    </PropertyGroup>
+
+    <Import Project="..\Tomat.Terraria.ModLoader.Sdk\Sdk\Sdk.targets"/>
+    
+
+</Project>
