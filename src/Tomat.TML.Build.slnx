@@ -1,13 +1,6 @@
 <Solution>
-  <Folder Name="/build/">
+  <Folder Name="/extra/">
     <File Path="Directory.Build.props" />
-  </Folder>
-  <Folder Name="/lib/">
-    <Project Path="Tomat.Files/Tomat.Files.csproj" />
-    <Project Path="Tomat.Parsing/Tomat.Parsing.csproj" />
-  </Folder>
-  <Folder Name="/lib/ext/">
-    <Project Path="paint-label/src/GoldMeridian.PaintLabel/GoldMeridian.PaintLabel.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="Tomat.TML.Build.Tests/Tomat.TML.Build.Tests.csproj" />
@@ -15,6 +8,9 @@
     <Project Path="Tomat.TML.TestMod/Tomat.TML.TestMod.Local.csproj" />
   </Folder>
   <Project Path="LocalProjectRefresh/LocalProjectRefresh.csproj" />
+  <Project Path="paint-label/src/GoldMeridian.PaintLabel/GoldMeridian.PaintLabel.csproj" />
+  <Project Path="Tomat.Files/Tomat.Files.csproj" />
+  <Project Path="Tomat.Parsing/Tomat.Parsing.csproj" />
   <Project Path="Tomat.Terraria.ModLoader.Sdk/Tomat.Terraria.ModLoader.Sdk.csproj" />
   <Project Path="Tomat.TML.Build.Analyzers.Abstractions/Tomat.TML.Build.Analyzers.Abstractions.csproj" />
   <Project Path="Tomat.TML.Build.Analyzers/Tomat.TML.Build.Analyzers.csproj" />
