@@ -7,11 +7,62 @@
         <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
         <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
         <TmlBuildAnalyzersRoot>$(TmlBuildSdkRoot)analyzers\</TmlBuildAnalyzersRoot>
+
+        <!-- Cache root: matches Platform.GetAppDir() logic in C#. -->
+
+        <!-- Allow explicitly setting with an environment variable -->
+        <TmlBuildCacheDir Condition="'$(TML_BUILD_CACHE_DIRECTORY)' != ''">$(TML_BUILD_CACHE_DIRECTORY)</TmlBuildCacheDir>
+
+        <!-- Resolve to %appdata% on Windows -->
+        <TmlBuildCacheDir Condition="'$(TmlBuildCacheDir)' == '' AND '$(OS)' == 'Windows_NT'">$(APPDATA)\tml-build\</TmlBuildCacheDir>
+
+        <!-- Try to respect XDG_DATA_HOME on *nix -->
+        <_TmlBuildDataHome>$(XDG_DATA_HOME)</_TmlBuildDataHome>
+        <_TmlBuildDataHome Condition="'$(_TmlBuildDataHome)' == ''">$(HOME)/.local/share</_TmlBuildDataHome>
+        <TmlBuildCacheDir Condition="'$(TmlBuildCacheDir)' == '' AND '$(OS)' != 'Windows_NT'">$(_TmlBuildDataHome)/tml-build/</TmlBuildCacheDir>
+
+        <!-- Local NuGet feed for GitHub-sourced tML nupkgs. -->
+        <TmlBuildFeedDir>$(TmlBuildCacheDir)feed\</TmlBuildFeedDir>
+
+        <!-- Alias resolution props written by TmlRestoreTask at restore time.-->
+        <TmlBuildAliasPropsFile>$(TmlBuildCacheDir)version-aliases.props</TmlBuildAliasPropsFile>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Properties that our source generators need to see. -->
         <CompilerVisibleProperty Include="TmlBuildUseDefaultModImpl"/>
+    </ItemGroup>
+
+    <!-- Import alias props if they exist from a prior restore.  Absent on very
+         first run; the restore task will write it and NuGet will re-evaluate. -->
+    <Import Project="$(TmlBuildAliasPropsFile)" Condition="Exists('$(TmlBuildAliasPropsFile)')"/>
+
+    <PropertyGroup>
+        <!-- Default version alias if the user hasn't set one. -->
+        <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
+
+        <!-- Resolve well-known aliases to concrete versions read from alias
+             props.  If TmlVersion is already a concrete version string these
+             conditions all fall through and TmlVersionResolved == TmlVersion. -->
+        <TmlVersionResolved Condition="'$(TmlVersion)' == 'stable' AND '$(TmlVersionStable)' != ''">$(TmlVersionStable)</TmlVersionResolved>
+        <TmlVersionResolved Condition="'$(TmlVersion)' == 'preview' AND '$(TmlVersionPreview)' != ''">$(TmlVersionPreview)</TmlVersionResolved>
+
+        <!-- steam / dev are not resolved to a version number; they are handled
+             via direct Import in Sdk.targets using paths from the alias props. -->
+        <!-- <TmlVersionResolved Condition="'$(TmlVersionResolved)' == '' AND '$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">$(TmlVersion)</TmlVersionResolved> -->
+    </PropertyGroup>
+
+    <!-- Register the local feed so NuGet restore can find tML nupkgs.
+         Only meaningful when resolving a GitHub version. -->
+    <PropertyGroup Condition="'$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
+        <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(TmlBuildFeedDir)</RestoreAdditionalProjectSources>
+    </PropertyGroup>
+
+    <!-- Wire up the tML PackageReference for GitHub versions so NuGet restore
+         pulls in tMLMod.targets automatically from the nupkg's build/ folder.
+         Skipped for steam/dev which import targets directly. -->
+    <ItemGroup Condition="'$(TmlVersionResolved)' != '' AND '$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
+        <PackageReference Include="tModLoader" Version="$(TmlVersionResolved)" PrivateAssets="all"/>
     </ItemGroup>
 
 </Project>

@@ -36,10 +36,6 @@
     <!-- Relevant default settings for tml-build. -->
     <PropertyGroup>
         <!-- TmodOutputPath may be specified to override default logic -->
-        <TmlTargetsPath Condition="'$(TmlTargetsPath)' == ''">$(MSBuildProjectDirectory)\.tml-build\TML.targets</TmlTargetsPath>
-        <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
-
-        <!-- TmodOutputPath may be specified to override default logic -->
         <!-- <TmodOutputPath Condition="'$(TmodOutputPath)' == ''"></TmodOutputPath> -->
 
         <ModDescriptionPath Condition="'$(ModDescriptionPath)' == ''">$(MSBuildProjectDirectory)\description.txt</ModDescriptionPath>
@@ -58,8 +54,39 @@
         <TmlBuildBootstrapFeatures Condition="'$(TmlBuildBootstrapFeatures)' == ''">tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
     </PropertyGroup>
 
-    <Import Condition="Exists('$(TmlTargetsPath)')" Project="$(TmlTargetsPath)"/>
+    <!-- Restore-time task: populates the local NuGet feed and writes the alias
+         props file.  Runs during `dotnet restore` before NuGet tries to resolve
+         packages, so the feed is ready just-in-time. -->
+    <UsingTask TaskName="TmlRestoreTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
+    <Target Name="TmlPopulateFeed"
+            BeforeTargets="_GenerateRestoreProjectSpec"
+            Condition="'$(TmlVersion)' != ''">
+        <TmlRestoreTask
+                TmlVersion="$(TmlVersion)"
+                CacheDir="$(TmlBuildCacheDir)"
+                FeedDir="$(TmlBuildFeedDir)"
+                AliasPropsFile="$(TmlBuildAliasPropsFile)"/>
+    </Target>
+    
+    <!-- steam / dev: import tMLMod.targets directly from disk.
+         These versions are mutable so we never cache them as nupkgs.
+         TmlSteamTargetsPath and TmlDevTargetsPath are written into
+         version-aliases.props by TmlRestoreTask. -->
+    <Import Condition="'$(TmlVersion)' == 'steam' AND Exists('$(TmlSteamTargetsPath)')" Project="$(TmlSteamTargetsPath)"/>
+    <Import Condition="'$(TmlVersion)' == 'dev' AND Exists('$(TmlDevTargetsPath)')" Project="$(TmlDevTargetsPath)"/>
 
+    <!-- Warn loudly if a local version was requested but wasn't found. -->
+    <Target Name="WarnMissingSteamPath"
+            BeforeTargets="ResolveReferences"
+            Condition="'$(TmlVersion)' == 'steam' AND !Exists('$(TmlSteamTargetsPath)')">
+        <Error Text="TmlVersion is 'steam' but tModLoader was not found in Steam.  Install tModLoader via Steam or use a different TmlVersion."/>
+    </Target>
+    <Target Name="WarnMissingDevPath"
+            BeforeTargets="ResolveReferences"
+            Condition="'$(TmlVersion)' == 'dev' AND !Exists('$(TmlDevTargetsPath)')">
+        <Error Text="TmlVersion is 'dev' but the tModLoader developer installation was not found.  Have you build tModLoader locally?"/>
+    </Target>
+    
     <!-- Include relevant non-code files. -->
     <ItemGroup>
         <!-- build manifests -->
@@ -91,7 +118,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- Helpful to automaticlly important any libraryes placed in `lib/`
+        <!-- Helpful to automaticlly important any libraries placed in `lib/`
              (still necessary to explicitly add them to `dllReferences`!). -->
         <Reference Include="$(MSBuildProjectFileDirectory)lib\**\*.dll"/>
     </ItemGroup>
@@ -100,7 +127,9 @@
     <ItemGroup>
         <!-- No reason not to; useful for analyzers.  Would be nice to convince
              tML to annotate their own assemblies! -->
-        <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/>
+        <!-- <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/> -->
+        <!-- Added in more recent versions of tModLoader.  Need to see about
+             importing for legacy versions. -->
 
         <!-- Current assembly publicizer of choice. -->
         <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" ExcludeAssets="runtime"/>
@@ -135,13 +164,6 @@
     <UsingTask TaskName="LaunchSettingsTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
     <Target Name="ProduceBootstrappedLaunchSettingsForMod" BeforeTargets="BeforeBuild" Condition="'$(TmlBuildGenerateLaunchSettings)' == 'true'">
         <LaunchSettingsTask ProjectDirectory="$(MSBuildProjectDirectory)"/>
-    </Target>
-
-    <!-- Install the requested tML version before any processing occurs that
-         tries to use it. -->
-    <UsingTask TaskName="TmlVersionTask" AssemblyFile="Tomat.TML.Build.MSBuild.dll"/>
-    <Target Name="ProcessTmlVersionBeforeReferencesAreResolved" BeforeTargets="ResolveReferences">
-        <TmlVersionTask Version="$(TmlVersion)" TargetsPath="$(TmlTargetsPath)"/>
     </Target>
 
     <!-- Package the most post-build into a .tmod file. -->
