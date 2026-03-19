@@ -58,7 +58,14 @@ public sealed class RunCommand : ICommand
         await console.Output.WriteLineAsync("Client features: " + string.Join(", ", enabledFeatures));
         await console.Output.WriteLineAsync($"Arguments to pass-through: {string.Join(' ', Program.PassThroughArguments)}");
 
-        Environment.CurrentDirectory = tmlDir;
+        {
+            Environment.CurrentDirectory = tmlDir;
+            
+            // This needs to be set because log4net uses
+            // AppContext.CurrentDirectory to resolve where to write files by
+            // default (#10).
+            AppDomain.CurrentDomain.SetData("APP_CONTEXT_BASE_DIRECTORY", tmlDir);
+        }
         await console.Output.WriteLineAsync("Set working directory: " + Environment.CurrentDirectory);
 
         var tmod = InstallAssemblyResolver(tmlDir, BinaryName);
