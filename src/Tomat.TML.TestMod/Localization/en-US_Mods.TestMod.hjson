@@ -3,4 +3,5 @@ Language: Test
 
 ParentVal: {
     $parentVal: Value!
+    SecondaryValue: Dummy to avoid reformatting
 }
