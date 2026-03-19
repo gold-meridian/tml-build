@@ -220,11 +220,11 @@ public readonly record struct VersionCache(
                 // NuGet auto-imports build/<packageId>.targets for every
                 // PackageReference, so we rename the file to match the package
                 // ID.
-                zip.CreateEntryFromFile(
-                    targetsPath,
-                    "build/tModLoader.targets",
-                    CompressionLevel.Optimal
-                );
+                var tmlTargetsEntry = zip.CreateEntry("build/tModLoader.targets", CompressionLevel.Optimal);
+                using (var sw = new StreamWriter(tmlTargetsEntry.Open()))
+                {
+                    sw.Write(ModifyTmlTargets(targetsPath, extractDir));
+                }
 
                 // Carry a .props if one exists alongside the targets.
                 var propsPath = Path.ChangeExtension(targetsPath, ".props");
@@ -315,6 +315,23 @@ public readonly record struct VersionCache(
 
             throw;
         }
+    }
+
+    private static string ModifyTmlTargets(string targetsPath, string extractDir)
+    {
+        var lines = File.ReadAllLines(targetsPath).ToList();
+
+        // Replace $(MSBuildThisFileDirectory) with the extract dir.
+        for (var i = 0; i < lines.Count; i++)
+        {
+            lines[i] = lines[i].Replace("$(MSBuildThisFileDirectory)", extractDir + '\\');
+        }
+
+        // Remove References and Analyzers.
+        lines.RemoveAll(x => x.Contains("<Reference "));
+        lines.RemoveAll(x => x.Contains("<Analyzer "));
+
+        return string.Join(Environment.NewLine, lines);
     }
 
     private static bool IsExcludedLibraryDll(string libraryDir, string dllPath)
