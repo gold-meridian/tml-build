@@ -154,6 +154,8 @@ internal static class LaunchWrapper
     /// </summary>
     private static void InitializeLogging(Logging.LogFile logFile, string[] launchArgs)
     {
+        Logging.LegacyCleanups();
+
         Utils.TryCreatingDirectory(Logging.LogDir);
 
         try
@@ -176,16 +178,9 @@ internal static class LaunchWrapper
                 typeof(Logging).GetMethod(nameof(Logging.Init), BindingFlags.NonPublic | BindingFlags.Static)!,
                 il =>
                 {
+                    // Cancel out execution of init because we handle it early.
                     var c = new ILCursor(il);
-
-                    // Assume first branch is to exit the function early.
-                    // We just let it run the routines before
-                    // initialization, since we initialize the logger
-                    // ourselves.
-                    c.GotoNext(MoveType.Before, x => x.MatchBrfalse(out _));
-
-                    c.EmitPop();
-                    c.EmitLdcI4(1);
+                    c.EmitRet();
                 }
             );
 
