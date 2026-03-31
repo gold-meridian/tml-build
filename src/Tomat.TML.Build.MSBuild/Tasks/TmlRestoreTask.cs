@@ -4,26 +4,6 @@ using Tomat.TML.Build.Common;
 
 namespace Tomat.TML.Build.MSBuild.Tasks;
 
-/// <summary>
-///     Runs during <c>dotnet restore</c> (hooked into
-///     <c>_GenerateRestoreProjectSpec</c>) to:
-///     <list type="bullet">
-///         <item>Refresh the version cache if stale.</item>
-///         <item>
-///             For GitHub versions: download the tML zip if needed, repackage
-///             it as a nupkg in the local feed, and write/refresh the alias
-///             props file so <c>Sdk.props</c> can resolve aliases at evaluation
-///             time.
-///         </item>
-///         <item>
-///             For Steam/dev versions: write/refresh the alias props file so
-///             <c>Sdk.targets</c> can import <c>tMLMod.targets</c> directly.
-///         </item>
-///     </list>
-///     After this task completes, NuGet restore finds the nupkg in the local
-///     feed and the subsequent <c>dotnet build</c> needs no further version
-///     resolution.
-/// </summary>
 public sealed class TmlRestoreTask : BaseTask
 {
     /// <summary>
@@ -69,7 +49,7 @@ public sealed class TmlRestoreTask : BaseTask
         // Always refresh alias props.  Steam/dev paths may have changed, and
         // the stable/preview pointers may have been updated by the cache
         // refresh.
-        VersionManager.WriteAliasProps(cache);
+        VersionManager.WriteAliasProps(new Logger(Log), cache, AliasPropsFile);
 
         if (TmlVersion is "steam" or "dev")
         {

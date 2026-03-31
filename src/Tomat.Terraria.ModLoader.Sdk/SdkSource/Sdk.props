@@ -7,7 +7,7 @@
         <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
         <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
         <TmlBuildAnalyzersRoot>$(TmlBuildSdkRoot)analyzers\</TmlBuildAnalyzersRoot>
-        
+
         <TmlBuildSdkVersion>{{ TmlBuildSdkVersion }}</TmlBuildSdkVersion>
 
         <!-- Cache root: matches Platform.GetAppDir() logic in C#. -->
@@ -38,33 +38,5 @@
     <!-- Import alias props if they exist from a prior restore.  Absent on very
          first run; the restore task will write it and NuGet will re-evaluate. -->
     <Import Project="$(TmlBuildAliasPropsFile)" Condition="Exists('$(TmlBuildAliasPropsFile)')"/>
-
-    <PropertyGroup>
-        <!-- Default version alias if the user hasn't set one. -->
-        <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
-
-        <!-- Resolve well-known aliases to concrete versions read from alias
-             props.  If TmlVersion is already a concrete version string these
-             conditions all fall through and TmlVersionResolved == TmlVersion. -->
-        <TmlVersionResolved Condition="'$(TmlVersion)' == 'stable' AND '$(TmlVersionStable)' != ''">$(TmlVersionStable)</TmlVersionResolved>
-        <TmlVersionResolved Condition="'$(TmlVersion)' == 'preview' AND '$(TmlVersionPreview)' != ''">$(TmlVersionPreview)</TmlVersionResolved>
-
-        <!-- steam / dev are not resolved to a version number; they are handled
-             via direct Import in Sdk.targets using paths from the alias props. -->
-        <!-- <TmlVersionResolved Condition="'$(TmlVersionResolved)' == '' AND '$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">$(TmlVersion)</TmlVersionResolved> -->
-    </PropertyGroup>
-
-    <!-- Register the local feed so NuGet restore can find tML nupkgs.
-         Only meaningful when resolving a GitHub version. -->
-    <PropertyGroup Condition="'$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
-        <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(TmlBuildFeedDir)</RestoreAdditionalProjectSources>
-    </PropertyGroup>
-
-    <!-- Wire up the tML PackageReference for GitHub versions so NuGet restore
-         pulls in tMLMod.targets automatically from the nupkg's build/ folder.
-         Skipped for steam/dev which import targets directly. -->
-    <ItemGroup Condition="'$(TmlVersionResolved)' != '' AND '$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
-        <PackageReference Include="tModLoader" Version="$(TmlVersionResolved)" PrivateAssets="all"/>
-    </ItemGroup>
 
 </Project>

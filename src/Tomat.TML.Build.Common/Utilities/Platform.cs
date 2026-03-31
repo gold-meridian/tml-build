@@ -28,7 +28,7 @@ internal static class Platform
 
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tml-build");
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tml-build");
         }
 
         if (Environment.GetEnvironmentVariable("XDG_DATA_HOME") is not { } dataHome)

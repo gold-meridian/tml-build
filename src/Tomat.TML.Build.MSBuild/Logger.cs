@@ -9,6 +9,11 @@ public readonly struct Logger(TaskLoggingHelper logger) : ILogWrapper
     {
         logger.LogMessage(message);
     }
+    
+    public void Warn(string message)
+    {
+        logger.LogWarning(message);
+    }
 
     public void Error(string message)
     {

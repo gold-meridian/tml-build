@@ -9,6 +9,11 @@ internal readonly struct Logger(IConsole console) : ILogWrapper
     {
         console.Output.WriteLine(message);
     }
+    
+    public void Warn(string message)
+    {
+        console.Output.WriteLine(message);
+    }
 
     public void Error(string message)
     {

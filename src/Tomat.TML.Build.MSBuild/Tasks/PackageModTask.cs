@@ -8,6 +8,7 @@ using Microsoft.Build.Utilities;
 using Newtonsoft.Json;
 using Tomat.Files.Tmod;
 using Tomat.TML.Build.Common;
+using Tomat.TML.Build.Common.Utilities;
 
 namespace Tomat.TML.Build.MSBuild.Tasks;
 
@@ -262,7 +263,8 @@ public sealed class PackageModTask : BaseTask
             throw new InvalidOperationException($"Could not find {versionName} version path");
         }
 
-        if (!SavePathLocator.GetBuildRevisionFromModule(log, Path.Combine(path, "tModLoader.dll"), out var revision))
+        // TODO: Use cached aliases props
+        if (!LocalBuildRevision.TryGetFromModule(new Logger(log), Path.Combine(path, "tModLoader.dll"), out var revision))
         {
             log.LogError($"Could not determine {versionName} version");
             throw new InvalidOperationException($"Could not determine {versionName} version");

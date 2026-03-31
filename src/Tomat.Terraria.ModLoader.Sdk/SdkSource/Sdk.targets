@@ -1,5 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <PropertyGroup>
+        <!-- Default version alias if the user hasn't set one. -->
+        <TmlVersion Condition="'$(TmlVersion)' == ''">stable</TmlVersion>
+
+        <!-- Resolve well-known aliases to concrete versions read from alias
+             props.  If TmlVersion is already a concrete version string these
+             conditions all fall through and TmlVersionResolved == TmlVersion. -->
+        <TmlVersionResolved Condition="'$(TmlVersion)' == 'stable' AND '$(TmlVersionStable)' != ''">$(TmlVersionStable)</TmlVersionResolved>
+        <TmlVersionResolved Condition="'$(TmlVersion)' == 'preview' AND '$(TmlVersionPreview)' != ''">$(TmlVersionPreview)</TmlVersionResolved>
+        <TmlVersionResolved Condition="'$(TmlVersion)' == 'steam' AND '$(TmlVersionSteam)' != ''">$(TmlVersionSteam)</TmlVersionResolved>
+        <TmlVersionResolved Condition="'$(TmlVersion)' == 'dev' AND '$(TmlVersionDev)' != ''">$(TmlVersionDev)</TmlVersionResolved>
+
+        <!-- Fallthrough case for raw version numbers. -->
+        <TmlVersionResolved Condition="'$(TmlVersion)' != 'stable'
+                                   AND '$(TmlVersion)' != 'preview'
+                                   AND '$(TmlVersion)' != 'steam'
+                                   AND '$(TmlVersion)' != 'dev'
+                                   AND '$(TmlVersionResolved)' == ''">$(TmlVersion)
+        </TmlVersionResolved>
+    </PropertyGroup>
+
+    <!-- Register the local feed so NuGet restore can find tML nupkgs.
+         Only meaningful when resolving a GitHub version. -->
+    <PropertyGroup Condition="'$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
+        <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(TmlBuildFeedDir)</RestoreAdditionalProjectSources>
+    </PropertyGroup>
+
+    <!-- Wire up the tML PackageReference for GitHub versions so NuGet restore
+         pulls in tMLMod.targets automatically from the nupkg's build/ folder.
+         Skipped for steam/dev which import targets directly. -->
+    <ItemGroup Condition="'$(TmlVersionResolved)' != '' AND '$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
+        <PackageReference Include="tModLoader" Version="$(TmlVersionResolved)" PrivateAssets="all"/>
+    </ItemGroup>
+
     <!-- Default settings for mods and related projects. -->
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -67,7 +101,7 @@
                 FeedDir="$(TmlBuildFeedDir)"
                 AliasPropsFile="$(TmlBuildAliasPropsFile)"/>
     </Target>
-    
+
     <!-- steam / dev: import tMLMod.targets directly from disk.
          These versions are mutable so we never cache them as nupkgs.
          TmlSteamTargetsPath and TmlDevTargetsPath are written into
@@ -86,7 +120,7 @@
             Condition="'$(TmlVersion)' == 'dev' AND !Exists('$(TmlDevTargetsPath)')">
         <Error Text="TmlVersion is 'dev' but the tModLoader developer installation was not found.  Have you build tModLoader locally?"/>
     </Target>
-    
+
     <!-- Include relevant non-code files. -->
     <ItemGroup>
         <!-- build manifests -->
