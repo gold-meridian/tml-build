@@ -31,6 +31,6 @@ public readonly ref struct GameLogWrapper(ILog log)
             return;
         }
 
-        Main.NewText($"[{log.Logger.Name} (tml-build)]" + message, color);
+        Main.NewText($"[{log.Logger.Name} (tml-build)] " + message, color);
     }
 }
