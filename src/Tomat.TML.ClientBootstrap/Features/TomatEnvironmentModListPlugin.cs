@@ -124,7 +124,17 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
             OnInitialize_RemoveBadElements
         );
 
+        ctx.Hooks.Add(
+            typeof(LocalMod).GetMethod($"get_{nameof(LocalMod.Enabled)}", BindingFlags.Public | BindingFlags.Instance)!,
+            Enabled_Always
+        );
+
         return;
+
+        static bool Enabled_Always(Func<LocalMod, bool> orig, LocalMod self)
+        {
+            return local_mods.Contains(self) || orig(self);
+        }
 
         static void OnInitialize_RemoveBadElements(Action<UIModItem> orig, UIModItem self)
         {
