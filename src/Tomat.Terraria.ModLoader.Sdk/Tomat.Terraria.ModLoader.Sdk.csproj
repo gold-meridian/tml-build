@@ -86,6 +86,7 @@
         <!-- Add SDK targets and props. -->
         <!-- Also adds all the files we copy over. -->
         <None Include="Sdk\**\*" Pack="true" PackagePath="Sdk"/>
+        <!--
         <None Update="SdkSource\Sdk.props">
             <Pack>true</Pack>
             <PackagePath>Sdk</PackagePath>
@@ -94,6 +95,7 @@
             <Pack>true</Pack>
             <PackagePath>Sdk</PackagePath>
         </None>
+        -->
     </ItemGroup>
 
     <ItemGroup>

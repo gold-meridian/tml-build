@@ -1,6 +1,7 @@
 Localization: Test
 Language: Test {0} {1}
+
 ParentVal: {
-    $parentVal: "{0} {1}"
-    SecondVal: Dummy to avoid reformatting
+	$parentVal: "{0} {1}"
+	SecondVal: Dummy to avoid reformatting
 }

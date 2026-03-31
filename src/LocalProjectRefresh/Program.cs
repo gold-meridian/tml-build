@@ -9,10 +9,11 @@ namespace LocalProjectRefresh;
 
 internal static class Program
 {
-    private const string in_flight_version = "1.0.9";
+    private const string in_flight_version = "2.0.0";
 
     private static readonly string[] versions =
     [
+        "1.0.9",
         in_flight_version,
     ];
 
@@ -25,6 +26,8 @@ internal static class Program
 
         var justDelete = args.Contains("-d");
         Console.WriteLine("Just deleting without building or publishing: " + justDelete);
+
+        ForceDeleteDirectory(Path.Combine("Tomat.Terraria.ModLoader.Sdk", "Sdk"), justKillProcesses: true);
 
         if (!justDelete)
         {
@@ -48,7 +51,7 @@ internal static class Program
         if (!justDelete)
         {
             RunCommand("dotnet", $"nuget push Tomat.Terraria.ModLoader.Sdk/bin/Release/Tomat.Terraria.ModLoader.Sdk.{in_flight_version}.nupkg -s local");
-            RunCommand("dotnet", "restore Tomat.TML.TestMod");
+            RunCommand("dotnet", "restore Tomat.TML.TestMod/Tomat.TML.TestMod.csproj");
         }
     }
 
@@ -109,9 +112,16 @@ internal static class Program
         }
     }
 
-    private static void ForceDeleteDirectory(string dir)
+    private static void ForceDeleteDirectory(string dir, bool justKillProcesses = false)
     {
-        Console.WriteLine($"# Force-deleting directory (kills processes with handles): {dir}");
+        if (justKillProcesses)
+        {
+            Console.WriteLine($"# Force-releasing handles on directory: {dir}");
+        }
+        else
+        {
+            Console.WriteLine($"# Force-deleting directory (kills processes with handles): {dir}");
+        }
 
         if (!Directory.Exists(dir))
         {
@@ -127,24 +137,27 @@ internal static class Program
 
         Console.WriteLine("    Attempting to delete files normally...");
 
-        try
+        if (!justKillProcesses)
         {
-            Directory.Delete(dir, recursive: true);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"    Caught error when deleting normally: {e}");
-        }
+            try
+            {
+                Directory.Delete(dir, recursive: true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"    Caught error when deleting normally: {e}");
+            }
 
-        Console.WriteLine("    Checking if directory stile exists...");
+            Console.WriteLine("    Checking if directory still exists...");
 
-        if (!Directory.Exists(dir))
-        {
-            Console.WriteLine("    Directory successfully deleted!");
-            return;
+            if (!Directory.Exists(dir))
+            {
+                Console.WriteLine("    Directory successfully deleted!");
+                return;
+            }
+
+            Console.WriteLine("    Directory still exists, attempting to kill processes...");
         }
-
-        Console.WriteLine("    Directory still exists, attempting to kill processes...");
 
         if (!OperatingSystem.IsWindows())
         {
@@ -184,6 +197,11 @@ internal static class Program
                     Console.WriteLine("FAIL");
                     Console.Error.WriteLine($"Failed to kill process PID({process.Pid}): {e}");
                 }
+            }
+
+            if (justKillProcesses)
+            {
+                return;
             }
 
             Console.Write("    Attempting to delete directory again... ");
