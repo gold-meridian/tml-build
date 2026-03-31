@@ -54,7 +54,7 @@ internal static class HotAssetSystem
     private static readonly Dictionary<string, HotReloadContext> mods = [];
     private static string[] supportedExtensions = [];
 
-    private static CancellationTokenSource? tokenSource = null;
+    private static CancellationTokenSource? tokenSource;
     private static readonly object token_lock = new();
 
     public static void Initialize(in LaunchContext ctx)

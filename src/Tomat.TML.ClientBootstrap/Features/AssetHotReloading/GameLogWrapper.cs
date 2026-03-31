@@ -26,7 +26,7 @@ public readonly ref struct GameLogWrapper(ILog log)
 
     private void NewText(object? message, Color color)
     {
-        if (!Main.gameMenu)
+        if (Main.gameMenu)
         {
             return;
         }
