@@ -272,7 +272,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
                 sb.AppendLine($"{indent}    public static string GetTextValue()");
                 sb.AppendLine($"{indent}    {{");
                 sb.AppendLine($"{indent}        return global::Terraria.Localization.Language.GetTextValue(KEY);");
-                sb.AppendLine($"{indent}        }}");
+                sb.AppendLine($"{indent}    }}");
             }
             else
             {
