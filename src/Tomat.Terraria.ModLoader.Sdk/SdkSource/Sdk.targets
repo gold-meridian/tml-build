@@ -36,9 +36,9 @@
 
     <!-- Default settings for mods and related projects. -->
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
+        <TargetFramework Condition="'$(TargetFramework)' == ''">net8.0</TargetFramework>
+        <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
+        <Nullable Condition="'$(Nullable)' == ''">enable</Nullable>
 
         <!-- Configure tML to not use its default build settings; we do it
              ourselves -->
