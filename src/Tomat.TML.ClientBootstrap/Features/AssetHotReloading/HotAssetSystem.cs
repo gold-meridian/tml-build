@@ -95,12 +95,15 @@ internal static class HotAssetSystem
 
         static Stream OpenStream_UseHotReloadContext(Func<TModContentSource, string, Stream> orig, TModContentSource self, string assetName)
         {
-            if (mods.TryGetValue(self.file.Name, out var ctx) && ctx.Source.EnumerateAssets().Contains(assetName))
+            lock (mods)
             {
-                return ctx.Source.OpenStream(assetName);
-            }
+                if (mods.TryGetValue(self.file.Name, out var ctx) && ctx.Source.EnumerateAssets().Contains(assetName))
+                {
+                    return ctx.Source.OpenStream(assetName);
+                }
 
-            return orig(self, assetName);
+                return orig(self, assetName);
+            }
         }
 
         static void Load_HandleModListeners(Action<CancellationToken> orig, CancellationToken token)
