@@ -9,6 +9,7 @@ using MonoMod.Cil;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 using Terraria.ModLoader.UI;
+using Terraria.UI;
 using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap.Features;
@@ -26,7 +27,8 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
 
     private static readonly List<LaunchPluginMetadata> mods = [];
 
-    private static readonly Dictionary<string, LocalMod> local_mods = [];
+    private static readonly Dictionary<string, LocalMod> local_mod_map = [];
+    private static readonly HashSet<LocalMod> local_mods = [];
 
     public override void Load(LaunchContext ctx, List<LaunchPlugin> plugins)
     {
@@ -72,7 +74,85 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
             Update_PopulateResult
         );
 
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.ToggleEnabled), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            MouseEvent_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.Enable), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            NoParams_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.Disable), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            NoParams_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.UpdateUIForEnabledChange), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            NoParams_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.EnableDependencies), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            NoParams_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.DisableDependents), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            NoParams_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.OpenConfig), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            MouseEvent_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.QuickModDelete), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            MouseEvent_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.DeleteMod), BindingFlags.NonPublic | BindingFlags.Instance)!,
+            MouseEvent_DoNothing
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod(nameof(UIModItem.OnInitialize), BindingFlags.Public | BindingFlags.Instance)!,
+            OnInitialize_RemoveBadElements
+        );
+
         return;
+
+        static void OnInitialize_RemoveBadElements(Action<UIModItem> orig, UIModItem self)
+        {
+            orig(self);
+
+            if (!IsTmlBuildMod(self))
+            {
+                return;
+            }
+
+            TryRemoveChild(self._uiModStateText);
+            TryRemoveChild(self._configButton);
+            TryRemoveChild(self._modReferenceIcon);
+            TryRemoveChild(self._translationModIcon);
+            TryRemoveChild(self._deleteModButton);
+            TryRemoveChild(self.updatedModDot);
+            return;
+
+            void TryRemoveChild(UIElement? child)
+            {
+                if (child is null)
+                {
+                    return;
+                }
+
+                self.RemoveChild(child);
+            }
+        }
 
         static void Update_PopulateResult(ILContext il)
         {
@@ -81,11 +161,31 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
             c.GotoNext(MoveType.After, x => x.MatchCallvirt<Task<List<UIModItem>>>($"get_{nameof(Task<>.Result)}"));
             c.EmitDelegate(InsertOurMods);
         }
+
+        static void MouseEvent_DoNothing(Action<UIModItem, UIMouseEvent, UIElement> orig, UIModItem self, UIMouseEvent evt, UIElement listeningElement)
+        {
+            if (IsTmlBuildMod(self))
+            {
+                return;
+            }
+
+            orig(self, evt, listeningElement);
+        }
+
+        static void NoParams_DoNothing(Action<UIModItem> orig, UIModItem self)
+        {
+            if (IsTmlBuildMod(self))
+            {
+                return;
+            }
+
+            orig(self);
+        }
     }
 
-    public override void LoadContent(LaunchContext ctx)
+    private static bool IsTmlBuildMod(UIModItem modItem)
     {
-        base.LoadContent(ctx);
+        return local_mods.Contains(modItem._mod);
     }
 
     private static List<UIModItem> InsertOurMods(List<UIModItem> modItems)
@@ -100,11 +200,12 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
 
     private static UIModItem MakeModItem(in LaunchPluginMetadata meta)
     {
-        if (!local_mods.TryGetValue(meta.UniqueId, out var localMod))
+        if (!local_mod_map.TryGetValue(meta.UniqueId, out var localMod))
         {
-            local_mods[meta.UniqueId] = localMod = MakeLocalMod(in meta);
+            local_mod_map[meta.UniqueId] = localMod = MakeLocalMod(in meta);
         }
 
+        local_mods.Add(localMod);
         return new UIModItem(localMod);
     }
 
