@@ -5,12 +5,9 @@
     <PropertyGroup>
         <AssemblyName>TestMod</AssemblyName>
         <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
-        <TmlVersion>preview</TmlVersion>
+        <TmlVersion>dev</TmlVersion>
+        <TmlBuildBootstrapFeatures>tomat.environmentmodlist;tomat.enablemod;lolxd87.splashskip</TmlBuildBootstrapFeatures>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
 
     <Import Project="..\Tomat.Terraria.ModLoader.Sdk\Sdk\Sdk.targets"/>
 

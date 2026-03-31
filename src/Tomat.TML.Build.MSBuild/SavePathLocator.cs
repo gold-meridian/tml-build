@@ -179,7 +179,7 @@ public static class SavePathLocator
         return BuildPurpose.Stable;
     }
 
-    private static bool GetBuildRevisionFromModule(
+    public static bool GetBuildRevisionFromModule(
         TaskLoggingHelper log,
         string tmlDllPath,
         [NotNullWhen(returnValue: true)] out BuildRevisionId? revision

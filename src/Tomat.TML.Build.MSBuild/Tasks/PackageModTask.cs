@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using Newtonsoft.Json;
 using Tomat.Files.Tmod;
 using Tomat.TML.Build.Common;
@@ -245,9 +246,30 @@ public sealed class PackageModTask : BaseTask
         {
             "stable" => cache.StableVersion.ToSystemVersion(),
             "preview" => cache.PreviewVersion.ToSystemVersion(),
-            "dev" or "steam" => throw new NotImplementedException(),
+            "steam" => GetRevisionVersion(Log, "Steam", cache.SteamPath),
+            "dev" => GetRevisionVersion(Log, "Dev", cache.DevPath),
             _ => Version.Parse(tmlVersion),
         };
+    }
+
+    private static Version GetRevisionVersion(TaskLoggingHelper log, string versionName, string? path)
+    {
+        log.LogMessage($"Attempting to inspect local tModLoader installation for version: {versionName}");
+
+        if (path is null)
+        {
+            log.LogError($"Could not find {versionName} version path");
+            throw new InvalidOperationException($"Could not find {versionName} version path");
+        }
+
+        if (!SavePathLocator.GetBuildRevisionFromModule(log, Path.Combine(path, "tModLoader.dll"), out var revision))
+        {
+            log.LogError($"Could not determine {versionName} version");
+            throw new InvalidOperationException($"Could not determine {versionName} version");
+        }
+
+        log.LogMessage($"Found {versionName} version: {revision.TmlVersion}");
+        return revision.TmlVersion;
     }
 
 #region References
