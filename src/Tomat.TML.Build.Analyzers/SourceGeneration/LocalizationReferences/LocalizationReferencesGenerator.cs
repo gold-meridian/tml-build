@@ -22,11 +22,16 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
     private static readonly Regex non_alphanumeric = new(@"[^\w]", RegexOptions.Compiled);
     private static readonly Regex arg_remapping_regex = new(@"(?<={\^?)(\d+)(?=(?::[^\r\n]+?)?})", RegexOptions.Compiled);
 
-    public sealed record LocalizationNode(
-        string Name,
-        Dictionary<string, LocalizationNode> Nodes,
-        List<(string key, string value)> Keys
-    );
+    public sealed class LocalizationNode(string name)
+    {
+        public string Name { get; } = name;
+
+        public Dictionary<string, LocalizationNode> Children { get; } = new();
+
+        public string? Value { get; set; }
+
+        public string? FullKey { get; set; }
+    }
 
     void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -78,7 +83,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             }
         }
 
-        var root = new LocalizationNode("", [], []);
+        var root = new LocalizationNode("");
 
         foreach (var kvp in localizationKeys)
         {
@@ -92,26 +97,27 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
             {
                 var part = parts[i];
 
-                if (i == parts.Length - 1)
+                if (!current.Children.TryGetValue(part, out var node))
                 {
-                    current.Keys.Add((key, value));
+                    node = new LocalizationNode(part);
+                    current.Children.Add(part, node);
                 }
-                else
-                {
-                    if (!current.Nodes.TryGetValue(part, out var node))
-                    {
-                        node = new LocalizationNode(part, [], []);
-                        current.Nodes.Add(part, node);
-                    }
 
-                    current = node;
+                current = node;
+
+                if (i != parts.Length - 1)
+                {
+                    continue;
                 }
+
+                current.Value = value;
+                current.FullKey = key;
             }
         }
 
         var sb = new StringBuilder();
 
-        foreach (var node in root.Nodes.Values)
+        foreach (var node in root.Children.Values)
         {
             token.ThrowIfCancellationRequested();
 
@@ -162,7 +168,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         }
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-        sb.AppendLine($"{indent}public static class {node.Name}");
+        sb.AppendLine($"{indent}public static class {nodeTypeName}");
         sb.AppendLine($"{indent}{{");
         sb.AppendLine($"{indent}    public const string KEY = \"{ourKey}\";");
         sb.AppendLine();
@@ -179,12 +185,14 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         var newPathSegments = pathSegments.Concat([node.Name]).ToArray();
         var newAncestors = ancestors.Concat([nodeTypeName]).ToArray();
 
-        for (var i = 0; i < node.Keys.Count; i++)
+        /*
+        foreach (var child in node.Children)
         {
             sb.AppendLine();
 
-            var (key, value) = node.Keys[i];
-            var args = GetArgumentCount(value);
+            var key = child.Key;
+            var value = child.Value;
+            var args = GetArgumentCount(value.Value);
 
             var rawName = key.Split('.').Last();
 
@@ -241,8 +249,43 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
             sb.AppendLine($"{indent}    }}");
         }
+        */
 
-        foreach (var child in node.Nodes.Values)
+        if (node.Value is not null && node.FullKey is not null)
+        {
+            sb.AppendLine();
+
+            var args = GetArgumentCount(node.Value);
+
+            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
+            sb.AppendLine($"{indent}    public const int ARG_COUNT = {args};");
+            sb.AppendLine();
+
+            sb.AppendLine($"{indent}    public static global::Terraria.Localization.LocalizedText GetText()");
+            sb.AppendLine($"{indent}    {{");
+            sb.AppendLine($"{indent}        return global::Terraria.Localization.Language.GetText(KEY);");
+            sb.AppendLine($"{indent}    }}");
+            sb.AppendLine();
+
+            if (args == 0)
+            {
+                sb.AppendLine($"{indent}    public static string GetTextValue()");
+                sb.AppendLine($"{indent}    {{");
+                sb.AppendLine($"{indent}        return global::Terraria.Localization.Language.GetTextValue(KEY);");
+                sb.AppendLine($"{indent}        }}");
+            }
+            else
+            {
+                var argNames = Enumerable.Range(0, args).Select(i => $"arg{i}").ToArray();
+
+                sb.AppendLine($"{indent}    public static string GetTextValue({string.Join(", ", argNames.Select(x => $"object? {x}"))})");
+                sb.AppendLine($"{indent}    {{");
+                sb.AppendLine($"{indent}        return global::Terraria.Localization.Language.GetTextValue(KEY, {string.Join(", ", argNames)});");
+                sb.AppendLine($"{indent}    }}");
+            }
+        }
+
+        foreach (var child in node.Children.Values)
         {
             sb.Append(
                 GenerateTextFromLocalizationNode(
@@ -309,7 +352,8 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
                 _ => t.ToString(),
             };
 
-            keys.Add(path, value);
+            // keys.Add(path, value);
+            keys[path] = value;
         }
 
         return keys;
