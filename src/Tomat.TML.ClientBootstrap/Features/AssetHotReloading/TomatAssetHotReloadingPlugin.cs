@@ -11,7 +11,7 @@ public sealed class TomatAssetHotReloadingPlugin : LaunchPlugin
 
     public override LaunchPluginMetadata Metadata { get; } = new(
         UniqueId: id,
-        DisplayName: "[tml-build] Asset Hot Reloading",
+        DisplayName: "Asset Hot Reloading",
         Version: "1.0.0",
         Authors: "tomat",
         Description: "Listens for changes to files in loaded mod sources and hot reloads assets in-game. Capable of compiling shaders.",

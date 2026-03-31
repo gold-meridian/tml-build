@@ -19,7 +19,7 @@ public sealed class PpebNetCoreDbgPlugin : LaunchPlugin
 
     public override LaunchPluginMetadata Metadata { get; } = new(
         UniqueId: id,
-        DisplayName: "[tml-build] NetCoreDbg Compatibility",
+        DisplayName: "NetCoreDbg Compatibility",
         Version: "1.0.0",
         Authors: "ppeb, tomat",
         Description: "Attempts to force assembly loads from disk even in cases they wouldn't be, to fix an incompatibility with NetCoreDbg.",

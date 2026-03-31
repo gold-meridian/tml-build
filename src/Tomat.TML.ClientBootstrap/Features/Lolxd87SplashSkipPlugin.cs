@@ -23,7 +23,7 @@ public sealed class Lolxd87SplashSkipPlugin : LaunchPlugin
 
     public override LaunchPluginMetadata Metadata { get; } = new(
         UniqueId: id,
-        DisplayName: "[tml-build] Splash Screen Skip",
+        DisplayName: "Splash Screen Skip",
         Version: "1.0.0",
         Authors: "lolxd87, tomat",
         Description: "Skips assembly JITing and related early-load functions, and attempts to transfer assets faster across threads to improve startup performance.",

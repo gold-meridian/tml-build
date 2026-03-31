@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using MonoMod.Cil;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
@@ -18,7 +20,7 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
 {
     public override LaunchPluginMetadata Metadata { get; } = new(
         UniqueId: "tomat.environmentmodlist",
-        DisplayName: "[tml-build] Environment Mod List",
+        DisplayName: "Environment Mod List",
         Version: "1.0.0",
         Authors: "tomat",
         Description: "Displays information about your tModLoader and tml-build environment in the tmodLoader Mods List.",
@@ -29,6 +31,7 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
 
     private static readonly Dictionary<string, LocalMod> local_mod_map = [];
     private static readonly HashSet<LocalMod> local_mods = [];
+    private static readonly ConditionalWeakTable<UIModStateText, object?> state_text_map = [];
 
     public override void Load(LaunchContext ctx, List<LaunchPlugin> plugins)
     {
@@ -44,7 +47,7 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
         {
             return new LaunchPluginMetadata(
                 UniqueId: "tml",
-                DisplayName: $"[tml-build] tModLoader ({ctx.TmlVersion})",
+                DisplayName: $"tModLoader ({ctx.TmlVersion})",
                 Version: ctx.TmlVersionResolved,
                 Authors: "The TML Team",
                 Description: "Information about the tModLoader environment tml-build is using.",
@@ -56,7 +59,7 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
         {
             return new LaunchPluginMetadata(
                 UniqueId: "tml-build",
-                DisplayName: "[tml-build] Tomat.Terraria.ModLoader.Sdk",
+                DisplayName: "Tomat.Terraria.ModLoader.Sdk",
                 Version: ctx.TmlBuildVersion,
                 Authors: "tomat",
                 Description: "tml-build is an MSBuild SDK and accompanying projects forming a feature-complete tModLoader development SDK/toolchain.",
@@ -129,6 +132,21 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
             Enabled_Always
         );
 
+        ctx.Hooks.Add(
+            typeof(UIModStateText).GetMethod($"get_{nameof(UIModStateText.DisplayText)}", BindingFlags.NonPublic | BindingFlags.Instance)!,
+            (Func<UIModStateText, string> orig, UIModStateText self) => state_text_map.TryGetValue(self, out _) ? "[tml-build]" : orig(self)
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModStateText).GetMethod($"get_{nameof(UIModStateText.DisplayColor)}", BindingFlags.NonPublic | BindingFlags.Instance)!,
+            (Func<UIModStateText, Color> orig, UIModStateText self) => state_text_map.TryGetValue(self, out _) ? Color.White : orig(self)
+        );
+
+        ctx.Hooks.Add(
+            typeof(UIModItem).GetMethod($"get_{nameof(UIModItem.ToggleModStateText)}", BindingFlags.NonPublic | BindingFlags.Instance)!,
+            (Func<UIModItem, string> orig, UIModItem self) => IsTmlBuildMod(self) ? "This is provided by tml-build and does not represent a tML mod" : orig(self)
+        );
+
         return;
 
         static bool Enabled_Always(Func<LocalMod, bool> orig, LocalMod self)
@@ -145,7 +163,12 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
                 return;
             }
 
-            TryRemoveChild(self._uiModStateText);
+            self._loaded = true;
+
+            // TryRemoveChild(self._uiModStateText);
+            state_text_map.TryAdd(self._uiModStateText, null);
+            self._uiModStateText._enabled = true;
+
             TryRemoveChild(self._configButton);
             TryRemoveChild(self._modReferenceIcon);
             TryRemoveChild(self._translationModIcon);
