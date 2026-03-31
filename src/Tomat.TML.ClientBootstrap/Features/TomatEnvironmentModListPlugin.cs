@@ -40,19 +40,9 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
 
         static LaunchPluginMetadata MakeTmlMetadata(in LaunchContext ctx)
         {
-            var alias = ctx.TmlVersion.ToLowerInvariant();
-            var packageType = alias switch
-            {
-                "stable" or "preview" => "package-provided",
-                "steam" or "dev" => "local",
-
-                // Assume a raw version number.
-                _ => "package-provided, explicit",
-            };
-
             return new LaunchPluginMetadata(
                 UniqueId: "tml",
-                DisplayName: $"[tml-build] tModLoader ({ctx.TmlVersion}; {packageType})",
+                DisplayName: $"[tml-build] tModLoader ({ctx.TmlVersion})",
                 Version: ctx.TmlVersionResolved,
                 Authors: "The TML Team",
                 Description: "Information about the tModLoader environment tml-build is using.",
