@@ -5,6 +5,7 @@
     <PropertyGroup>
         <AssemblyName>TestMod</AssemblyName>
         <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
+        <TmlVersion>preview</TmlVersion>
     </PropertyGroup>
 
     <ItemGroup>

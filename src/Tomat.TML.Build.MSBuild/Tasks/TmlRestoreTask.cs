@@ -76,7 +76,7 @@ public sealed class TmlRestoreTask : BaseTask
             // Nothing more to do: Sdk.targets will import directly.
             Log.LogMessage(
                 MessageImportance.Normal,
-                "TmlRestoreTask: local version '{0}' — skipping NuGet feed population.",
+                "TmlRestoreTask: using local version '{0}', skipping NuGet feed population.",
                 TmlVersion
             );
             return true;
