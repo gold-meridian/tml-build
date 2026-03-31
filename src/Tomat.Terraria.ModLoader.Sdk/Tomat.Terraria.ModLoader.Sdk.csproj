@@ -47,16 +47,8 @@
         </ItemGroup>
         <Copy SourceFiles="@(_AnalyzerDlls)" DestinationFolder="$(_SdkRoot)analyzers\"/>
 
-        <!-- Bootstrapper -->
-        <!-- The bootstrapper dogfoods the SDK and will produce copies of all
-             the tML binaries, which we don't want.  It's redundant and also
-             means it won't play nice with arbitrary version resolution.  As
-             such, we must include the files we care about explicitly. -->
         <ItemGroup>
-            <_BootstrapFiles Include="..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Tomat.TML.ClientBootstrap.*"/>
-            <_BootstrapFiles Include="..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\CliFx.*"/>
-            <_BootstrapFiles Include="..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Microsoft.Extensions.DependencyModel.*"/>
-            <_BootstrapFiles Include="..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\Newtonsoft.Json.*"/>
+            <_BootstrapFiles Include="..\Tomat.TML.ClientBootstrap\bin\$(Configuration)\net8.0\**\*"/>
         </ItemGroup>
         <Copy SourceFiles="@(_BootstrapFiles)" DestinationFolder="$(_SdkRoot)bootstrap\"/>
     </Target>

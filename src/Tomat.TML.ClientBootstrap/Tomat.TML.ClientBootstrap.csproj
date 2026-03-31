@@ -11,8 +11,12 @@
 
     <ItemGroup>
         <PackageReference Include="CliFx" Version="2.3.6"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Tomat.TML.Build.Common\Tomat.TML.Build.Common.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -7,6 +7,10 @@
         <TmlBuildUseDefaultModImpl>true</TmlBuildUseDefaultModImpl>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
     <Import Project="..\Tomat.Terraria.ModLoader.Sdk\Sdk\Sdk.targets"/>
 
 </Project>

@@ -3,13 +3,13 @@
     "Terraria Client": {
       "commandName": "Executable",
       "executablePath": "$(DotNetName)",
-      "commandLineArgs": "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode client --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)",
+      "commandLineArgs": "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode client --mod $(AssemblyName) --sdk-natives-directory $(TmlBuildNativeRoot) --features $(TmlBuildBootstrapFeatures)",
       "workingDirectory": "$(TmlBuildBootstrapRoot)"
     },
     "Terraria Server": {
       "commandName": "Executable",
       "executablePath": "$(DotNetName)",
-      "commandLineArgs": "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLServerPath)\" --mode server --mod $(AssemblyName) --features $(TmlBuildBootstrapFeatures)",
+      "commandLineArgs": "Tomat.TML.ClientBootstrap.dll --working-directory \"$(tMLSteamPath).\" --binary \"$(tMLPath)\" --mode server --mod $(AssemblyName) --sdk-natives-directory $(TmlBuildNativeRoot) --features $(TmlBuildBootstrapFeatures)",
       "workingDirectory": "$(TmlBuildBootstrapRoot)"
     }
   }

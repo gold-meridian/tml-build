@@ -25,7 +25,7 @@ public static class ShaderCompiler
         var pInfo = new ProcessStartInfo
         {
             FileName = fxcExe,
-            Arguments = $"{fxcExePath} /T fx_2_0 \"{CheckLinuxPathConversion(filePath, diagnostics)}\" /Fo \"{CheckLinuxPathConversion(fxcOutput, diagnostics)}\" /D FX=1 /O3 /Op",
+            Arguments = $"{fxcExePath} /T fx_2_0 \"{CheckLinuxPathConversion(filePath, diagnostics)}\" /Fo \"{CheckLinuxPathConversion(fxcOutput, diagnostics)}\" /D FX=1 /O3 /Op /nologo",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,

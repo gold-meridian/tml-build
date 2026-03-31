@@ -1,7 +1,3 @@
 Localization: Test
 Language: Test
-
-ParentVal: {
-    $parentVal: Value!
-    SecondaryValue: Dummy to avoid reformatting
-}
+ParentVal.SecondaryValue: Dummy to avoid reformatting

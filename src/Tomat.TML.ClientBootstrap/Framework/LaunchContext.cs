@@ -38,6 +38,7 @@ public enum LaunchMode
 public readonly record struct LaunchContext(
     string BootstrapDirectory,
     string GameDirectory,
+    string SdkNativesDirectory,
     string GameBinaryName,
     LaunchMode LaunchMode,
     string? RequestedModName,

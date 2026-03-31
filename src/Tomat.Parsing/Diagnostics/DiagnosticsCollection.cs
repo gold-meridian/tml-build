@@ -6,6 +6,7 @@ namespace Tomat.Parsing.Diagnostics;
 public sealed class DiagnosticsCollection : IEnumerable<ReportableDiagnostic>
 {
     private readonly List<ReportableDiagnostic> diagnostics = [];
+
     public bool HasErrors { get; private set; }
 
     public DiagnosticsCollection Add(ReportableDiagnostic diagnostic)
