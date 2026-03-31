@@ -373,7 +373,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         for (var i = 0; i < matches.Count; i++)
         {
             var match = matches[i];
-            max = Math.Max(max, int.Parse(match.Groups[1].Value));
+            max = Math.Max(max, int.Parse(match.Groups[1].Value) + 1);
         }
 
         return max;
