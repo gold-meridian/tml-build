@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -263,7 +262,6 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
     private static Dictionary<string, string> GetKeysFromFile(AdditionalText file, CancellationToken token)
     {
-        Debugger.Break();
         var keys = new Dictionary<string, string>();
         var prefix = GetPrefixFromPath(file.Path);
         var text = file.GetText(token)?.ToString() ?? throw new InvalidOperationException($"Failed to read HJSON file: {file.Path}");
