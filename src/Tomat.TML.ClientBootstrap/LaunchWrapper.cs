@@ -10,6 +10,8 @@ using log4net;
 using MonoMod.Cil;
 using Terraria;
 using Terraria.ModLoader;
+using Tomat.TML.ClientBootstrap.Features;
+using Tomat.TML.ClientBootstrap.Features.AssetHotReloading;
 using Tomat.TML.ClientBootstrap.Framework;
 
 namespace Tomat.TML.ClientBootstrap;
@@ -44,7 +46,12 @@ internal static class LaunchWrapper
         Logger.Info("Initializing plugins...");
         var pluginRepo = new PluginRepository();
         {
-            pluginRepo.AddPluginsFromAssembly(typeof(Program).Assembly);
+            // pluginRepo.AddPluginsFromAssembly(typeof(Program).Assembly);
+            pluginRepo.AddPlugin(new Lolxd87SplashSkipPlugin());
+            pluginRepo.AddPlugin(new PpebNetCoreDbgPlugin());
+            pluginRepo.AddPlugin(new TomatAssetHotReloadingPlugin());
+            pluginRepo.AddPlugin(new TomatEnableModPlugin());
+            pluginRepo.AddPlugin(new TomatEnvironmentModListPlugin());
         }
         Logger.Info("Initialized plugins!");
 

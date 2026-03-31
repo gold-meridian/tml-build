@@ -17,6 +17,11 @@ public sealed class PluginRepository
         return plugins.TryGetValue(pluginName, out plugin);
     }
 
+    public void AddPlugin(LaunchPlugin plugin)
+    {
+        plugins[plugin.Metadata.UniqueId] = plugin;
+    }
+
     public void AddPluginsFromAssembly(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())
