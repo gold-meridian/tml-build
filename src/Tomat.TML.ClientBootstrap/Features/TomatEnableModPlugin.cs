@@ -10,7 +10,14 @@ public sealed class TomatEnableModPlugin : LaunchPlugin
 
     private static readonly ILog logger = LogManager.GetLogger(id);
 
-    public override string UniqueId => id;
+    public override LaunchPluginMetadata Metadata { get; } = new(
+        UniqueId: id,
+        DisplayName: "[tml-build] Force Enable Mod",
+        Version: "1.0.0",
+        Authors: "tomat",
+        Description: "Ensures the mod you're debugging is always enabled on launch, even if it got disabled and wasn't rebuilt.",
+        IconProvider: () => null
+    );
 
     public override void LoadContent(LaunchContext ctx)
     {

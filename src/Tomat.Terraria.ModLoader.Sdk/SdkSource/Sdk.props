@@ -7,6 +7,8 @@
         <TmlBuildBootstrapRoot>$(TmlBuildSdkRoot)bootstrap\</TmlBuildBootstrapRoot>
         <TmlBuildNativeRoot>$(TmlBuildSdkRoot)native\</TmlBuildNativeRoot>
         <TmlBuildAnalyzersRoot>$(TmlBuildSdkRoot)analyzers\</TmlBuildAnalyzersRoot>
+        
+        <TmlBuildSdkVersion>{{ TmlBuildSdkVersion }}</TmlBuildSdkVersion>
 
         <!-- Cache root: matches Platform.GetAppDir() logic in C#. -->
 

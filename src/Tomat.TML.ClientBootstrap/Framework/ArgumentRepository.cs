@@ -15,7 +15,7 @@ public sealed class ArgumentRepository(Dictionary<string, Dictionary<string, str
 
     public PluginArguments GetArguments(LaunchPlugin plugin)
     {
-        return GetArguments(plugin.UniqueId);
+        return GetArguments(plugin.Metadata.UniqueId);
     }
 
     public PluginArguments GetArguments(string pluginId)

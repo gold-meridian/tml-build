@@ -31,6 +31,15 @@ public sealed class RunCommand : ICommand
 
     [CommandOption("sdk-natives-directory", Description = "Absolute path to the directory containing the SDK's native binaries")]
     public required string NativesDirectory { get; init; }
+    
+    [CommandOption("tml-build-version", Description = "The SDK version")]
+    public required string TmlBuildVersion { get; init; }
+    
+    [CommandOption("tml-version", Description = "The possibly aliased tML version")]
+    public required string TmlVersion { get; init; }
+    
+    [CommandOption("tml-version-resolved", Description = "The resolved numeric version")]
+    public required string TmlVersionResolved { get; init; }
 
     [CommandOption("features", Description = "Semicolon-delimited list of feature patches")]
     public required string Features { get; init; }
@@ -59,6 +68,9 @@ public sealed class RunCommand : ICommand
         await console.Output.WriteLineAsync("Client/server mode: " + Mode);
         await console.Output.WriteLineAsync("Mod name: " + ModName);
         await console.Output.WriteLineAsync("SDK natives directory: " + NativesDirectory);
+        await console.Output.WriteLineAsync("SDK version: " + TmlBuildVersion);
+        await console.Output.WriteLineAsync("Aliased tML version: " + TmlVersion);
+        await console.Output.WriteLineAsync("Resolved tML version: " + TmlVersionResolved);
         await console.Output.WriteLineAsync("Client features: " + string.Join(", ", enabledFeatures));
         await console.Output.WriteLineAsync($"Arguments to pass-through: {string.Join(' ', Program.PassThroughArguments)}");
 
@@ -79,6 +91,9 @@ public sealed class RunCommand : ICommand
             bootstrapDir,
             tmlDir,
             NativesDirectory,
+            TmlBuildVersion,
+            TmlVersion,
+            TmlVersionResolved,
             BinaryName,
             GetMode(Mode),
             ModName,

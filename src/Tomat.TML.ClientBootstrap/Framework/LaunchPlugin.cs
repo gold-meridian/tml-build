@@ -1,25 +1,33 @@
-﻿using Terraria;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Terraria;
 
 namespace Tomat.TML.ClientBootstrap.Framework;
+
+public readonly record struct LaunchPluginMetadata(
+    string UniqueId,
+    string DisplayName,
+    string Version,
+    string Authors,
+    string Description,
+    Func<Stream?> IconProvider
+);
 
 /// <summary>
 ///     An arbitrary plugin to be executed upon game launch.
 /// </summary>
 public abstract class LaunchPlugin
 {
-    /// <summary>
-    ///     The unique identifier of the plugin, should be all lowercase.
-    ///     <br />
-    ///     Typically, in the format of <c>author.plugin</c>.
-    /// </summary>
-    public abstract string UniqueId { get; }
+    public abstract LaunchPluginMetadata Metadata { get; }
 
     /// <summary>
     ///     Called immediately after basic initialization, before the game is
     ///     launched.
     /// </summary>
     /// <param name="ctx">The launch context.</param>
-    public virtual void Load(LaunchContext ctx) { }
+    /// <param name="plugins">All plugins being loaded.</param>
+    public virtual void Load(LaunchContext ctx, List<LaunchPlugin> plugins) { }
 
     /// <summary>
     ///     If the plugin is enabled, ran during the initial patching stage on a

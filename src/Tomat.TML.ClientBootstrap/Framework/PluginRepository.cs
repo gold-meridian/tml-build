@@ -32,7 +32,7 @@ public sealed class PluginRepository
                 continue;
             }
 
-            plugins[plugin.UniqueId] = plugin;
+            plugins[plugin.Metadata.UniqueId] = plugin;
         }
     }
 

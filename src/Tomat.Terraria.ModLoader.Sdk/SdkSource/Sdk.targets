@@ -51,7 +51,7 @@
              
              See FEATURES.md for a list of available flags.
              -->
-        <TmlBuildBootstrapFeatures Condition="'$(TmlBuildBootstrapFeatures)' == ''">tomat.enablemod;lolxd87.splashskip;tomat.assethotreloading</TmlBuildBootstrapFeatures>
+        <TmlBuildBootstrapFeatures Condition="'$(TmlBuildBootstrapFeatures)' == ''">tomat.environmentmodlist;tomat.enablemod;lolxd87.splashskip;tomat.assethotreloading</TmlBuildBootstrapFeatures>
     </PropertyGroup>
 
     <!-- Restore-time task: populates the local NuGet feed and writes the alias

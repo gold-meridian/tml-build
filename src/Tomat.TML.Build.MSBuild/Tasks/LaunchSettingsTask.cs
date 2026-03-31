@@ -77,6 +77,9 @@ public sealed class LaunchSettingsTask : BaseTask
                 "--mod", "$(AssemblyName)",
                 
                 "--sdk-natives-directory", "$(TmlBuildNativeRoot)",
+                "--tml-build-version", "$(TmlBuildSdkVersion)",
+                "--tml-version", "$(TmlVersion)",
+                "--tml-version-resolved", "$(TmlVersionResolved)",
 
                 // Any additional features/plugins for the bootstrapper to
                 // enable.

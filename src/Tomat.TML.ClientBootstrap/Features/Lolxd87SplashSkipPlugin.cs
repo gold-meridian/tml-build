@@ -21,7 +21,14 @@ public sealed class Lolxd87SplashSkipPlugin : LaunchPlugin
 
     private static readonly ILog logger = LogManager.GetLogger(id);
 
-    public override string UniqueId => id;
+    public override LaunchPluginMetadata Metadata { get; } = new(
+        UniqueId: id,
+        DisplayName: "[tml-build] Splash Screen Skip",
+        Version: "1.0.0",
+        Authors: "lolxd87, tomat",
+        Description: "Skips assembly JITing and related early-load functions, and attempts to transfer assets faster across threads to improve startup performance.",
+        IconProvider: () => null
+    );
 
     public override void ApplyPatches(LaunchContext ctx)
     {

@@ -55,7 +55,7 @@ internal static class LaunchWrapper
 
             if (pluginRepo.TryGetPlugin(feature, out var plugin))
             {
-                Logger.Info($"    Found plugin of same name: {plugin.UniqueId}");
+                Logger.Info($"    Found plugin of same name: {plugin.Metadata.UniqueId}");
                 plugins.Add(plugin);
             }
             else
@@ -72,7 +72,7 @@ internal static class LaunchWrapper
 
         foreach (var plugin in plugins)
         {
-            plugin.Load(ctx);
+            plugin.Load(ctx, plugins);
         }
 
         Logger.Info("Finished running plugin on-loads!");
@@ -120,11 +120,11 @@ internal static class LaunchWrapper
 
                 foreach (var feature in plugins)
                 {
-                    times[feature.UniqueId] = Stopwatch.StartNew();
+                    times[feature.Metadata.UniqueId] = Stopwatch.StartNew();
                     {
                         feature.ApplyPatches(ctx);
                     }
-                    times[feature.UniqueId].Stop();
+                    times[feature.Metadata.UniqueId].Stop();
                 }
 
                 ctx.Hooks.Apply(inParallel: true);
@@ -135,7 +135,7 @@ internal static class LaunchWrapper
                 Logger.Info("Per-feature patch queue time (not patch applications):");
                 foreach (var feature in plugins)
                 {
-                    Logger.Info($"    {feature.UniqueId}: {times[feature.UniqueId].Elapsed:g}");
+                    Logger.Info($"    {feature.Metadata.UniqueId}: {times[feature.Metadata.UniqueId].Elapsed:g}");
                 }
             }
         );

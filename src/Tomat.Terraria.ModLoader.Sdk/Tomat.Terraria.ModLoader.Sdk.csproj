@@ -21,6 +21,24 @@
         <IncludeBuildOutput>false</IncludeBuildOutput>
     </PropertyGroup>
 
+    <UsingTask TaskName="TemplateFile" TaskFactory="RoslynCodeTaskFactory" AssemblyName="Microsoft.Build.Tasks.Core">
+        <ParameterGroup>
+            <InputFile ParameterType="System.String" Required="true"/>
+            <OutputFile ParameterType="System.String" Required="true"/>
+            <TemplateKey ParameterType="System.String" Required="true"/>
+            <TemplateValue ParameterType="System.String" Required="true"/>
+        </ParameterGroup>
+        <Task>
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                    var text = System.IO.File.ReadAllText(InputFile);
+                    text = text.Replace(TemplateKey, TemplateValue);
+                    System.IO.File.WriteAllText(OutputFile, text);
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
     <Target Name="StageSdkLayout" BeforeTargets="Build">
         <PropertyGroup>
             <_SdkRoot>$(MSBuildProjectDirectory)\Sdk\</_SdkRoot>
@@ -34,6 +52,17 @@
             <_SourceFiles Include="SdkSource\**"/>
         </ItemGroup>
         <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(_SdkRoot)%(RecursiveDir)%(Filename)%(Extension)')"/>
+        <TemplateFile
+                InputFile="SdkSource\Sdk.props"
+                OutputFile="$(_SdkRoot)Sdk.props"
+                TemplateKey="{{ TmlBuildSdkVersion }}"
+                TemplateValue="$(TmlBuildVersion)"/>
+
+        <TemplateFile
+                InputFile="SdkSource\Sdk.targets"
+                OutputFile="$(_SdkRoot)Sdk.targets"
+                TemplateKey="{{ TmlBuildSdkVersion }}"
+                TemplateValue="$(TmlBuildVersion)"/>
 
         <!-- MSBuild implementation -->
         <ItemGroup>
@@ -76,7 +105,7 @@
         <MSBuild Projects="$(MSBuildProjectDirectory)\..\Tomat.TML.Build.Analyzers\Tomat.TML.Build.Analyzers.csproj"
                  Targets="Build"
                  Properties="Configuration=$(Configuration)"/>
-        
+
         <MSBuild Projects="$(MSBuildProjectDirectory)\..\Tomat.TML.ClientBootstrap\Tomat.TML.ClientBootstrap.csproj"
                  Targets="Build"
                  Properties="Configuration=$(Configuration)"/>
