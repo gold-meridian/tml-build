@@ -80,7 +80,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct partial HlslSampler
+              internal partial struct HlslSampler
               {
                   public Texture? Texture { get; set; }
                   
@@ -88,7 +88,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct partial HlslSampler1D
+              internal partial struct HlslSampler1D
               {
                   public Texture? Texture { get; set; }
                   
@@ -96,7 +96,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct partial HlslSampler2D
+              internal partial struct HlslSampler2D
               {
                   public Texture2D? Texture { get; set; }
                   
@@ -104,7 +104,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct partial HlslSampler3D
+              internal partial struct HlslSampler3D
               {
                   public Texture3D? Texture { get; set; }
                   
@@ -112,7 +112,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct partial HlslSamplerCube
+              internal partial struct HlslSamplerCube
               {
                   public TextureCube? Texture { get; set; }
                   
