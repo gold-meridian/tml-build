@@ -248,7 +248,7 @@ internal sealed class EffectGenerator : IAssetGenerator
         */
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-        sb.AppendLine($"{indent}public sealed class Parameters : IShaderParameters");
+        sb.AppendLine($"{indent}public sealed partial class Parameters : IShaderParameters");
         sb.AppendLine($"{indent}{{");
 
         var samplersWithRegisters = new HashSet<string>();

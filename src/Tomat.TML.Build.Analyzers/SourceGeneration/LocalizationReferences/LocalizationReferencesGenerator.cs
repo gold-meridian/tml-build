@@ -168,7 +168,7 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
         }
 
         sb.AppendLine($"{indent}[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-        sb.AppendLine($"{indent}public static class {nodeTypeName}");
+        sb.AppendLine($"{indent}public static partial class {nodeTypeName}");
         sb.AppendLine($"{indent}{{");
         sb.AppendLine($"{indent}    public const string KEY = \"{ourKey}\";");
         sb.AppendLine();
@@ -184,72 +184,6 @@ public sealed class LocalizationReferencesGenerator : IIncrementalGenerator
 
         var newPathSegments = pathSegments.Concat([node.Name]).ToArray();
         var newAncestors = ancestors.Concat([nodeTypeName]).ToArray();
-
-        /*
-        foreach (var child in node.Children)
-        {
-            sb.AppendLine();
-
-            var key = child.Key;
-            var value = child.Value;
-            var args = GetArgumentCount(value.Value);
-
-            var rawName = key.Split('.').Last();
-
-            var uniqueName = NameSanitizer.MakeUniqueIdentifier(
-                rawName,
-                newPathSegments,
-                usedNames,
-                newAncestors
-            );
-
-            sb.AppendLine($"{indent}    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
-            sb.AppendLine($"{indent}    public static class {uniqueName}");
-            sb.AppendLine($"{indent}    {{");
-            sb.AppendLine($"{indent}        public const string KEY = \"{key}\";");
-            sb.AppendLine($"{indent}        public const int ARG_COUNT = {args};");
-            sb.AppendLine();
-            sb.AppendLine($"{indent}        public static global::Terraria.Localization.LocalizedText GetText()");
-            sb.AppendLine($"{indent}        {{");
-            sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetText(KEY);");
-            sb.AppendLine($"{indent}        }}");
-            sb.AppendLine();
-
-            if (args == 0)
-            {
-                sb.AppendLine($"{indent}        public static string GetTextValue()");
-                sb.AppendLine($"{indent}        {{");
-                sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetTextValue(KEY);");
-                sb.AppendLine($"{indent}        }}");
-            }
-            else
-            {
-                var argNames = new List<string>();
-                for (var j = 0; j < args; j++)
-                {
-                    argNames.Add($"arg{j}");
-                }
-
-                sb.AppendLine($"{indent}        public static string GetTextValue({string.Join(", ", argNames.Select(x => $"object? {x}"))})");
-                sb.AppendLine($"{indent}        {{");
-                sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetTextValue(KEY, {string.Join(", ", argNames)});");
-                sb.AppendLine($"{indent}        }}");
-            }
-
-            sb.AppendLine();
-            sb.AppendLine($"{indent}        public static global::Terraria.Localization.LocalizedText GetChildText(string childKey)");
-            sb.AppendLine($"{indent}        {{");
-            sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetText(KEY + '.' + childKey);");
-            sb.AppendLine($"{indent}        }}");
-            sb.AppendLine();
-            sb.AppendLine($"{indent}        public static string GetChildTextValue(string childKey, params object?[] values)");
-            sb.AppendLine($"{indent}        {{");
-            sb.AppendLine($"{indent}            return global::Terraria.Localization.Language.GetTextValue(KEY + '.' + childKey, values);");
-            sb.AppendLine($"{indent}        }}");
-
-            sb.AppendLine($"{indent}    }}");
-        }
-        */
 
         if (node.Value is not null && node.FullKey is not null)
         {

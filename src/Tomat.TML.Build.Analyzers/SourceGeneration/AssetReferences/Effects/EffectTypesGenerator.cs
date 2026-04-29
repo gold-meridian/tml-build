@@ -44,13 +44,13 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               namespace {{rootNamespace}}.Core;
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal interface IShaderParameters
+              internal partial interface IShaderParameters
               {
                   void Apply(EffectParameterCollection parameters, string passName);
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal sealed class WrapperShaderData<TParameters>(Asset<Effect> shader, string passName) : ShaderData(shader, passName)
+              internal sealed partial class WrapperShaderData<TParameters>(Asset<Effect> shader, string passName) : ShaderData(shader, passName)
                   where TParameters : IShaderParameters, new()
               {
                   public TParameters Parameters { get; } = new();
@@ -67,20 +67,20 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal readonly struct HlslVoid;
+              internal readonly partial struct HlslVoid;
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal readonly struct HlslString;
+              internal readonly partial struct HlslString;
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
               [global::System.AttributeUsage(global::System.AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-              internal sealed class OriginalHlslTypeAttribute(string hlslType) : global::System.Attribute
+              internal sealed partial class OriginalHlslTypeAttribute(string hlslType) : global::System.Attribute
               {
                   public string HlslType => hlslType;
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct HlslSampler
+              internal struct partial HlslSampler
               {
                   public Texture? Texture { get; set; }
                   
@@ -88,7 +88,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct HlslSampler1D
+              internal struct partial HlslSampler1D
               {
                   public Texture? Texture { get; set; }
                   
@@ -96,7 +96,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct HlslSampler2D
+              internal struct partial HlslSampler2D
               {
                   public Texture2D? Texture { get; set; }
                   
@@ -104,7 +104,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct HlslSampler3D
+              internal struct partial HlslSampler3D
               {
                   public Texture3D? Texture { get; set; }
                   
@@ -112,7 +112,7 @@ public sealed class EffectTypesGenerator : IIncrementalGenerator
               }
 
               [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-              internal struct HlslSamplerCube
+              internal struct partial HlslSamplerCube
               {
                   public TextureCube? Texture { get; set; }
                   
