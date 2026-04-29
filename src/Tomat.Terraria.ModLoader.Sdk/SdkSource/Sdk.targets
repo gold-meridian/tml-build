@@ -36,7 +36,7 @@
 
     <!-- Default settings for mods and related projects. -->
     <PropertyGroup>
-        <TargetFramework Condition="'$(TargetFramework)' == ''">net8.0</TargetFramework>
+        <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == ''">net8.0</TargetFramework>
         <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
         <Nullable Condition="'$(Nullable)' == ''">enable</Nullable>
 
