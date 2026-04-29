@@ -191,6 +191,9 @@ public readonly record struct VersionCache(
         await Task.Run(() => BuildNupkg(version, extractDir, targetsPath, nupkgPath));
     }
 
+    // Assembly files and satellite files like debug info and summaries.
+    private static readonly string[] assembly_file_extensions = [".dll", ".pdb", ".xml"];
+
     private static void BuildNupkg(
         ModLoaderVersion version,
         string extractDir,
@@ -239,10 +242,13 @@ public readonly record struct VersionCache(
 
                 // lib/net8.0/tModLoader.dll
                 // The main assembly lives next to tMLMod.targets.
-                var tmlDll = Path.Combine(tmlRoot, "tModLoader.dll");
-                if (File.Exists(tmlDll))
+                foreach (var ext in assembly_file_extensions)
                 {
-                    zip.CreateEntryFromFile(tmlDll, "lib/net8.0/tModLoader.dll", CompressionLevel.Optimal);
+                    var tmlFile = Path.Combine(tmlRoot, "tModLoader" + ext);
+                    if (File.Exists(tmlFile))
+                    {
+                        zip.CreateEntryFromFile(tmlFile, "lib/net8.0/tModLoader" + ext, CompressionLevel.Optimal);
+                    }
                 }
 
                 // lib/net8.0/ -> Libraries/**/*.dll
@@ -254,21 +260,24 @@ public readonly record struct VersionCache(
                 //   Exclude  Libraries/tModCodeAssist/**   (goes to analyzers/)
                 if (Directory.Exists(libraryDir))
                 {
-                    foreach (var dll in Directory.EnumerateFiles(libraryDir, "*.dll", SearchOption.AllDirectories))
+                    foreach (var ext in assembly_file_extensions)
                     {
-                        if (IsExcludedLibraryDll(libraryDir, dll))
+                        foreach (var file in Directory.EnumerateFiles(libraryDir, "*" + ext, SearchOption.AllDirectories))
                         {
-                            continue;
-                        }
+                            if (IsExcludedLibraryDll(libraryDir, file))
+                            {
+                                continue;
+                            }
 
-                        // Flatten into lib/net8.0/; reference assembly
-                        // consumers don't need the Libraries subfolder
-                        // hierarchy.
-                        zip.CreateEntryFromFile(
-                            dll,
-                            $"lib/net8.0/{Path.GetFileName(dll)}",
-                            CompressionLevel.Optimal
-                        );
+                            // Flatten into lib/net8.0/; reference assembly
+                            // consumers don't need the Libraries subfolder
+                            // hierarchy.
+                            zip.CreateEntryFromFile(
+                                file,
+                                $"lib/net8.0/{Path.GetFileName(file)}",
+                                CompressionLevel.Optimal
+                            );
+                        }
                     }
                 }
 
