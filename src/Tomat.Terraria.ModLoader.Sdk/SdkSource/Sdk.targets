@@ -19,6 +19,9 @@
                                    AND '$(TmlVersion)' != 'dev'
                                    AND '$(TmlVersionResolved)' == ''">$(TmlVersion)
         </TmlVersionResolved>
+
+        <!-- I guess we can support this -->
+        <OutputTmlReferences Condition="'$(OutputTmlReferences)' == ''">false</OutputTmlReferences>
     </PropertyGroup>
 
     <!-- Register the local feed so NuGet restore can find tML nupkgs.
@@ -31,7 +34,9 @@
          pulls in tMLMod.targets automatically from the nupkg's build/ folder.
          Skipped for steam/dev which import targets directly. -->
     <ItemGroup Condition="'$(TmlVersionResolved)' != '' AND '$(TmlVersion)' != 'steam' AND '$(TmlVersion)' != 'dev'">
-        <PackageReference Include="tModLoader" Version="$(TmlVersionResolved)" PrivateAssets="all"/>
+        <PackageReference Include="tModLoader" Version="$(TmlVersionResolved)" PrivateAssets="all">
+            <ExcludeAssets Condition="'$(OutputTmlReferences)' != 'true'">runtime</ExcludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <!-- Default settings for mods and related projects. -->
@@ -49,6 +54,9 @@
              https://github.com/dotnet/sdk/issues/37027 -->
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
         <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+
+        <!-- Ugly update -->
+        <TmlBuildBootstrapRoot Condition="'$(TargetFramework)' == 'net10.0'">$(TmlBuildSdkRoot)bootstrap10\</TmlBuildBootstrapRoot>
     </PropertyGroup>
 
     <PropertyGroup>

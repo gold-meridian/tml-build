@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using ReLogic.Content;
 using ReLogic.Content.Sources;
 
 namespace Tomat.TML.ClientBootstrap.Features.AssetHotReloading;
@@ -48,4 +50,13 @@ internal sealed class HotAssetContentSource : ContentSource
     {
         return File.OpenRead(Path.Combine(directory, fullAssetName));
     }
+
+#if NET10_0_OR_GREATER
+    public override string? FileWatcherPath => null;
+
+    public override void Refresh()
+    {
+        RefreshAssetNames();
+    }
+#endif
 }
