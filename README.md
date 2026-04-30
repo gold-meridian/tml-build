@@ -40,12 +40,22 @@ It's a one-line change in your `.csproj`:
 
 ```diff
 -<Project Sdk="Microsoft.NET.Sdk">
-+<Project Sdk="Tomat.Terraria.ModLoader.Sdk/2.0.0">
++<Project Sdk="Tomat.Terraria.ModLoader.Sdk/2.1.0">
 ```
 
 It's that simple; base configuration uses sane defaults that replicate tML.
 
 With this change, you should be good to remove all of tMod's default configuration values as well.
+
+## troubleshooting
+
+When in doubt, always run `dotnet build <your-project>.csproj` in the directory of your project.
+
+Initial setups and resolution of new versions will always require this due to limitations to MSBuild.  If switching versions in your editor also causes issues, please try reloading the project or running `dotnet restore`.
+
+## 1.4.5 support
+
+The project officially supports local 1.4.5 development builds. Ues `<TmlVersion>dev</TmlVersion>` and manually set the target framework with `<TargetFramework>net10.0</TargetFramework>`.
 
 ## license
 
