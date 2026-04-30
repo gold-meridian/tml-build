@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <TmlBuildVersion>2.0.0</TmlBuildVersion>
+        <TmlBuildVersion>2.1.0</TmlBuildVersion>
 
         <Version>$(TmlBuildVersion)</Version>
         <PackageVersion>$(TmlBuildVersion)</PackageVersion>
