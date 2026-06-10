@@ -31,6 +31,7 @@ public static class ShaderCompiler
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+        pInfo.Environment["WINEDLLOVERRIDES"] = "d3dcompiler_47=n";
 
         using var process = new Process();
         process.StartInfo = pInfo;
