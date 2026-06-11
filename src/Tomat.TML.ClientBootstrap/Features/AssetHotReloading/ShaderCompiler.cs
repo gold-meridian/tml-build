@@ -50,7 +50,7 @@ internal static class Shaderc
         }
 
         var fxcExePath = "";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             var processStartInfo = new ProcessStartInfo
             {

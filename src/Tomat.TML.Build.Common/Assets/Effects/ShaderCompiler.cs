@@ -31,8 +31,11 @@ public static class ShaderCompiler
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
             pInfo.Environment["WINEDLLOVERRIDES"] = "d3dcompiler_47=n";
+        }
 
         using var process = new Process();
         process.StartInfo = pInfo;
