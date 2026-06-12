@@ -46,7 +46,7 @@ public sealed class CompileShadersTask : BaseTask
         }
 
         var fxcExePath = "";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             var processStartInfo = new ProcessStartInfo
             {
