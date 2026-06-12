@@ -31,10 +31,22 @@ public static class ShaderCompiler
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-        
+
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            pInfo.Environment["WINEDLLOVERRIDES"] = "d3dcompiler_47=n";
+            const string overrides_key = "WINEDLLOVERRIDES";
+            const string d3d_override = "d3dcompiler_47=n";
+
+            if (!pInfo.Environment.TryGetValue(overrides_key, out var overrides) || string.IsNullOrEmpty(overrides))
+            {
+                overrides = d3d_override;
+            }
+            else
+            {
+                overrides += ";" + d3d_override;
+            }
+
+            pInfo.Environment[overrides_key] = overrides;
         }
 
         using var process = new Process();
