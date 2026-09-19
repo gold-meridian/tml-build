@@ -25,7 +25,7 @@ internal sealed record PathNode(
 public abstract class AssetReferencesGenerator : IIncrementalGenerator
 {
     private static readonly Regex end_number_regex = new(@"([^\d]+)([\d]+)$", RegexOptions.Compiled);
-    private static readonly Regex non_alphanumeric = new(@"[^\w]", RegexOptions.Compiled);
+    // private static readonly Regex non_alphanumeric = new(@"[^\w]", RegexOptions.Compiled);
 
     private static readonly char[] number_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -46,7 +46,7 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
 
         var filesProvider = context.AdditionalTextsProvider.Select(
             static (file, _) => new AssetPath(file.Path, relativePath: null)
-        ).Where(path => Generators.Any(g => g.Eligible(path)));
+        ).Where(path => Generators.Any(g => g.Eligible(path))).Select((x, _) => x.FullPath);
 
         var projectDirProvider = context.AnalyzerConfigOptionsProvider.Select(
             static (options, _) => options.GlobalOptions.TryGetValue("build_property.ProjectDir", out var projectDir)
@@ -80,14 +80,20 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
 
         static PathNode CreateAssetTree(
             IAssetGenerator[] generators,
-            ImmutableArray<AssetPath> paths,
+            ImmutableArray<string> paths,
             string projectDir,
             CancellationToken token
         )
         {
             var rootNode = new PathNode("Root", [], []);
 
-            foreach (var path in paths)
+            var uniquePaths = new List<AssetPath>();
+            foreach (var path in paths.Distinct(StringComparer.InvariantCultureIgnoreCase))
+            {
+                uniquePaths.Add(new AssetPath(path, relativePath: null));
+            }
+
+            foreach (var path in uniquePaths)
             {
                 token.ThrowIfCancellationRequested();
 
@@ -174,6 +180,9 @@ public abstract class AssetReferencesGenerator : IIncrementalGenerator
 
               namespace {{rootNamespace}}.Core;
 
+              // !! If files are randomly appearing following the Name_Directory
+              // pattern and then disappearing, please report it. !!
+              
               // Using the following generators ({{generators.Length}}):
               {{string.Join("\n", generators.Select(x => $"// - {x.GetType().FullName}"))}}
 

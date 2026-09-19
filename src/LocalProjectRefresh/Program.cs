@@ -9,11 +9,11 @@ namespace LocalProjectRefresh;
 
 internal static class Program
 {
-    private const string in_flight_version = "2.1.1";
+    private const string in_flight_version = "2.1.2";
 
     private static readonly string[] versions =
     [
-        "2.1.0",
+        "2.1.1",
         in_flight_version,
     ];
 

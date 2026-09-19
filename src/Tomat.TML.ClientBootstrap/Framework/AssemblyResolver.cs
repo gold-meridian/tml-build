@@ -16,6 +16,9 @@ public sealed class AssemblyResolver
         public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string>? assemblies)
         {
             var fullPath = Path.Combine(basePath, library.Name, library.Version, library.Name + ".dll");
+            {
+                fullPath = TryToCorrectCasingIGuess(fullPath);
+            }
 
             if (File.Exists(fullPath))
             {
@@ -49,6 +52,9 @@ public sealed class AssemblyResolver
             }
 
             var refsPath = Path.Combine(basePath, refs_directory_name);
+            {
+                refsPath = TryToCorrectCasingIGuess(refsPath);
+            }
             var isPublished = Directory.Exists(refsPath);
 
             // Resolving reference assemblies requires refs folder to exist
@@ -59,9 +65,9 @@ public sealed class AssemblyResolver
 
             var directories = new List<string>
             {
-                basePath,
-                Path.Combine(basePath, library.Name),
-                Path.Combine(basePath, library.Name, library.Version),
+                TryToCorrectCasingIGuess(basePath),
+                TryToCorrectCasingIGuess(Path.Combine(basePath, library.Name)),
+                TryToCorrectCasingIGuess(Path.Combine(basePath, library.Name, library.Version)),
             };
 
             if (isPublished)
@@ -90,7 +96,7 @@ public sealed class AssemblyResolver
             var paths = new List<string>();
 
             var resolved = false;
-            foreach (var assembly in library.Assemblies.Select(x => new[] { x, Path.GetFileName(x) }).SelectMany(x => x))
+            foreach (var assembly in library.Assemblies.Select(x => new[] { TryToCorrectCasingIGuess(x), TryToCorrectCasingIGuess(Path.GetFileName(x)) }).SelectMany(x => x))
             {
                 foreach (var directory in directories)
                 {
@@ -117,6 +123,9 @@ public sealed class AssemblyResolver
             static bool TryResolveAssemblyFile(string basePath, string assemblyPath, out string fullName)
             {
                 fullName = Path.Combine(basePath, assemblyPath);
+                {
+                    fullName = TryToCorrectCasingIGuess(fullName);
+                }
                 return File.Exists(fullName);
             }
         }
@@ -128,6 +137,7 @@ public sealed class AssemblyResolver
 
     public AssemblyResolver(string depsPath, string[] probePaths)
     {
+        depsPath = TryToCorrectCasingIGuess(depsPath);
         this.probePaths = probePaths;
 
         using var depsStream = File.OpenRead(depsPath);
@@ -140,8 +150,8 @@ public sealed class AssemblyResolver
         var baseResolvers = probePaths.Select(
             x => new ICompilationAssemblyResolver[]
             {
-                new AppBaseCompilationAssemblyResolver(x),
-                new AppBaseCompilationAssemblyResolverWithStrongPathCoverage(x),
+                new AppBaseCompilationAssemblyResolver(TryToCorrectCasingIGuess(x)),
+                new AppBaseCompilationAssemblyResolverWithStrongPathCoverage(TryToCorrectCasingIGuess(x)),
             }
         ).SelectMany(x => x).ToList();
 
@@ -193,7 +203,7 @@ public sealed class AssemblyResolver
         );
         resolver.TryResolveAssemblyPaths(wrapper, assemblies);
         return assemblies.Count != 0
-            ? AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblies.First(x => Path.GetFileNameWithoutExtension(x) == assemblyName.Name))
+            ? AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblies.First(x => string.Equals(Path.GetFileNameWithoutExtension(x), assemblyName.Name, StringComparison.OrdinalIgnoreCase)))
             : null;
     }
 
@@ -203,7 +213,7 @@ public sealed class AssemblyResolver
         {
             foreach (var nativeDir in GetNativeFiles(probePath))
             {
-                yield return nativeDir;
+                yield return TryToCorrectCasingIGuess(nativeDir);
             }
         }
     }
@@ -234,6 +244,10 @@ public sealed class AssemblyResolver
                     foreach (var runtimePath in paths)
                     {
                         var fullNativePath = Path.Combine(runtimePath, nativeFile.Path);
+                        {
+                            fullNativePath = TryToCorrectCasingIGuess(fullNativePath);
+                        }
+                        
                         if (File.Exists(fullNativePath))
                         {
                             yield return fullNativePath;
@@ -242,5 +256,32 @@ public sealed class AssemblyResolver
                 }
             }
         }
+    }
+
+    private static string TryToCorrectCasingIGuess(string path)
+    {
+        if (File.Exists(path) || Directory.Exists(path))
+        {
+            return path;
+        }
+
+        var fullPath = Path.GetFullPath(path);
+        var root = Path.GetPathRoot(fullPath)!;
+        var relative = Path.GetRelativePath(root, fullPath);
+
+        var current = root;
+        foreach (var component in relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var match = Directory.EnumerateFileSystemEntries(current)
+                                 .FirstOrDefault(x => string.Equals(Path.GetFileName(x), component, StringComparison.OrdinalIgnoreCase));
+            if (match is null)
+            {
+                return path;
+            }
+
+            current = match;
+        }
+
+        return current;
     }
 }
