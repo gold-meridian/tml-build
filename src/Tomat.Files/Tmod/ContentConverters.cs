@@ -8,12 +8,15 @@ public static class ContentConverters
 {
     private const int rawimg_version = 1;
 
+    // Keep as PNG so they can be fetched easily from the modfile without loading the mod
+    private static List<String> keepAsPng = ["icon.png", "icon_small.png"];
+
     public static bool Convert(ref string resourceName, FileStream src, MemoryStream dst)
     {
         switch (Path.GetExtension(resourceName).ToLower())
         {
             case ".png":
-                if (resourceName != "icon.png")
+                if (!keepAsPng.Contains(resourceName))
                 {
                     ToRaw(src, dst);
                     resourceName = Path.ChangeExtension(resourceName, "rawimg");
