@@ -40,7 +40,7 @@ It's a one-line change in your `.csproj`:
 
 ```diff
 -<Project Sdk="Microsoft.NET.Sdk">
-+<Project Sdk="Tomat.Terraria.ModLoader.Sdk/2.1.1">
++<Project Sdk="Tomat.Terraria.ModLoader.Sdk/2.1.2">
 ```
 
 It's that simple; base configuration uses sane defaults that replicate tML.
