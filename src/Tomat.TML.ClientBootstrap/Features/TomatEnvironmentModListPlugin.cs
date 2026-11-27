@@ -147,6 +147,15 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
             (Func<UIModItem, string> orig, UIModItem self) => IsTmlBuildMod(self) ? "This is provided by tml-build and does not represent a tML mod" : orig(self)
         );
 
+        // Not using real references for now for versioning compatibility./,.,.,....,,.,..,,,,,,,,,,,,,,,,,,.
+        if (typeof(UIModItem).Assembly.GetType("FileOriginChecker") is { } fileOriginChecker && fileOriginChecker.GetMethod("IsDownloadedFile", BindingFlags.NonPublic | BindingFlags.Static) is { } isDownloadedFile)
+        {
+            ctx.Hooks.Add(
+                isDownloadedFile,
+                YesTmlTheFakeModsAreIndeedNotDownloaded
+            );
+        }
+
         return;
 
         static bool Enabled_Always(Func<LocalMod, bool> orig, LocalMod self)
@@ -214,6 +223,19 @@ public sealed class TomatEnvironmentModListPlugin : LaunchPlugin
 
             orig(self);
         }
+    }
+
+    private delegate bool WeNeedABetterSolutionForThis(string filePath, out string originUrl);
+
+    private static bool YesTmlTheFakeModsAreIndeedNotDownloaded(WeNeedABetterSolutionForThis orig, string filePath, out string originUrl)
+    {
+        if (filePath.StartsWith("tml-build://"))
+        {
+            originUrl = string.Empty;
+            return false;
+        }
+
+        return orig(filePath, out originUrl);
     }
 
     private static bool IsTmlBuildMod(UIModItem modItem)
